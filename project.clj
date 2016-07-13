@@ -59,6 +59,5 @@
               ["-Dlog4j.configurationFile=test-resources/log4j2.xml" "-Xms4g" "-Xmx12g" "-XX:+UseConcMarkSweepGC"]
               :dependencies [[edu.stanford.nlp/stanford-corenlp "3.6.0" :classifier "javadoc"]
                              [edu.stanford.nlp/stanford-corenlp "3.6.0" :classifier "sources"]
-                             [nz.ac.waikato.cms.weka/weka-stable "3.6.12" :classifier "sources"]
                              [com.zensols/clj-append "1.0.4"]]}}
   :main zensols.nlparse.core)
