@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<configuration packages="com.zensols.clojure.log"
+               status="OFF" monitorInterval="5">
+    <appenders>
+        <console name="console" target="SYSTEM_OUT">
+            <patternLayout pattern="%c{1}: %m%n"/>
+        </console>
+        <clojure name="repl">
+	    <patternLayout pattern="%-5p %d{yyyy-MM-dd HH:mm:ss.S}: %c{1}: %m%n"/>
+        </clojure>
+    </appenders>
+
+    <loggers>
+        <logger name="zensols.nlparse" level="info"/>
+        <root level="warn">
+            <appenderRef ref="console"/>
+            <appenderRef ref="repl"/>
+        </root>
+    </loggers>
+</configuration>
