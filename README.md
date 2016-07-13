@@ -198,7 +198,7 @@ cd ~/Desktop/parse/bin
 
 *Note:* I will make the distribution binaries available on request.
 
-Licencse
+License
 --------
 Copyright © 2016 Paul Landes
 
