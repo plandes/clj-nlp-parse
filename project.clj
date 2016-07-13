@@ -54,6 +54,7 @@
                                   [:environmentSetupFileName "setupenv"])}]]
   :profiles {:uberjar {:aot :all}
              :appasem {:aot :all}
+             :deploy {:aot :all}
              :dev
              {:jvm-opts
               ["-Dlog4j.configurationFile=test-resources/log4j2.xml" "-Xms4g" "-Xmx12g" "-XX:+UseConcMarkSweepGC"]
