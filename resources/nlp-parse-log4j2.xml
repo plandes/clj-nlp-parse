@@ -7,7 +7,7 @@
         </console>
     </appenders>
     <loggers>
-        <logger name="nlparse" level="info"/>
+        <logger name="zenosls.nlparse" level="info"/>
         <root level="warn">
             <appenderRef ref="console"/>
         </root>
