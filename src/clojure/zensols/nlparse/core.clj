@@ -5,6 +5,13 @@
   (:require [parse.version])
   (:gen-class :main true))
 
+(def ^:private version-info-command
+  {:description "Get the version of the application."
+   :options [["-g" "--gitref"]]
+   :app (fn [{refp :gitref} & args]
+          (println parse.version/version)
+          (if refp (println parse.version/gitref)))})
+
 (defn initialize
   "Initialize model resource locations.
 
@@ -19,13 +26,6 @@
   (res/set-resource-property-format "clj.nlp.parse.%s")
   (res/register-resource :model :system-property "model")
   (res/register-resource :stanford-model :pre-path :model))
-
-(def ^:private version-info-command
-  {:description "Get the version of the application."
-   :options [["-g" "--gitref"]]
-   :app (fn [{refp :gitref} & args]
-          (println parse.version/version)
-          (if refp (println parse.version/gitref)))})
 
 (defn- create-command-context []
   {:command-defs '((:repl zensols.actioncli repl repl-command)
