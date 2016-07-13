@@ -15,17 +15,17 @@
 (defn initialize
   "Initialize model resource locations.
 
-  This needs the system property `clj.nlp.parse.model` set to a directory that
+  This needs the system property `zensols.model` set to a directory that
   has the POS tagger model `english-left3words-distsim.tagger`(or whatever
   you configure in [[zensols.nlparse.stanford/create-context]]) in a directory
   called `pos`.
 
-  See the [source documentation](https://github.com/plandes/clj-nlp-parse) for
+  See the [source documentation](https://github.com/plandes/zensols) for
   more information."
   []
-  (res/set-resource-property-format "clj.nlp.parse.%s")
   (res/register-resource :model :system-property "model")
-  (res/register-resource :stanford-model :pre-path :model))
+  (res/register-resource :stanford-model
+                         :pre-path :model :system-file "stanford"))
 
 (defn- create-command-context []
   {:command-defs '((:repl zensols.actioncli repl repl-command)

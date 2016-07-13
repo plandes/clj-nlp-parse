@@ -46,7 +46,7 @@ model (or NER for that matter), but by default it expects the
 
 4. Start the REPL and configure (note the root path is given--don't include `pos`):
    ```clojure
-   user> (System/setProperty "clj.nlp.parse.model" "path-to-model")
+   user> (System/setProperty "zensols.model" "path-to-model")
    user> (zensols.nlparse.core/initialize)
    ```
 
@@ -177,16 +177,16 @@ To create the command line utility, do the following:
 3. Install [Git](https://git-scm.com)
 3. Download the source:
 ```bash
-$ git clone https://github.com/clj-nlp-parse
+git clone https://github.com/clj-nlp-parse
 ```
 4. Create a setup file to point to your libs:
 ```bash
-$ mkdir bin/asbin
-$ echo 'JAVA_OPTS="-Dclj.nlp.parse.model=<path-to-model>"' > src/asbin/setupenv
+mkdir src/asbin
+echo 'JAVA_OPTS="-Dzensols.model=<path-to-model>"' > src/asbin/setupenv
 ```
 5. Build the distribution binaries:
 ```bash
-$ make dist
+make dist
 ```
 
 If everything goes well and you are lucky a new folder should show up on your
