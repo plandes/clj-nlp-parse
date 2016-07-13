@@ -9,9 +9,12 @@
   "Initialize model resource locations.
 
   This needs the system property `clj.nlp.parse.model` set to a directory that
-  has the POS tagger model `wsj-0-18-bidirectional-distsim.tagger`(or whatever
+  has the POS tagger model `english-left3words-distsim.tagger`(or whatever
   you configure in [[zensols.nlparse.stanford/create-context]]) in a directory
-  called `pos`."
+  called `pos`.
+
+  See the [source documentation](https://github.com/plandes/clj-nlp-parse) for
+  more information."
   []
   (res/set-resource-property-format "clj.nlp.parse.%s")
   (res/register-resource :model :system-property "model")
