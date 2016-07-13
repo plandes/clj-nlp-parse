@@ -172,21 +172,21 @@ of an utterance.  However, you have to let it know where the
 
 To create the command line utility, do the following:
 
-1. Install [Leiningen](http://leiningen.org) (this is just a script)
-2. Install [GNU make](https://www.gnu.org/software/make/)
-3. Install [Git](https://git-scm.com)
-4. Download the source:
+- Install [Leiningen](http://leiningen.org) (this is just a script)
+- Install [GNU make](https://www.gnu.org/software/make/)
+- Install [Git](https://git-scm.com)
+- Download the source:
 ```bash
-git clone https://github.com/clj-nlp-parse
+   git clone https://github.com/clj-nlp-parse
 ```
-5. Create a setup file to point to your libs:
+- Create a setup file to point to your libs:
 ```bash
-mkdir src/asbin
-echo 'JAVA_OPTS="-Dzensols.model=<path-to-model>"' > src/asbin/setupenv
+   mkdir src/asbin
+   echo 'JAVA_OPTS="-Dzensols.model=<path-to-model>"' > src/asbin/setupenv
 ```
-6. Build the distribution binaries:
+- Build the distribution binaries:
 ```bash
-make dist
+   make dist
 ```
 
 If everything goes well and you are lucky a new folder should show up on your
