@@ -175,16 +175,16 @@ To create the command line utility, do the following:
 1. Install [Leiningen](http://leiningen.org) (this is just a script)
 2. Install [GNU make](https://www.gnu.org/software/make/)
 3. Install [Git](https://git-scm.com)
-3. Download the source:
+4. Download the source:
 ```bash
 git clone https://github.com/clj-nlp-parse
 ```
-4. Create a setup file to point to your libs:
+5. Create a setup file to point to your libs:
 ```bash
 mkdir src/asbin
 echo 'JAVA_OPTS="-Dzensols.model=<path-to-model>"' > src/asbin/setupenv
 ```
-5. Build the distribution binaries:
+6. Build the distribution binaries:
 ```bash
 make dist
 ```
