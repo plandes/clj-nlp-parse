@@ -11,7 +11,7 @@ Obtaining
 ---------
 In your `project.clj` file, add:
 
-[![Clojars Project](http://clojars.org/com.zensols.nlp/parse/latest-version.svg)](http://clojars.org/com.zensols.nlp/parse/)
+[![Clojars Project](https://clojars.org/com.zensols.nlp/parse/latest-version.svg)](https://clojars.org/com.zensols.nlp/parse/)
 
 Documentation
 -------------
