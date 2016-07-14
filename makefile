@@ -37,7 +37,7 @@ dist:		$(DIST_BIN_DIR)
 
 .PHONEY:
 deploy:
-	lein with-profile +deploy deploy clojars
+	lein deploy clojars
 
 .PHONEY:
 run:
