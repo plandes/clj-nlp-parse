@@ -23,10 +23,10 @@
                  [org.clojure/tools.logging "0.3.1"]
 
                  ;; command line
-                 [com.zensols.tools/actioncli "0.0.4"]
+                 [com.zensols.tools/actioncli "0.0.6"]
 
                  ;; dev
-                 [com.zensols.gui/tabres "0.0.4"]
+                 [com.zensols.gui/tabres "0.0.5"]
 
                  ;;; NLP
                  ;; wordnet
@@ -54,7 +54,6 @@
                                   [:environmentSetupFileName "setupenv"])}]]
   :profiles {:uberjar {:aot :all}
              :appasem {:aot :all}
-             :deploy {:aot :all}
              :dev
              {:jvm-opts
               ["-Dlog4j.configurationFile=test-resources/log4j2.xml" "-Xms4g" "-Xmx12g" "-XX:+UseConcMarkSweepGC"]
