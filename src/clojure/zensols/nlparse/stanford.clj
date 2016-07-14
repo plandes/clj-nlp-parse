@@ -7,7 +7,7 @@
   (:import (edu.stanford.nlp.pipeline Annotation Annotator)
            (edu.stanford.nlp.process CoreLabelTokenFactory)
            (edu.stanford.nlp.ling CoreLabel))
-  (:require [zensols.actioncli.dynamic :refer (dyn-init-var)]
+  (:require [zensols.actioncli.dynamic :refer (dyn-init-var) :as dyn]
             [zensols.actioncli.resource :refer (resource-path)]))
 
 ;; pipeline
@@ -31,8 +31,17 @@
    :ner-annotator (atom nil)
    :dependency-parse-annotator (atom nil)})
 
-(def ^{:dynamic true :private false}
+(def ^{:dynamic true :private true}
   *parse-context* (create-context))
+
+(defn- reset []
+  (let [atoms [:pipeline-inst :tagger-model :ner-annotator
+               :dependency-parse-annotator]]
+    (doseq [atom atoms]
+      (-> (get *parse-context* atom)
+          (reset! nil)))))
+
+(dyn/register-purge-fn reset)
 
 (defmacro with-context
   "Use the parser with a context created with [[create-context]].
@@ -108,6 +117,7 @@
     (log/debugf "creating pipeline with config <%s>" pipeline-config)
     (swap! pipeline-inst
            #(or % (map make-pipeline-component pipeline-config)))))
+
 
 
 ;; annotation getters
@@ -215,7 +225,7 @@
 
 (defn- parse-with-pipeline [pipeline context anon]
   (log/debugf "parse: pipeline: %s, context: %s, anon: %s"
-              pipeline context anon)
+              (pr-str pipeline) (pr-str context) anon)
   (reduce (fn [anon-data annotator-data]
             (log/tracef "reduce: %s: anon: %s, annotator-data: %s"
                         (:name annotator-data)
