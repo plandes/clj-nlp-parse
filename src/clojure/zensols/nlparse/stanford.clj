@@ -10,6 +10,21 @@
   (:require [zensols.actioncli.dynamic :refer (dyn-init-var) :as dyn]
             [zensols.actioncli.resource :refer (resource-path)]))
 
+(defn- initialize
+  "Initialize model resource locations.
+
+  This needs the system property `zensols.model` set to a directory that
+  has the POS tagger model `english-left3words-distsim.tagger`(or whatever
+  you configure in [[zensols.nlparse.stanford/create-context]]) in a directory
+  called `pos`.
+
+  See the [source documentation](https://github.com/plandes/zensols) for
+  more information."
+  []
+  (res/register-resource :model :system-property "model")
+  (res/register-resource :stanford-model
+                         :pre-path :model :system-file "stanford"))
+
 ;; pipeline
 (defn create-context
   "Create a default context that can (optionally) be configured.
@@ -40,8 +55,6 @@
     (doseq [atom atoms]
       (-> (get *parse-context* atom)
           (reset! nil)))))
-
-(dyn/register-purge-fn reset)
 
 (defmacro with-context
   "Use the parser with a context created with [[create-context]].
@@ -300,3 +313,6 @@
         context (atom {})
         pipeline (pipeline)]
     (pranon-deep (parse-with-pipeline pipeline context anon))))
+
+(dyn/register-purge-fn reset)
+(initialize)

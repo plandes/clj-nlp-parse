@@ -12,21 +12,6 @@
           (println parse.version/version)
           (if refp (println parse.version/gitref)))})
 
-(defn initialize
-  "Initialize model resource locations.
-
-  This needs the system property `zensols.model` set to a directory that
-  has the POS tagger model `english-left3words-distsim.tagger`(or whatever
-  you configure in [[zensols.nlparse.stanford/create-context]]) in a directory
-  called `pos`.
-
-  See the [source documentation](https://github.com/plandes/zensols) for
-  more information."
-  []
-  (res/register-resource :model :system-property "model")
-  (res/register-resource :stanford-model
-                         :pre-path :model :system-file "stanford"))
-
 (defn- create-command-context []
   {:command-defs '((:repl zensols.actioncli repl repl-command)
                    (:parse zensols.nlparse parse parse-command))
@@ -34,6 +19,5 @@
 
 (defn -main [& args]
   (lu/configure "nlp-parse-log4j2.xml")
-  (initialize)
   (let [command-context (create-command-context)]
     (apply cli/process-arguments command-context args)))
