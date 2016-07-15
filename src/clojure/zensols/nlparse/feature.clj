@@ -6,7 +6,6 @@
   (:require [clojure.tools.logging :as log]
             [clojure.pprint :refer (pprint)])
   (:require [clojure.string :as str])
-  (:require [zensols.tabres.display-results :as dr])
   (:require [zensols.nlparse.wordnet :as wn]
             [zensols.nlparse.parse :as pt]))
 
@@ -288,17 +287,3 @@
        (filter #(> (second %) 0))
        (take num-counts)
        (map first)))
-
-
-
-;; visualization
-(defn display-features [classifier-attributes class-attribute feature-sets]
-  (let [keys (map first (concat (list class-attribute) classifier-attributes))]
-   (->> feature-sets
-        (map (fn [tok]
-               (map (fn [tkey]
-                      (get tok tkey))
-                    keys)))
-        ((fn [data]
-           (dr/display-results data
-                               :column-names (map name keys)))))))
