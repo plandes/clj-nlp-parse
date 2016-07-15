@@ -1,5 +1,5 @@
-Command line interface action oriented framework
-================================================
+Natural Language Parse
+======================
 
 This library provides generalized library to deal with natural language.
 Specifically it
