@@ -8,7 +8,7 @@
            (edu.stanford.nlp.process CoreLabelTokenFactory)
            (edu.stanford.nlp.ling CoreLabel))
   (:require [zensols.actioncli.dynamic :refer (dyn-init-var) :as dyn]
-            [zensols.actioncli.resource :refer (resource-path)]))
+            [zensols.actioncli.resource :refer (resource-path) :as res]))
 
 (defn- initialize
   "Initialize model resource locations.
