@@ -47,7 +47,6 @@ model (or NER for that matter), but by default it expects the
 4. Start the REPL and configure (note the root path is given--don't include `pos`):
    ```clojure
    user> (System/setProperty "zensols.model" "path-to-model")
-   user> (zensols.nlparse.core/initialize)
    ```
 
 ### Parsing an Utterance
