@@ -95,7 +95,7 @@
 
   See [[pos-tags]]."
   []
-  #{"noun" "verb" "adjective" "adverb"})
+  #{"noun" "verb" "adjective" "adverb" "wh"})
 
 (defn pos-tag-type
   "Return the POS tag type (ie. `verb` yeilds `VB`).

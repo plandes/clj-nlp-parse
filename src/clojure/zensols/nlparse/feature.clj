@@ -112,8 +112,11 @@
 
 
 ;; pos
-(defn- pos-tag-keyword [lab]
+(defn- pos-tag-ratio-keyword [lab]
   (-> (format "pos-tag-ratio-%s" lab) keyword))
+
+(defn- pos-tag-count-keyword [lab]
+  (-> (format "pos-tag-count-%s" lab) keyword))
 
 (defn pos-tag-features [tokens]
   (let [pos-tag-types (pt/pos-tag-types)
@@ -125,13 +128,19 @@
                  {})
          (merge (zipmap pos-tag-types (repeat (count pos-tag-types) 0)))
          (map (fn [[k v]]
-                {(pos-tag-keyword k) (/ v tc)}))
-         (apply merge))))
+                {(pos-tag-ratio-keyword k) (/ v tc)
+                 (pos-tag-count-keyword k) v}))
+         (apply merge)
+         (merge {:pos-last-tag (->> tokens last :pos-tag)
+                 :pos-first-tag (->> tokens first :pos-tag)}))))
 
 (defn pos-tag-feature-keys []
-  (map #(vector (pos-tag-keyword %) 'numeric)
-       (pt/pos-tag-types)))
-
+  (vec (concat [[:pos-last-tag (into () (pt/pos-tags))]
+                [:pos-first-tag (into () (pt/pos-tags))]]
+               (map #(vector (pos-tag-ratio-keyword %) 'numeric)
+                    (pt/pos-tag-types))
+               (map #(vector (pos-tag-count-keyword %) 'numeric)
+                    (pt/pos-tag-types)))))
 
 
 ;; tree
