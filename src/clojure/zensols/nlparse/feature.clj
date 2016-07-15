@@ -52,7 +52,7 @@
         root-word (lc-null (:text root-tok))
         toks (:tokens sent)
         first-tok (first toks)
-        first-word-verb? (= "VB" (:tag first-tok))
+        first-word-verb? (= "VB" (:pos-tag first-tok))
         elected-verb-pair
         (cond first-word-verb? [(lc-null (:text (first toks))) 1]
               (and root-word (= "VB" (:pos-tag root-tok)))
@@ -118,7 +118,7 @@
 (defn pos-tag-features [tokens]
   (let [pos-tag-types (pt/pos-tag-types)
         tc (count tokens)]
-    (->> (map :tag tokens)
+    (->> (map :pos-tag tokens)
          (map pt/pos-tag-type)
          (reduce (fn [ret ttype]
                    (merge ret {ttype (inc (or (get ret ttype) 0))}))
@@ -137,11 +137,12 @@
 ;; tree
 (defn- dependency-tree-id
   "Get a hash code for the dependency parse tree of sentence **sent**."
-  [sent]
-  (->> sent
+  [panon]
+  (->> panon
+       :sents
        (map :dependency-parse-tree)
        (map #(.hashCode %))
-       first))
+       (reduce +)))
 
 (defn tree-feature-keys []
   [[:dep-tree-id 'numeric]])
@@ -192,7 +193,7 @@
   [token]
   (let [word-count-tags (:pos-tags *word-count-config*)]
     (and (not (:stopword token))
-         (contains? word-count-tags (:tag token)))))
+         (contains? word-count-tags (:pos-tag token)))))
 
 (defn- word-count-form
   "Conical string word count form of a token (i.e. Running -> run)."
