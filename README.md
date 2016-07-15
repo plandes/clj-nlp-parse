@@ -44,7 +44,7 @@ model (or NER for that matter), but by default it expects the
    $ mv stanford-postagger-2015-12-09/models/english-left3words-distsim.tagger path-to-model/pos
    ```
 
-4. Start the REPL and configure (note the root path is given--don't include `pos`):
+4. Start the REPL and configure:
    ```clojure
    user> (System/setProperty "zensols.model" "path-to-model")
    ```
