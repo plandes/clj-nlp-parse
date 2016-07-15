@@ -4,7 +4,8 @@
   (:require [clojure.string :as str]
             [clojure.tools.logging :as log]
             [clojure.set :as set])
-  (:require [zensols.nlparse.stanford :as sp]
+  (:require [zensols.actioncli.log4j2 :as lu]
+            [zensols.nlparse.stanford :as sp]
             [zensols.nlparse.srl :as srl]))
 
 (def penn-treebank-pos-tags
@@ -185,7 +186,7 @@
   "CLI command to parse an utterance"
   {:description "parse an English utterance"
    :options
-   [(zensols.actioncli.log4j2/log-level-set-option)
+   [(lu/log-level-set-option)
     ["-u" "--utterance" "The utterance to parse"
      :required "TEXT"
      :validate [#(> (count %) 0) "No utterance given"]]]
