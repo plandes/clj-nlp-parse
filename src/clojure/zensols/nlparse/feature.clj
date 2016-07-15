@@ -100,6 +100,7 @@
    :sent-count (count (:sents panon))
    :token-count (count tokens)
    :token-average-length (token-average-length tokens)
+   :stopword-count (->> tokens (map #(if (:stopword %) 1 0)) (reduce +))
    :is-question (= "?" (-> tokens last :text))})
 
 (defn token-feature-keys []
@@ -108,6 +109,7 @@
    [:sent-count 'numeric]
    [:token-count 'numeric]
    [:token-average-length 'numeric]
+   [:stopword-count 'numeric]
    [:is-question 'boolean]])
 
 
