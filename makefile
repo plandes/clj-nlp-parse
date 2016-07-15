@@ -30,6 +30,10 @@ all:		info
 compile:	$(LIB_JAR)
 
 .PHONEY:
+install:
+	lein install
+
+.PHONEY:
 uber:		$(UBER_JAR)
 
 .PHONEY:

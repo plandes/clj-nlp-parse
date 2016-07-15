@@ -21,6 +21,7 @@
   See the [source documentation](https://github.com/plandes/zensols) for
   more information."
   []
+  (log/debug "initializing")
   (res/register-resource :model :system-property "model")
   (res/register-resource :stanford-model
                          :pre-path :model :system-file "stanford"))
