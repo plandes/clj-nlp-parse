@@ -9,8 +9,17 @@
   (:require [zensols.nlparse.wordnet :as wn]
             [zensols.nlparse.parse :as pt]))
 
-;; TODO: move to classifer/none-label
-(def ^:private none-label "<none>")
+(def none-label
+  "Value used for missing features."
+  "<none>")
+
+(def beginning-of-sentence-label
+  "Beginning of sentence marker."
+  "<bos>")
+
+(def end-of-sentence-label
+  "End of sentence marker."
+  "<eos>")
 
 ;; util
 (defn upper-case? [text]
