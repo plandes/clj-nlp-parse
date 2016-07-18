@@ -5,6 +5,7 @@ USER=		plandes
 #APP_NAME=	
 APP_BNAME=	nlparse
 #PROJ=		
+REMOTE=		github
 
 # shouldn't need to change anything below this point
 POM=		pom.xml
@@ -16,7 +17,7 @@ ANRCMD=		head -1 project.clj | sed 's/(defproject \(.*\)\/\(.*\) .*/\2/'
 APP_NAME_REF=	$(if $(APP_NAME),$(APP_NAME),$(shell $(ANRCMD)))
 APP_BNAME_REF=	$(if $(APP_BNAME),$(APP_BNAME),$(APP_NAME_REF))
 LIB_JAR=	$(MTARG)/$(APP_NAME_REF)$(VPREF).jar
-PNCMD=		git remote -v | grep github | grep push | sed 's/.*\/\(.*\).git .*/\1/'
+PNCMD=		git remote -v | grep $(REMOTE) | grep push | sed 's/.*\/\(.*\).git .*/\1/'
 PROJ_REF=	$(if $(PROJ),$(PROJ),$(shell $(PNCMD)))
 UBER_JAR=	$(MTARG)/$(APP_NAME_REF)$(VPREF)-standalone.jar
 DOC_DIR=	$(MTARG)/doc
@@ -83,7 +84,7 @@ $(DOC_DIR):
 	rm -rf $(DOC_DIR) && mkdir -p $(DOC_DIR)
 	git clone https://github.com/$(USER)/$(PROJ_REF).git $(DOC_DIR)
 	git update-ref -d refs/heads/gh-pages 
-	git push --mirror
+	git push $(REMOTE) --mirror
 	( cd $(DOC_DIR) ; \
 	  git symbolic-ref HEAD refs/heads/gh-pages ; \
 	  rm .git/index ; \
