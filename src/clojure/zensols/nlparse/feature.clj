@@ -1,6 +1,6 @@
 (ns ^{:doc "Feature utility functions.  In this library, all references to
-  `panon` stand for *parsed annotation*, which is returned
-  from [[zensols.nlparse.parse/parse]]."
+`panon` stand for *parsed annotation*, which is returned
+from [[zensols.nlparse.parse/parse]]."
       :author "Paul Landes"}
     zensols.nlparse.feature
   (:require [clojure.tools.logging :as log]
@@ -81,7 +81,7 @@
                           (.hashCode elected-verb))]
     {:elected-verb-id elected-verb-id}))
 
-(defn verb-feature-keys []
+(defn verb-feature-metas []
   [[:elected-verb-id 'numeric]])
 
 
@@ -94,7 +94,7 @@
                             (filter true?) count)
                        (count lemmas))}))
 
-(defn dictionary-feature-keys []
+(defn dictionary-feature-metas []
   [[:in-dict-ratio 'numeric]])
 
 (defn- token-average-length [tokens]
@@ -112,7 +112,7 @@
    :stopword-count (->> tokens (map #(if (:stopword %) 1 0)) (reduce +))
    :is-question (= "?" (-> tokens last :text))})
 
-(defn token-feature-keys []
+(defn token-feature-metas []
   [[:utterance-length 'numeric]
    [:mention-count 'numeric]
    [:sent-count 'numeric]
@@ -145,7 +145,7 @@
          (merge {:pos-last-tag (->> tokens last :pos-tag)
                  :pos-first-tag (->> tokens first :pos-tag)}))))
 
-(defn pos-tag-feature-keys []
+(defn pos-tag-feature-metas []
   (vec (concat [[:pos-last-tag (into () (pt/pos-tags))]
                 [:pos-first-tag (into () (pt/pos-tags))]]
                (map #(vector (pos-tag-ratio-keyword %) 'numeric)
@@ -164,7 +164,7 @@
        (map #(.hashCode %))
        (reduce +)))
 
-(defn tree-feature-keys []
+(defn tree-feature-metas []
   [[:dep-tree-id 'numeric]])
 
 (defn tree-features [panon]
@@ -185,7 +185,7 @@
        (remove nil?)
        count))
 
-(defn srl-feature-keys []
+(defn srl-feature-metas []
   [[:srl-propbank-id 'numeric]
    [:srl-argument-counts 'numeric]])
 
@@ -257,7 +257,7 @@
 (defn calculate-feature-stats
   "Calculate feature statistics during training.
 
-* **anons** a sequence of parsed annotations"
+  * **anons** a sequence of parsed annotations"
   [anons]
   (let [wba (calculate-words-by-label anons)
         label-keys (keys wba)]
@@ -281,8 +281,8 @@
 (defn label-count-score-features
   "Generate count score features from trained statistics.
 
-* **panon** is the parsed annotation to generate features on
-* **feature-stats** is the trained stats from [[calculate-feature-stats]]."
+  * **panon** is the parsed annotation to generate features on
+  * **feature-stats** is the trained stats from [[calculate-feature-stats]]."
   [panon feature-stats]
   (let [scores (label-word-count-scores
                 (pt/tokens panon)
@@ -295,8 +295,8 @@
 
 (defn top-count-scores
   "Return the top **num-counts**.
-* **panon*** is the parsed annotation to generate features on
-* **feature-stats** is the trained stats from [[calculate-feature-stats]]."
+  * **panon*** is the parsed annotation to generate features on
+  * **feature-stats** is the trained stats from [[calculate-feature-stats]]."
   [num-counts panon features-stats]
   (->> features-stats
        :word-count-dist

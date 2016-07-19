@@ -145,10 +145,11 @@ user> (->> panon p/tokens (f/token-features panon))
 	:is-question false}
 ```
 
-Each function `X` has an analog function `X-keys` that describes the features
-generates and their types, which can be used directly as Weka attributes:
+Each function `X` has an analog function `X-feature-keys` that describes the
+features generates and their types, which can be used directly as Weka
+attributes:
 ```clojure
-user> (clojure.pprint/pprint (f/token-feature-keys))
+user> (clojure.pprint/pprint (f/token-feature-metas))
 => [[:utterance-length numeric]
     [:mention-count numeric]
 	[:sent-count numeric]
