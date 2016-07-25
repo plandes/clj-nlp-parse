@@ -17,6 +17,13 @@ Documentation
 -------------
 Additional [documentation](https://plandes.github.io/clj-nlp-parse/codox/index.html).
 
+Example
+-------
+See the [example repo](https://github.com/plandes/clj-example-nlp-ml) that
+illustrates how to use this library and contains the code from these examples
+originate.  It's highly recommended to clone it and follow along as you peruse
+this README.
+
 Usage
 -----
 This package supports:
