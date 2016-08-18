@@ -1,5 +1,7 @@
 (ns ^{:doc "Wrap ClearNLP SRL.
-  Currently the propbank trained version is used."
+
+  Currently the propbank trained version is used.  The main classification
+  function is [[label]]."
       :author "Paul Landes"}
     zensols.nlparse.srl
   (:require [clojure.tools.logging :as log]
@@ -202,16 +204,23 @@
                     "Head ID" "Dep Label" "Semantic Heads"])))
 
 (defn display-srl
-  "Graphically display the Semantic Role Labeling of a sentence."
-  [sent]
-  (->> sent
+  "Graphically display the Semantic Role Labeling of the tokenized sequence
+  **tokens** of a sentence.
+
+  * **tokens** are a sequence of strings that make up a sentence"
+  [tokens]
+  (->> tokens
        list
        parse-sentences
        classify-sent-trees
        display-srl-tree))
 
-(defn label [sent]
-  (-> sent
+(defn label
+  "Label (classify) and return the tokenized sequence **tokens** of a sentence.
+
+  * **tokens** are a sequence of strings that make up a sentence"
+  [tokens]
+  (-> tokens
       list
       parse-sentences
       classify-sent-trees
