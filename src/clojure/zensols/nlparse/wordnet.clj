@@ -10,6 +10,11 @@
 
 ;;; wordnet
 (def pos-tag-any "any")
+(def pos-adjective POS/ADJECTIVE)
+(def pos-adverb POS/ADVERB)
+(def pos-noun POS/NOUN)
+(def pos-verb POS/VERB)
+(def pos-tags (POS/getAllPOS))
 
 (dyn-init-var *ns* 'wndict-inst (atom nil))
 ;(ns-unmap *ns* 'wndict-inst)
@@ -24,14 +29,28 @@
 
 (defn lookup-word
   "Lookup a word (lemmatized) in wordnet.
-Optionally supply *pos-tag* (type of POS/VERB)."
+
+  * **pos-tag** type of POS/VERB and one of the pos-noun,verb etc"
   ([lemma]
    (let [dict (wordnet-dictionary)
          words (.lookupAllIndexWords dict lemma)]
      (into [] (.getIndexWordCollection words))))
   ([lemma pos-tag]
    (let [dict (wordnet-dictionary)]
-     (.lookupIndexWord dict pos-tag lemma))))
+     [(.lookupIndexWord dict pos-tag lemma)])))
+
+(defn verb-frame-flags
+  "If **synset** is a verb type synset return its verb frame flags.  Otherwise
+  return nil."
+  [synset]
+  (if (and synset (instance? net.sf.extjwnl.data.VerbSynset synset))
+    (.getVerbFrameFlags synset)))
+
+(defn adjective-cluster?
+  [synset]
+  (and synset
+       (instance? net.sf.extjwnl.data.AdjectiveSynset synset)
+       (.isAdjectiveCluster synset)))
 
 (defn looks-like-word? [lemma]
   (not (nil? (re-find word-pattern lemma))))
@@ -62,11 +81,6 @@ Optionally supply *pos-tag* (type of POS/VERB)."
   "Return all word used POS tags."
   []
   (map #(.getLabel %) (POS/values)))
-
-(defn lookup-verb
-  "Return a (indexed) WordNet entry using a verb POS tags."
-  [verb]
-  (lookup-word verb POS/VERB))
 
 (defn lookup-word-by-sense
   "Lookup a word by sense (i.e. `buy%2:40:00::`)."

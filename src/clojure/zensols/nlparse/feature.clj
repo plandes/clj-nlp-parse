@@ -34,6 +34,9 @@ from [[zensols.nlparse.parse/parse]]."
 (defn or-none [str]
   (or str none-label))
 
+(defn or-0 [check val-fn]
+  (if check (val-fn check) 0))
+
 ;; propbank
 (defn first-sent-propbank-label
   "Find the first propbank label for a sentence."
@@ -71,7 +74,7 @@ from [[zensols.nlparse.parse/parse]]."
               true [none-label nil])
         elected-verb (first elected-verb-pair)
         elected-verb-id (if (and false (not (= none-label elected-verb)))
-                          (let [iword (wn/lookup-verb elected-verb)]
+                          (let [iword (wn/lookup-word elected-verb wn/pos-verb)]
                             (if iword
                               (first (.getSynsetOffsets iword))
                               (do
@@ -83,6 +86,39 @@ from [[zensols.nlparse.parse/parse]]."
 
 (defn verb-feature-metas []
   [[:elected-verb-id 'numeric]])
+
+(defn wordnet-features
+  "Get features generated from WordNet from **word**.
+
+  * **word** the word to lookup
+  * **pos-tag** a pos tag "
+  ([word]
+   (wordnet-features word nil))
+  ([word pos-tag]
+   (let [iws (if pos-tag
+               (wn/lookup-word word pos-tag)
+               (wn/lookup-word word))
+         iw (first iws)]
+     (if iw (.sortSenses iw))
+     (let [synset (if iw (->> iw .getSenses first))
+           flags (wn/verb-frame-flags synset)]
+       {:wn-offset (or-0 synset #(.getOffset %))
+        :wn-word-set-count (count iws)
+        :wn-is-adjective-cluster (not (nil? (wn/adjective-cluster? synset)))
+        :wn-sense-word-count (or-0 synset #(-> % .getWords .size))
+        :wn-sense-lex-file-num (or-0 synset #(.getLexFileNum %))
+        :wn-verb-frame-flag-len (or-0 flags #(.length %))
+        :wn-verb-frame-flag-size (or-0 flags #(.size %))
+        :wn-verb-frame-flag-hash (or-0 flags #(.hashCode %))
+        }))))
+
+(defn wordnet-feature-metas []
+  (->> [:wn-offset :wn-word-set-count :wn-sense-word-count
+        :wn-sense-lex-file-num :wn-verb-frame-flag-len
+        :wn-verb-frame-flag-size :wn-verb-frame-flag-hash]
+       (map (fn [k] [k 'numeric]))
+       (cons [:wn-is-adjective-cluster 'boolean])
+       vec))
 
 
 ;; dict
