@@ -109,8 +109,7 @@ from [[zensols.nlparse.parse/parse]]."
         :wn-sense-lex-file-num (or-0 synset #(.getLexFileNum %))
         :wn-verb-frame-flag-len (or-0 flags #(.length %))
         :wn-verb-frame-flag-size (or-0 flags #(.size %))
-        :wn-verb-frame-flag-hash (or-0 flags #(.hashCode %))
-        }))))
+        :wn-verb-frame-flag-hash (or-0 flags #(.hashCode %))}))))
 
 (defn wordnet-feature-metas []
   (->> [:wn-offset :wn-word-set-count :wn-sense-word-count
