@@ -9,12 +9,30 @@
 (def ^:private word-pattern (re-pattern "^\\w+$"))
 
 ;;; wordnet
-(def pos-tag-any "any")
-(def pos-adjective POS/ADJECTIVE)
-(def pos-adverb POS/ADVERB)
-(def pos-noun POS/NOUN)
-(def pos-verb POS/VERB)
-(def pos-tags (POS/getAllPOS))
+(def pos-tag-any
+  "Special POS tag to indicate any POS tag (see [[has-pos-tag?]])"
+  "any")
+
+(def pos-adjective
+  "The adjective wordnet API POS tag."
+  POS/ADJECTIVE)
+
+(def pos-adverb
+  "The adverb wordnet API POS tag."
+  POS/ADVERB)
+
+(def pos-noun
+  "The noun wordnet API POS tag."
+  POS/NOUN)
+
+(def pos-verb
+  "The verb wordnet API POS tag."
+  POS/VERB)
+
+(def pos-tags
+  "All wordnet tags, which
+  include [[pos-verb]], [[pos-noun]], [[pos-adverb]], [[pos-adjective]]."
+  (POS/getAllPOS))
 
 (dyn-init-var *ns* 'wndict-inst (atom nil))
 ;(ns-unmap *ns* 'wndict-inst)
@@ -70,7 +88,10 @@
     (into #{} (map #(-> % .getPOS .getLabel) iws))))
 
 (defn has-pos-tag?
-  "Return whether or not the lemmatized word has exists for a POS tag."
+  "Return whether or not the lemmatized word has exists for a POS tag.
+
+  * **lemma** the lemma (or word) to look up in wordnet
+  * **pos-tag-name** the name of the pos tag or [[pos-tag-any]]"
   [lemma pos-tag-name]
   (let [iws (lookup-word lemma)]
     (if (= pos-tag-any pos-tag-name)

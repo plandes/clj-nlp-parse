@@ -31,10 +31,15 @@ from [[zensols.nlparse.parse/parse]]."
   [str]
   (if str (str/lower-case str)))
 
-(defn or-none [str]
+(defn or-none
+  "Return **str** if non-`nil` or otherwise the sepcial [[none-label]]."
+  [str]
   (or str none-label))
 
-(defn or-0 [check val-fn]
+(defn or-0
+  "Call and return the value given by **val-fn** iff **check** is non-`nil`,
+  otherwise return 0."
+  [check val-fn]
   (if check (val-fn check) 0))
 
 ;; propbank
@@ -91,7 +96,7 @@ from [[zensols.nlparse.parse/parse]]."
   "Get features generated from WordNet from **word**.
 
   * **word** the word to lookup
-  * **pos-tag** a pos tag "
+  * **pos-tag** a wordnet pos tag (see [[zensols.nlparse.wordnet/pos-tags]])"
   ([word]
    (wordnet-features word nil))
   ([word pos-tag]
@@ -330,6 +335,7 @@ from [[zensols.nlparse.parse/parse]]."
 
 (defn top-count-scores
   "Return the top **num-counts**.
+
   * **panon*** is the parsed annotation to generate features on
   * **feature-stats** is the trained stats from [[calculate-feature-stats]]."
   [num-counts panon features-stats]
