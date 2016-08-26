@@ -7,6 +7,7 @@ from [[zensols.nlparse.parse/parse]]."
             [clojure.pprint :refer (pprint)])
   (:require [clojure.string :as str])
   (:require [zensols.nlparse.wordnet :as wn]
+            [zensols.nlparse.wordlist :as wl]
             [zensols.nlparse.parse :as pt]))
 
 (def none-label
@@ -130,9 +131,12 @@ from [[zensols.nlparse.parse/parse]]."
   "Dictionary features include in/out-of-vocabulary ratio."
   [tokens]
   (let [lemmas (map :lemma tokens)]
-    {:in-dict-ratio (/ (->> lemmas (map wn/in-dictionary?)
-                            (filter true?) count)
-                       (count lemmas))}))
+    (letfn [(ratio [mfn]
+              (/ (->> lemmas (map mfn)
+                      (filter true?) count)
+                 (count lemmas)))]
+      {:in-dict-ratio (ratio wn/in-dictionary?)
+      :in-english-word-list-ratio (ratio #(wl/in-word-list? %))})))
 
 (defn dictionary-feature-metas []
   [[:in-dict-ratio 'numeric]])
