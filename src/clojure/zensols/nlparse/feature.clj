@@ -43,6 +43,13 @@ from [[zensols.nlparse.parse/parse]]."
   [check val-fn]
   (if check (val-fn check) 0))
 
+(defn ratio-true
+  "Return the ratio of **items** whose evaluation of **true-fn** is `true`."
+  [items true-fn]
+  (/ (->> items (map true-fn)
+          (filter true?) count)
+     (count items)))
+
 ;; propbank
 (defn first-sent-propbank-label
   "Find the first propbank label for a sentence."
@@ -131,12 +138,8 @@ from [[zensols.nlparse.parse/parse]]."
   "Dictionary features include in/out-of-vocabulary ratio."
   [tokens]
   (let [lemmas (map :lemma tokens)]
-    (letfn [(ratio [mfn]
-              (/ (->> lemmas (map mfn)
-                      (filter true?) count)
-                 (count lemmas)))]
-      {:in-dict-ratio (ratio wn/in-dictionary?)
-      :in-english-word-list-ratio (ratio #(wl/in-word-list? %))})))
+    {:in-dict-ratio (ratio-true lemmas wn/in-dictionary?)
+     :in-english-word-list-ratio (ratio-true lemmas #(wl/in-word-list? %))}))
 
 (defn dictionary-feature-metas []
   [[:in-dict-ratio 'numeric]])
