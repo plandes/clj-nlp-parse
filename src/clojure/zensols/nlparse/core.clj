@@ -1,7 +1,6 @@
 (ns zensols.nlparse.core
   (:require [zensols.actioncli.parse :as cli]
-            [zensols.actioncli.log4j2 :as lu]
-            [zensols.actioncli.resource :as res])
+            [zensols.actioncli.log4j2 :as lu])
   (:require [parse.version])
   (:gen-class :main true))
 
