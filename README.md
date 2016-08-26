@@ -29,6 +29,7 @@ Usage
 This package supports:
 * [Parsing an Utterance](#parsing-an-utterance)
 * [Utility Functions](#utility-functions)
+* [Dictionary Utility](#dictionary-utility)
 * [Command Line Usage](#command-line-usage)
 
 ### Setup
@@ -170,6 +171,15 @@ Get in/out-of-vocabulary ratio:
 user> (->> panon p/tokens f/dictionary-features)
 => {:in-dict-ratio 4/5}
 ```
+
+### Dictionary Utility
+
+There are two utilities for looking up words:
+* WordNet: wraps [this library](http://extjwnl.sourceforge.net)
+* Word lists: English word lists taken from [this repo](https://github.com/dwyl/english-words)
+
+Usage of these libraries are available as features with the
+`dictionary-features` function found [here](https://plandes.github.io/clj-nlp-parse/codox/zensols.nlparse.feature.html#var-dictionary-features).
 
 ### Command Line Usage
 
