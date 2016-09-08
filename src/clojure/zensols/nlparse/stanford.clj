@@ -7,7 +7,7 @@
   (:import (edu.stanford.nlp.pipeline Annotation Annotator)
            (edu.stanford.nlp.process CoreLabelTokenFactory)
            (edu.stanford.nlp.ling CoreLabel))
-  (:require [zensols.actioncli.dynamic :refer (dyn-init-var) :as dyn]
+  (:require [zensols.actioncli.dynamic :as dyn]
             [zensols.actioncli.resource :refer (resource-path) :as res]))
 
 (defn- initialize

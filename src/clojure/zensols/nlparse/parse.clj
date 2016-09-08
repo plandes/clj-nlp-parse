@@ -192,3 +192,4 @@
      :validate [#(> (count %) 0) "No utterance given"]]]
    :app (fn [{:keys [utterance] :as opts} & args]
           (clojure.pprint/pprint (parse utterance)))})
+

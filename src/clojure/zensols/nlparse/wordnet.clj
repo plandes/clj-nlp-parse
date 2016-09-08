@@ -4,7 +4,7 @@
   (:import net.sf.extjwnl.dictionary.Dictionary
            (net.sf.extjwnl.data POS))
   (:require [clojure.string :as str])
-  (:require [zensols.actioncli.dynamic :refer (dyn-init-var)]))
+  (:require [zensols.actioncli.dynamic :refer (defa-)]))
 
 (def ^:private word-pattern (re-pattern "^\\w+$"))
 
@@ -34,8 +34,7 @@
   include [[pos-verb]], [[pos-noun]], [[pos-adverb]], [[pos-adjective]]."
   (POS/getAllPOS))
 
-(dyn-init-var *ns* 'wndict-inst (atom nil))
-;(ns-unmap *ns* 'wndict-inst)
+(defa- wndict-inst)
 
 (defn wordnet-dictionary
   "Return the Wordnet dictionary instance.

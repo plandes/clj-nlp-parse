@@ -17,7 +17,7 @@
            (com.clearnlp.dependency DEPNode DEPLib)
            (com.clearnlp.util UTInput))
   (:require [zensols.tabres.display-results :as dr])
-  (:require [zensols.actioncli.dynamic :refer (dyn-init-var) :as dyn]))
+  (:require [zensols.actioncli.dynamic :refer (defa-) :as dyn]))
 
 (def ^:dynamic *lang*
   "Language used to create the SRL pipeline."
@@ -32,8 +32,7 @@
   labeled sentence to choose."
   3)
 
-(dyn-init-var *ns* 'pipeline-inst (atom nil))
-;(ns-unmap *ns* 'pipeline-inst)
+(defa- pipeline-inst)
 
 (defn- reset []
   (reset! pipeline-inst nil))
