@@ -10,6 +10,7 @@
           :project {:name "NLP Parsing and Feature Creation"}
           :output-path "target/doc/codox"}
   :source-paths ["src/clojure"]
+  :java-source-paths ["src/java"]
   :javac-options ["-Xlint:unchecked"]
   :exclusions [org.slf4j/slf4j-log4j12
                ch.qos.logback/logback-classic]

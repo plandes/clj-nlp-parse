@@ -3,9 +3,10 @@
 from [[zensols.nlparse.parse/parse]]."
       :author "Paul Landes"}
     zensols.nlparse.feature
+  (:import com.zensols.util.StringUtils)
   (:require [clojure.tools.logging :as log]
             [clojure.pprint :refer (pprint)])
-  (:require [clojure.string :as str])
+  (:require [clojure.string :as s])
   (:require [zensols.nlparse.wordnet :as wn]
             [zensols.nlparse.wordlist :as wl]
             [zensols.nlparse.parse :as pt]))
@@ -30,7 +31,7 @@ from [[zensols.nlparse.parse/parse]]."
 (defn lc-null
   "Return the lower case version of a string or nil if nil given."
   [str]
-  (if str (str/lower-case str)))
+  (if str (s/lower-case str)))
 
 (defn or-none
   "Return **str** if non-`nil` or otherwise the sepcial [[none-label]]."
@@ -40,8 +41,10 @@ from [[zensols.nlparse.parse/parse]]."
 (defn or-0
   "Call and return the value given by **val-fn** iff **check** is non-`nil`,
   otherwise return 0."
-  [check val-fn]
-  (if check (val-fn check) 0))
+  ([val]
+   (or val 0))
+  ([check val-fn]
+   (if check (val-fn check) 0)))
 
 (defn ratio-true
   "Return the ratio of **items** whose evaluation of **true-fn** is `true`."
@@ -265,7 +268,7 @@ from [[zensols.nlparse.parse/parse]]."
 (defn- word-count-form
   "Conical string word count form of a token (i.e. Running -> run)."
   [token]
-  (str/lower-case (:lemma token)))
+  (s/lower-case (:lemma token)))
 
 (defn- calculate-word-count-dist
   "Get the top counts for each label using the top **words-by-label-count**
@@ -355,3 +358,92 @@ from [[zensols.nlparse.parse/parse]]."
        (filter #(> (second %) 0))
        (take num-counts)
        (map first)))
+
+
+;; (longest) repeating characters
+(defn- lrs-unique-feature-metas [unique-idx]
+  [[(keyword (format "lrs-occurs-%d" unique-idx)) 'numeric]
+   [(keyword (format "lrs-length-%d" unique-idx)) 'numeric]
+   ])
+
+(defn lrs-feature-metas [count]
+  (concat [[:lrs-len 'numeric]
+           [:lrs-unique-chars 'numeric]]
+          (->> (range 1 (inc count))
+               (map lrs-unique-feature-metas)
+               (apply concat))))
+
+(defn lsr-features
+  "Return the following features:
+
+  * **:lrs-len** longest repeating string length
+  * **:lrs-unique-characters** the number of unique characters in the longest
+  repeating string
+  * **:lrs-occurs-N** the number of times the string repeated that has N unique
+  consecutive characters
+  * **:lrs-length-N** the length of the string that has N unique consecutive
+  characters
+
+  All where `N` is **unique-char-repeats**, which is a range from 1 to `N` of
+  the grouping of consecutive characters.  For example the string
+
+```
+          1         2         3         4         5
+01234567890123456789012345678901234567890123456789012
+abcabc aabb aaaaaa abcabcabcabc abcdefgabcdefgabcdefg
+```
+
+  yields:
+
+```
+{:lrs-len 14,           ; abcdefgabcdefgabcdefg (TODO: should be 21)
+ :lrs-unique-chars 7,   ; abcdefg
+ :lrs-length-1 1,       ; 'a'
+ :lrs-occurs-1 6,       ; 'aaaaaa' at index 12
+ :lrs-length-2 3,       ; ' aa'
+ :lrs-occurs-2 1,       ; index: 7
+ :lrs-length-3 3,       ; 'abcabc'
+ :lrs-occurs-3 4,       ; indexes: 0, 19, 25
+ :lrs-length-4 4,       ; ' abc'
+ :lrs-occurs-4 1,
+ :lrs-length-5 5,       ; 'cdefg' (has to be consecutive/non-overlapping)
+ :lrs-occurs-5 1,
+ :lrs-length-6 6,       ; 'bcdefg'
+ :lrs-occurs-6 1,
+ :lrs-length-7 7,       ; 'abcdefg'
+ :lrs-occurs-7 3}       ; indexes: 32, 39, 49
+```"
+  [text unique-char-repeats]
+  (let [text (s/replace text #"\s+" " ")
+        reps (->> (StringUtils/longestRepeatedString text)
+                  (map (fn [rs]
+                         {:str rs
+                          :length (count rs)
+                          :occurs (StringUtils/countConsecutiveOccurs rs text)
+                          :unique (count (StringUtils/uniqueChars rs))}))
+                  (sort (fn [a b]
+                          (compare (:occurs b) (:occurs a)))))
+        lrs-features (->> reps
+                          (sort (fn [a b]
+                                  (compare (:length b) (:length a))))
+                          (take 1)
+                          (map (fn [{:keys [str length occurs unique]}]
+                                 {:lrs-len length
+                                  :lrs-unique-chars unique}))
+                          first)
+        rng (range 1 (inc unique-char-repeats))]
+    ;(clojure.pprint/pprint reps)
+    (->> rng
+         (map (fn [ucr]
+                (first (filter #(-> % :unique (= ucr)) reps))))
+         (map (fn [cnt rep]
+                (or rep {:unique cnt}))
+              rng)
+         (map (fn [{:keys [length occurs unique]}]
+                (zipmap (map first (lrs-unique-feature-metas unique))
+                        [(or occurs -1)
+                         (or length -1)
+                         ])))
+         (apply merge lrs-features))))
+
+;(clojure.pprint/pprint (lsr-features "abcabc aabb aaaaaa abcabcabcabc abcdefgabcdefgabcdefg" 7))
