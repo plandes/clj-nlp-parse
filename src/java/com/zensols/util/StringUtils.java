@@ -2,6 +2,7 @@ package com.zensols.util;
 
 import java.util.Arrays;
 import java.util.Set;
+import java.util.Map;
 
 /**
  * String utils used to create various low level NLP features.
@@ -96,4 +97,18 @@ public final class StringUtils {
 	for (char c : s.toCharArray()) chars.add(c);
 	return chars;
     }
+
+    /**
+     * Return unique character counts found in <tt>s</tt>.
+     */
+    public static Map<Character, Integer> uniqueCharCounts(String s) {
+	Map<Character, Integer> chars = new java.util.HashMap<Character, Integer>();
+	for (char c : s.toCharArray()) {
+	    Integer cnt = chars.get(c);
+	    if (cnt == null) chars.put(c, 1);
+	    else chars.put(c, cnt + 1);
+	}
+	return chars;
+    }
+
 }

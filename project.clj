@@ -29,6 +29,9 @@
                  ;; dev
                  [com.zensols.gui/tabres "0.0.5"]
 
+                 ;; feature stats
+                 [net.mikera/core.matrix.stats "0.7.0"]
+
                  ;;; NLP
                  ;; wordnet
                  [net.sf.extjwnl/extjwnl "1.9"]

@@ -5,8 +5,9 @@ from [[zensols.nlparse.parse/parse]]."
     zensols.nlparse.feature
   (:import com.zensols.util.StringUtils)
   (:require [clojure.tools.logging :as log]
-            [clojure.pprint :refer (pprint)])
-  (:require [clojure.string :as s])
+            [clojure.pprint :refer (pprint)]
+            [clojure.string :as s])
+  (:require [clojure.core.matrix.stats :as stat])
   (:require [zensols.nlparse.wordnet :as wn]
             [zensols.nlparse.wordlist :as wl]
             [zensols.nlparse.parse :as pt]))
@@ -360,13 +361,16 @@ from [[zensols.nlparse.parse/parse]]."
        (map first)))
 
 
+;;; charaters
+
 ;; (longest) repeating characters
 (defn- lrs-unique-feature-metas [unique-idx]
   [[(keyword (format "lrs-occurs-%d" unique-idx)) 'numeric]
-   [(keyword (format "lrs-length-%d" unique-idx)) 'numeric]
-   ])
+   [(keyword (format "lrs-length-%d" unique-idx)) 'numeric]])
 
-(defn lrs-feature-metas [count]
+(defn lrs-feature-metas
+  "See [[lsr-features]]."
+  [count]
   (concat [[:lrs-len 'numeric]
            [:lrs-unique-chars 'numeric]]
           (->> (range 1 (inc count))
@@ -441,9 +445,27 @@ abcabc aabb aaaaaa abcabcabcabc abcdefgabcdefgabcdefg
               rng)
          (map (fn [{:keys [length occurs unique]}]
                 (zipmap (map first (lrs-unique-feature-metas unique))
-                        [(or occurs -1)
-                         (or length -1)
-                         ])))
+                        [(or occurs -1) (or length -1)])))
          (apply merge lrs-features))))
 
 ;(clojure.pprint/pprint (lsr-features "abcabc aabb aaaaaa abcabcabcabc abcdefgabcdefgabcdefg" 7))
+
+;; chararcter distribution
+(defn char-dist-feature-metas
+  "See [[char-dist-features]]."
+  []
+  [[:char-dist-unique 'numeric]
+   [:char-dist-variance 'numeric]
+   [:char-dist-mean 'numeric]])
+
+(defn char-dist-features
+  "Return the number of unique characters in **text**."
+  [text]
+  (let [char-dist (->> (StringUtils/uniqueCharCounts text) vals)]
+   {:char-dist-unique (count char-dist)
+    :char-dist-variance (->> char-dist stat/variance)
+    :char-dist-mean (->> char-dist stat/mean double)}))
+
+;(char-dist-features "abcabc aabb aaaaaa abcabcabcabc abcdefgabcdefgabcdefg")
+
+
