@@ -152,7 +152,9 @@ from [[zensols.nlparse.parse/parse]]."
   (->> (map :text tokens)
        (map count)
        (apply +)
-       (#(/ % (count tokens)))))
+       (#(if (> (count tokens) 0)
+           (/ % (count tokens))
+           0))))
 
 (defn token-features [panon tokens]
   {:utterance-length (count (:text panon))
@@ -456,13 +458,18 @@ abcabc aabb aaaaaa abcabcabcabc abcdefgabcdefgabcdefg
   "See [[char-dist-features]]."
   []
   [[:char-dist-unique 'numeric]
+   [:char-dist-unique-ratio 'numeric]
    [:char-dist-variance 'numeric]
-   [:char-dist-mean 'numeric]])
+   [:char-dist-mean 'numeric]
+   [:char-dist-count 'numeric]])
 
 (defn char-dist-features
   "Return the number of unique characters in **text**."
   [text]
-  (let [char-dist (->> (StringUtils/uniqueCharCounts text) vals)]
+  (let [char-dist (->> (StringUtils/uniqueCharCounts text) vals)
+        len (count text)]
    {:char-dist-unique (count char-dist)
-    :char-dist-variance (->> char-dist stat/variance)
-    :char-dist-mean (->> char-dist stat/mean double)}))
+    :char-dist-unique-ratio (if (= len 0) -1 (/ (count char-dist) len))
+    :char-dist-count len
+    :char-dist-variance (if (= len 0) -1 (->> char-dist stat/variance))
+    :char-dist-mean (if (= len 0) -1 (->> char-dist stat/mean))}))
