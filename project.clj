@@ -24,7 +24,7 @@
                  [org.clojure/tools.logging "0.3.1"]
 
                  ;; command line
-                 [com.zensols.tools/actioncli "0.0.8"]
+                 [com.zensols.tools/actioncli "0.0.9"]
 
                  ;; dev
                  [com.zensols.gui/tabres "0.0.5"]
