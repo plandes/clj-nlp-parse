@@ -13,7 +13,6 @@
 (def ^:private unicodes-inst (atom nil))
 (def ^:private unicode-to-locale-inst (atom nil))
 (def ^:private unicode-to-locale-vals-inst (atom nil))
-
 (defa- name-to-locale-fn-inst)
 
 (defn set-name-to-locale-fn
@@ -76,6 +75,16 @@
                      {lang-name loc}))))
           (remove (fn [m] (->> m vals first nil?)))
           (apply merge)))))
+
+(defn- print-unicode-range
+  ([]
+   (print-unicode-range (read-string (str "0x" "0600"))
+                        (read-string (str "0x" "06FF"))))
+  ([start end]
+   (->> (range start end)
+        (map #(Character/toString (char %)))
+        (apply str)
+        println)))
 
 (defn- unicode-ranges
   "Return a map with values each with `:name` of a Unicode
@@ -159,10 +168,10 @@
            (concat (map #(hash-map (:name %) %) non-lang-sets))
            (apply merge)))))
 
-(defn unicodes []
+(defn- unicodes []
   (swap! unicodes-inst #(or % (create-unicodes))))
 
-(defn locale-to-unicode []
+(defn- locale-to-unicode []
   (->> (unicodes)
        vals
        (map (fn [{:keys [loc] :as m}]
@@ -185,7 +194,7 @@
        (apply concat)
        (apply merge)))
 
-(defn unicode-to-locale []
+(defn- unicode-to-locale []
   (swap! unicode-to-locale-inst #(or % (create-unicode-to-locale))))
 
 (defn- unicode-to-locale-vals []
