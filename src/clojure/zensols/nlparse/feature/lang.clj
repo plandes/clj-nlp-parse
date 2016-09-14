@@ -137,11 +137,15 @@ from [[zensols.nlparse.parse/parse]]."
 
 ;; dict
 (defn dictionary-features
-  "Dictionary features include in/out-of-vocabulary ratio."
-  [tokens]
-  (let [lemmas (map :lemma tokens)]
-    {:in-dict-ratio (ratio-true lemmas wn/in-dictionary?)
-     :in-english-word-list-ratio (ratio-true lemmas #(wl/in-word-list? %))}))
+  "Dictionary features include in/out-of-vocabulary ratio.  The
+  language (see [[zensols.nlparse.wordlist/in-word-list?]]) is the two letter
+  language code to look up, which defaults to `en` for English."
+  ([tokens]
+   (dictionary-features "en" tokens))
+  ([lang tokens]
+   (let [lemmas (map :lemma tokens)]
+     {:in-dict-ratio (ratio-true lemmas wn/in-dictionary?)
+      :in-english-word-list-ratio (ratio-true lemmas #(wl/in-word-list? lang %))})))
 
 (defn dictionary-feature-metas []
   [[:in-dict-ratio 'numeric]])
