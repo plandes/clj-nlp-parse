@@ -4,16 +4,20 @@
 
 (def ^:private word-lists-inst (atom {}))
 
+(def ^:private word-list-defs
+  {:english "en"})
+
 (defn word-lists []
-  #{:english})
+  (keys word-list-defs))
 
 (defn- load-word-list [lang-name]
-  (with-open [reader (->> (format "%s-words.txt" lang-name)
-                          io/resource
-                          io/reader)]
-    (->> reader
-         line-seq
-         set)))
+  (let [lang-code (get word-list-defs lang-name)]
+    (with-open [reader (->> (format "%s-words.txt" lang-code)
+                            io/resource
+                            io/reader)]
+      (->> reader
+           line-seq
+           set))))
 
 (defn- word-list [lang-name]
   (swap! word-lists-inst
@@ -27,4 +31,4 @@
   "Return whether **word** is in a word list.
   See [[word-lists]]"
   [lang word]
-  (contains? (word-list (name lang)) (s/lower-case word)))
+  (contains? (word-list lang) (s/lower-case word)))
