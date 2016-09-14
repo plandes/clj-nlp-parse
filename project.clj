@@ -24,10 +24,16 @@
                  [org.clojure/tools.logging "0.3.1"]
 
                  ;; command line
-                 [com.zensols.tools/actioncli "0.0.9"]
+                 [com.zensols.tools/actioncli "0.0.10"]
 
                  ;; dev
                  [com.zensols.gui/tabres "0.0.5"]
+
+                 ;; language name to locale
+                 [com.neovisionaries/nv-i18n "1.11"]
+
+                 ;; resource data parsing
+                 [org.clojure/data.csv "0.1.2"]
 
                  ;; feature stats
                  [net.mikera/core.matrix.stats "0.7.0"]
