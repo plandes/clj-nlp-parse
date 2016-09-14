@@ -101,7 +101,10 @@
          (apply merge)
          doall)))
 
-(defn- create-unicodes []
+(defn- create-unicodes
+  "Return a map of Unicode ranges with associcated locale and name information.
+  For keys, see **:name** of [[unicode-for-char]]."
+  []
   (letfn [(unicodes-for-regex [uranges regex]
             (->> uranges
                  (map (fn [[name _]]
@@ -113,7 +116,7 @@
             (format "lang-%s" (locale-to-lang-code loc)))
           (set-rec [lang-code unicode-set]
             (let [loc (lang-code-to-locale lang-code)]
-              {:loc loc
+              {:locale loc
                :name (loc-to-name loc)
                :set unicode-set}))]
     (let [uranges (unicode-ranges)
@@ -160,26 +163,20 @@
                         uranges (->> unames (map #(get uranges %)) (remove nil?))
                         name (loc-to-name loc)]
                     (if-not (empty? uranges)
-                      {name {:loc loc
+                      {name {:locale loc
                              :name name
                              :ranges uranges}}))))
            (remove nil?)
-           (concat (map #(hash-map (-> % :loc loc-to-name) %) lang-sets))
+           (concat (map #(hash-map (-> % :locale loc-to-name) %) lang-sets))
            (concat (map #(hash-map (:name %) %) non-lang-sets))
            (apply merge)))))
 
 (defn- unicodes []
   (swap! unicodes-inst #(or % (create-unicodes))))
 
-(defn- locale-to-unicode []
-  (->> (unicodes)
-       vals
-       (map (fn [{:keys [loc] :as m}]
-              (if loc {(locale-to-lang-code loc) m})))
-       (remove nil?)
-       (apply merge)))
-
-(defn- create-unicode-to-locale []
+(defn- create-unicode-to-locale
+  "Return a map Unicode names to `java.util.Locale`."
+  []
   (->> (unicodes)
        vals
        (map (fn [{:keys [ranges set] :as urec}]
@@ -187,20 +184,34 @@
                 (map (fn [rrec]
                        {(:name rrec) {:name (:name rrec)
                                       :range (:range rrec)
-                                      :loc (:loc urec)}})
+                                      :locale (:locale urec)}})
                      ranges)
-                (list {(:name urec) urec})
-                )))
+                (list {(:name urec) urec}))))
        (apply concat)
        (apply merge)))
 
-(defn- unicode-to-locale []
+(defn- unicode-to-locale   []
   (swap! unicode-to-locale-inst #(or % (create-unicode-to-locale))))
 
 (defn- unicode-to-locale-vals []
   (swap! unicode-to-locale-vals-inst #(or % (vals (unicode-to-locale)))))
 
 (defn unicode-for-char
+  "Return a sequence of Unicode info maps that are in range for characater
+  **c**.  Each map has the following keys:
+
+  * **:name** the name of the Unicode record, which is one of
+      * Unicode range name as defined in the `unicode-ranges.csv` resource
+      * Particular set of Unicode characters (i.e. *umlaut*)
+      * Language name mapped from the `java.util.Locale`.
+  * **:range** the numeric Unicode range (if this is missing **:set** isn't)
+  * **:set** a hash of Unicode characters (if this is missing **:range** ins't)
+  * **:locale** the `java.util.Locale` assigned to the range (if any)
+
+  If best-match? is `true` then return only the best match (i.e. language over
+  partial alphabet) per each Unicode match (in range or member of set).
+  Another way to say this is that there will not be any overlapping Unicode
+  range/set data returned, and thus, results are disjoint."
   ([c]
    (unicode-for-char false))
   ([c best-match?]
@@ -217,24 +228,37 @@
               (take 1 (drop-while nil? %))
               (remove nil? %)))))))
 
-(defn unicode-distribution [text & {:keys [best-match?]
-                                    :or {best-match? false}}]
- (->> (map #(unicode-for-char % best-match?) text)
-      (apply concat)
-      (reduce (fn [stats {:keys [name] :as urec}]
-                (if-not name
-                  stats
-                  (let [cnt (or (:cnt (get stats name)) 0)]
-                    (merge stats {name {:cnt (inc cnt)
-                                        :urec urec}}))))
-              {})
-      vals
-      (map (fn [{:keys [cnt urec]}]
-             (assoc urec :count cnt)))))
+(defn unicode-counts
+  "Return counts of all characters in **text**.  See [[unicode-for-char]].
 
-(defn locale-distribution [text & {:keys [best-match?]
-                                   :or {best-match? false}}]
-  (->> (unicode-distribution text :best-match? best-match?)
+  Keys
+  ----
+  * **:best-match?** see [[unicode-for-char]]; note that counts will differ and
+  won't necessarily sum to all combinations of disjoint Unicode ranges/sets"
+  [text & {:keys [best-match?] :or {best-match? false}}]
+  (->> (map #(unicode-for-char % best-match?) text)
+       (apply concat)
+       (reduce (fn [stats {:keys [name] :as urec}]
+                 (if-not name
+                   stats
+                   (let [cnt (or (:cnt (get stats name)) 0)]
+                     (merge stats {name {:cnt (inc cnt)
+                                         :urec urec}}))))
+               {})
+       vals
+       (map (fn [{:keys [cnt urec]}]
+              (assoc urec :count cnt)))))
+
+(defn locale-count
+  "Return counts that are a member of a language mapping (locale) of all
+  characters in **text**.  See [[unicode-for-char]].
+
+  Keys
+  ----
+  * **:best-match?** if `true` then return only the best match (i.e. language
+  over partial alphabet) per each Unicode range"
+  [text & {:keys [best-match?] :or {best-match? false}}]
+  (->> (unicode-counts text :best-match? best-match?)
        (map (fn [{:keys [name count]}]
               (let [{:keys [loc]} (get (unicode-to-locale) name)]
                 (if loc

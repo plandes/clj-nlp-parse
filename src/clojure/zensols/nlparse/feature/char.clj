@@ -3,7 +3,8 @@
     zensols.nlparse.feature.char
   (:import com.zensols.util.StringUtils)
   (:require [clojure.string :as s])
-  (:require [clojure.core.matrix.stats :as stat]))
+  (:require [clojure.core.matrix.stats :as stat])
+  (:require [zensols.nlparse.locale :as lc]))
 
 ;; (longest) repeating characters
 (defn- lrs-unique-feature-metas [unique-idx]
@@ -104,7 +105,13 @@ abcabc aabb aaaaaa abcabcabcabc abcdefgabcdefgabcdefg
    [:char-dist-count 'numeric]])
 
 (defn char-dist-features
-  "Return the number of unique characters in **text**."
+  "Return the following features generated from **text**:
+
+  * **:char-dist-unique** number of unique characters
+  * **:char-dist-unique-ratio** ratio of unique characters to non-unique
+  * **:char-dist-count** character length
+  * **:char-dist-variance** variance of character counts
+  * **:char-dist-mean** mean of character counts"
   [text]
   (let [char-dist (->> (StringUtils/uniqueCharCounts text) vals)
         len (count text)]
@@ -113,3 +120,24 @@ abcabc aabb aaaaaa abcabcabcabc abcdefgabcdefgabcdefg
     :char-dist-count len
     :char-dist-variance (if (= len 0) -1 (->> char-dist stat/variance))
     :char-dist-mean (if (= len 0) -1 (->> char-dist stat/mean))}))
+
+
+(defn- unicode-variance [text ucounts]
+ (let [total (count text)]
+   (->> ucounts
+        (map :count)
+        (#(conj % (- total (reduce + %))))
+        (#(if (<= (count %) 1) 0 (stat/variance %))))))
+
+(defn unicode-features
+  "Create features based on the Unicode values of **text**:
+
+  * **:unicode-variance** variance of Unicode (range) character counts"
+  [text]
+  (let [text (s/replace text #"\s+" "")
+        ucounts (lc/unicode-counts text :best-match? true)]
+    {:unicode-variance (unicode-variance text ucounts)}))
+
+(defn unicode-feature-metas
+  []
+  [[:unicode-variance 'numeric]])
