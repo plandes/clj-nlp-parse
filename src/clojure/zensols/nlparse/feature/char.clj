@@ -2,13 +2,20 @@
       :author "Paul Landes"}
     zensols.nlparse.feature.char
   (:import com.zensols.util.StringUtils)
-  (:require [clojure.string :as s])
+  (:require [clojure.string :as s]
+            [clojure.set :refer (union)])
   (:require [clojure.core.matrix.stats :as stat])
   (:require [zensols.nlparse.locale :as lc]))
+
+(defn- divide-by-zero-or-neg [a b]
+  (if (= 0 b)
+    -1
+    (/ a b)))
 
 ;; (longest) repeating characters
 (defn- lrs-unique-feature-metas [unique-idx]
   [[(keyword (format "lrs-occurs-%d" unique-idx)) 'numeric]
+   [(keyword (format "lrs-occurs-ratio-%d" unique-idx)) 'numeric]
    [(keyword (format "lrs-length-%d" unique-idx)) 'numeric]])
 
 (defn lrs-feature-metas
@@ -81,7 +88,8 @@ abcabc aabb aaaaaa abcabcabcabc abcdefgabcdefgabcdefg
                                  {:lrs-len length
                                   :lrs-unique-chars unique}))
                           first)
-        rng (range 1 (inc unique-char-repeats))]
+        rng (range 1 (inc unique-char-repeats))
+        text-len (count text)]
     ;(clojure.pprint/pprint reps)
     (->> rng
          (map (fn [ucr]
@@ -91,10 +99,14 @@ abcabc aabb aaaaaa abcabcabcabc abcdefgabcdefgabcdefg
               rng)
          (map (fn [{:keys [length occurs unique]}]
                 (zipmap (map first (lrs-unique-feature-metas unique))
-                        [(or occurs -1) (or length -1)])))
+                        [(or occurs -1)
+                         (if occurs
+                           (/ occurs text-len)
+                           -1)
+                         (or length -1)])))
          (apply merge lrs-features))))
 
-;; chararcter distribution
+;; character distribution
 (defn char-dist-feature-metas
   "See [[char-dist-features]]."
   []
@@ -116,12 +128,52 @@ abcabc aabb aaaaaa abcabcabcabc abcdefgabcdefgabcdefg
   (let [char-dist (->> (StringUtils/uniqueCharCounts text) vals)
         len (count text)]
    {:char-dist-unique (count char-dist)
-    :char-dist-unique-ratio (if (= len 0) -1 (/ (count char-dist) len))
+    :char-dist-unique-ratio (divide-by-zero-or-neg (count char-dist) len)
     :char-dist-count len
     :char-dist-variance (if (= len 0) -1 (->> char-dist stat/variance))
     :char-dist-mean (if (= len 0) -1 (->> char-dist stat/mean))}))
 
+;; punctuation
+(def punctuation
+  "Natural language punctuation and several languages."
+  (set ".!¿?,:;"))
+
+(def latin-non-alpha-numeric
+  "Latin character set but not alpha numeric"
+  (union punctuation (set "~@#$%^&*(){}[]<>|\\/-+_")))
+
+(defn punctuation-features
+  "Return the following features from **text**:
+
+   * **:punctuation-count** the count of [[punctuation]
+   * **:punctuation-ratio** the ratio of count of [[punctuation]] to the length
+   * **:latin-non-alpha-numeric-count** like **:punctuation-count**but with [[latin-non-alpha-numeric]]
+   * **:latin-non-alpha-numeric-ratio** like **:punctuation-ratio**but with [[latin-non-alpha-numeric]]"
+  [text]
+  (let [feats (reduce (fn [{:keys [punc latin-nan]} char]
+                        {:punc (+ punc (if (contains? punctuation char) 1 0))
+                         :latin-nan (+ latin-nan
+                                       (if (contains? latin-non-alpha-numeric char)
+                                         1 0))})
+                      {:punc 0 :latin-nan 0}
+                      text)
+        len (count text)]
+    {:punctuation-count (:punc feats)
+     :punctuation-ratio (divide-by-zero-or-neg (:punc feats) len)
+     :latin-non-alpha-numeric-count (:latin-nan feats)
+     :latin-non-alpha-numeric-ratio (divide-by-zero-or-neg (:latin-nan feats) len)}))
+
+(defn punctuation-metas
+  "See [[punctuation-features]]."
+  []
+  [[:punctuation-count 'numeric]
+   [:punctuation-ratio 'numeric]
+   [:latin-non-alpha-numeric-count 'numeric]
+   [:latin-non-alpha-numeric-ratio 'numeric]])
+
+
 
+;; unicode
 (defn- unicode-variance [text ucounts]
  (let [total (count text)]
    (->> ucounts
