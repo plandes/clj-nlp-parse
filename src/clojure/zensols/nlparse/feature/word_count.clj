@@ -1,6 +1,6 @@
 (ns ^{:doc "Feature utility functions.  See [[zensols.nlparse.feature.lang]]."
       :author "Paul Landes"}
-    zensols.nlparse.feature.count
+    zensols.nlparse.feature.word-count
   (:require [clojure.string :as s])
   (:require [zensols.nlparse.parse :as pt]))
 
