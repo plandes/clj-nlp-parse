@@ -191,5 +191,6 @@ abcabc aabb aaaaaa abcabcabcabc abcdefgabcdefgabcdefg
     {:unicode-variance (unicode-variance text ucounts)}))
 
 (defn unicode-feature-metas
+  "See [[unicode-features]]."
   []
   [[:unicode-variance 'numeric]])
