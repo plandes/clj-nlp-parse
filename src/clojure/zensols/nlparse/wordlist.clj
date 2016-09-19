@@ -31,4 +31,4 @@
   "Return whether **word** is in a word list.
   See [[word-lists]]"
   [lang word]
-  (contains? (word-list lang) (s/lower-case word)))
+  (and word (contains? (word-list lang) (s/lower-case word))))

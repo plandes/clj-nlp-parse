@@ -141,7 +141,7 @@ from [[zensols.nlparse.parse/parse]]."
   language (see [[zensols.nlparse.wordlist/in-word-list?]]) is the two letter
   language code to look up, which defaults to `en` for English."
   ([tokens]
-   (dictionary-features "en" tokens))
+   (dictionary-features :english tokens))
   ([lang tokens]
    (let [lemmas (map :lemma tokens)]
      {:in-dict-ratio (ratio-true lemmas wn/in-dictionary?)

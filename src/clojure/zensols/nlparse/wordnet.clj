@@ -70,7 +70,7 @@
        (.isAdjectiveCluster synset)))
 
 (defn looks-like-word? [lemma]
-  (not (nil? (re-find word-pattern lemma))))
+  (and lemma (not (nil? (re-find word-pattern lemma)))))
 
 (defn in-dictionary?
   "Return whether or not a lemmatized word is in WordNet."
