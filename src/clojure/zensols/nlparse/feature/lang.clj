@@ -147,8 +147,11 @@ from [[zensols.nlparse.parse/parse]]."
      {:in-dict-ratio (ratio-true lemmas wn/in-dictionary?)
       :in-english-word-list-ratio (ratio-true lemmas #(wl/in-word-list? lang %))})))
 
-(defn dictionary-feature-metas []
-  [[:in-dict-ratio 'numeric]])
+(defn dictionary-feature-metas
+  "See [[dictionary-features]]."
+  []
+  [[:in-dict-ratio 'numeric]
+   [:in-english-word-list-ratio 'numeric]])
 
 (defn- token-average-length [tokens]
   (->> (map :text tokens)
