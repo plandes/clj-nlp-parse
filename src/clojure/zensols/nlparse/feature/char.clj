@@ -194,3 +194,28 @@ abcabc aabb aaaaaa abcabcabcabc abcdefgabcdefgabcdefg
   "See [[unicode-features]]."
   []
   [[:unicode-variance 'numeric]])
+
+
+
+;; capitalized
+(defn capital-features
+  "Return features based on counts of capitalization of **tokens**.  Features
+  returned include (all integers):
+
+    * **:caps-first-char** number of first character being capital (i.e. `Yes`, `YEs`, `YES`)
+    * **:caps-capitalized** number of capitalied tokens (i.e. `Yes`)
+    * **:caps-all** number of all caps tokens (i.e. `YES`)"
+  [tokens]
+  (let [[cap capitalized caps] (StringUtils/countCapitals tokens)]
+    {:caps-first-char cap
+     :caps-capitalized capitalized
+     :caps-all caps
+     :cap-utterance (->> tokens first first
+                         (#(and % (Character/isUpperCase %))))}))
+
+(defn capital-feature-metas
+  "See [[capital-features]]."
+  []
+  [[:caps-first-char 'numeric]
+   [:caps-capitalized 'numeric]
+   [:caps-all 'numeric]])

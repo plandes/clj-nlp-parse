@@ -111,4 +111,43 @@ public final class StringUtils {
 	return chars;
     }
 
+    /**
+     * Count different kinds of capitalized tokens based on input sentence
+     * <tt>tokens</tt>.  This returns a three dimension integer array with the
+     * following:
+     * <ul>
+     * <li>number of first character being capital (i.e. <tt>Yes</tt>, <tt>YEs</tt>, <tt>YES</tt>)</li>
+     * <li>number of capitalied tokens (i.e. <tt>Yes</tt>)</li>
+     * <li>number of all caps tokens (i.e. <tt>YES</tt>)</li>
+     */
+    public static int[] countCapitals(String[] tokens) {
+	int capCount = 0;
+	int capitalizedCount = 0;
+	int allCapsCount = 0;
+
+	for (String tok : tokens) {
+	    if (tok.length() > 0) {
+		char[] ca = tok.toCharArray();
+		boolean cap = Character.isUpperCase(ca[0]);
+		boolean capitalized = cap;
+		boolean allCaps = cap;
+
+		for (int i = 1; i < ca.length; i++) {
+		    if (Character.isUpperCase(ca[i])) {
+			capitalized = false;
+		    } else {
+			allCaps = false;
+		    }
+
+		    if (!capitalized && !allCaps) break;
+		}
+
+		if (cap) capCount++;
+		if (capitalized) capitalizedCount++;
+		if (allCaps) allCapsCount++;
+	    }
+	}
+
+	return new int[] { capCount, capitalizedCount, allCapsCount };
+    }
 }
