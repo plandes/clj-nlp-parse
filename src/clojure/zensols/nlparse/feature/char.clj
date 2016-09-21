@@ -206,16 +206,26 @@ abcabc aabb aaaaaa abcabcabcabc abcdefgabcdefgabcdefg
     * **:caps-capitalized** number of capitalied tokens (i.e. `Yes`)
     * **:caps-all** number of all caps tokens (i.e. `YES`)"
   [tokens]
-  (let [[cap capitalized caps] (StringUtils/countCapitals tokens)]
-    {:caps-first-char cap
-     :caps-capitalized capitalized
-     :caps-all caps
-     :cap-utterance (->> tokens first first
-                         (#(and % (Character/isUpperCase %))))}))
+  (let [toks (map :text tokens)
+        [cap capitalized caps] (StringUtils/countCapitals (into-array toks))
+        tlen (count toks)]
+    {:caps-first-char-count cap
+     :caps-first-char-ratio (/ cap tlen)
+     :caps-capitalized-count capitalized
+     :caps-capitalized-ratio (/ capitalized tlen)
+     :caps-all-count caps
+     :caps-all-ratio (/ caps tlen)
+     :cap-utterance (->> toks first first
+                         (#(and % (Character/isUpperCase %)))
+                         (#(if % true false)))}))
 
 (defn capital-feature-metas
   "See [[capital-features]]."
   []
-  [[:caps-first-char 'numeric]
-   [:caps-capitalized 'numeric]
-   [:caps-all 'numeric]])
+  [[:caps-first-char-count 'numeric]
+   [:caps-first-char-ratio 'numeric]
+   [:caps-capitalized-count 'numeric]
+   [:caps-capitalized-ratio 'numeric]
+   [:caps-all-count 'numeric]
+   [:caps-all-ratio 'numeric]
+   [:cap-utterance 'boolean]])
