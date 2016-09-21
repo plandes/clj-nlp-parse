@@ -249,7 +249,7 @@
        (map (fn [{:keys [cnt urec]}]
               (assoc urec :count cnt)))))
 
-(defn locale-count
+(defn locale-counts
   "Return counts that are a member of a language mapping (locale) of all
   characters in **text**.  See [[unicode-for-char]].
 
