@@ -136,25 +136,37 @@ from [[zensols.nlparse.parse/parse]]."
 
 
 ;; dict
+(defn- dictionary-wl-key [lang-code]
+  (->> lang-code (format "wl-%s-ratio") keyword))
+
 (defn dictionary-features
-  "Dictionary features include in/out-of-vocabulary ratio.  The
-  language (see [[zensols.nlparse.wordlist/in-word-list?]]) is the two letter
-  language code to look up, which defaults to `en` for English.
+  "Dictionary features include in/out-of-vocabulary ratio.  The **lang-codes**
+  parameter is a hash set of two letter string language
+  code (see [[zensols.nlparse.wordlist/in-word-list?]]) to look up, which
+  defaults to `en` for English.
 
   See [[zensols.nlparse.wordlist/word-list-locales]]"
   ([tokens]
-   (dictionary-features "en" tokens))
-  ([lang-code tokens]
+   (dictionary-features tokens #{"en"}))
+  ([tokens lang-codes]
    (let [lemmas (map :lemma tokens)]
-     {:in-dict-ratio (ratio-true lemmas wn/in-dictionary?)
-      :in-english-word-list-ratio
-      (ratio-true lemmas #(wl/in-word-list? lang-code %))})))
+     (->> lang-codes
+          (map (fn [lang-code]
+                 {(dictionary-wl-key lang-code)
+                  (ratio-true lemmas #(wl/in-word-list? lang-code %))}))
+          (apply merge)
+          (merge (if (contains? lang-codes "en")
+                   {:wn-en-dict-ratio
+                    (ratio-true lemmas wn/in-dictionary?)}))))))
 
 (defn dictionary-feature-metas
   "See [[dictionary-features]]."
-  []
-  [[:in-dict-ratio 'numeric]
-   [:in-english-word-list-ratio 'numeric]])
+  [lang-codes]
+  (->> lang-codes
+       (map dictionary-wl-key)
+       (concat (if (contains? (set lang-codes) "en")
+                 [:wn-en-dict-ratio]))
+       (map (fn [kw] [kw 'numeric]))))
 
 (defn- token-average-length [tokens]
   (->> (map :text tokens)

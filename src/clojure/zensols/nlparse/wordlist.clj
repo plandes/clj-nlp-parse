@@ -23,7 +23,10 @@
       (throw (ex-info (format "No supported language: %s" lang-code)
                       {:lang-code lang-code})))
     (with-open [reader (io/reader res)]
-      (->> reader line-seq set))))
+      (->> reader
+           line-seq
+           (map s/lower-case)
+           set))))
 
 (defn- word-list [lang-code]
   (swap! word-lists-inst
