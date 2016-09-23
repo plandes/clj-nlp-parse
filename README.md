@@ -181,6 +181,10 @@ There are two utilities for looking up words:
 Usage of these libraries are available as features with the
 `dictionary-features` function found [here](https://plandes.github.io/clj-nlp-parse/codox/zensols.nlparse.feature.html#var-dictionary-features).
 
+All other [word lists](ftp://ftp.gnu.org/gnu/aspell/dict/0index.html) come from
+the [GNU Aspell](http://aspell.net) dictionaries.
+
+
 ### Command Line Usage
 
 You can use this as a command line program to generate a prettyprint parse tree
