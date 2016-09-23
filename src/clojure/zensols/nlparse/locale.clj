@@ -71,7 +71,8 @@
                                       LanguageCode/findByName
                                       first
                                       (#(if % (.toLocale %)))))]
-                     (log/infof "%s => %s" lang-name loc)
+                     (log/infof "%s => %s%s" lang-name loc
+                                (if loc "" " (skipping)"))
                      {lang-name loc}))))
           (remove (fn [m] (->> m vals first nil?)))
           (apply merge)))))

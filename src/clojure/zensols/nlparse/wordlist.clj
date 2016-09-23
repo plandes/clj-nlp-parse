@@ -1,34 +1,41 @@
 (ns zensols.nlparse.wordlist
   (:require [clojure.java.io :as io]
-            [clojure.string :as s]))
+            [clojure.string :as s])
+  (:require [zensols.nlparse.locale :as loc]))
 
 (def ^:private word-lists-inst (atom {}))
 
-(def ^:private word-list-defs
-  {:english "en"})
+(def ^:private word-list-lang-codes
+  #{"en" "es" "fr"})
 
-(defn word-lists []
-  (keys word-list-defs))
+(defn word-list-locales
+  "Return a list of locales that belong to a language with a supported word list.
 
-(defn- load-word-list [lang-name]
-  (let [lang-code (get word-list-defs lang-name)]
-    (with-open [reader (->> (format "%s-words.txt" lang-code)
-                            io/resource
-                            io/reader)]
-      (->> reader
-           line-seq
-           set))))
+  See [[zensols.nlparse.locale/locale-to-lang-code]] to map to a language code
+  for use with `in-word-list?`."
+  []
+  (->> word-list-lang-codes
+       (map loc/lang-code-to-locale)))
 
-(defn- word-list [lang-name]
+(defn- load-word-list [lang-code]
+  (let [res (->> (format "word-lists/%s" lang-code) io/resource)]
+    (if (nil? res)
+      (throw (ex-info (format "No supported language: %s" lang-code)
+                      {:lang-code lang-code})))
+    (with-open [reader (io/reader res)]
+      (->> reader line-seq set))))
+
+(defn- word-list [lang-code]
   (swap! word-lists-inst
          (fn [lists]
-           (if (contains? lists lang-name)
+           (if (contains? lists lang-code)
              lists
-             (assoc lists lang-name (load-word-list lang-name)))))
-  (get @word-lists-inst lang-name))
+             (assoc lists lang-code (load-word-list lang-code)))))
+  (get @word-lists-inst lang-code))
 
 (defn in-word-list?
   "Return whether **word** is in a word list.
-  See [[word-lists]]"
-  [lang word]
-  (and word (contains? (word-list lang) (s/lower-case word))))
+
+  See [[word-list-locales]]"
+  [lang-code word]
+  (and word (contains? (word-list lang-code) (s/lower-case word))))
