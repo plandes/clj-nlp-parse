@@ -25,7 +25,7 @@ ASBIN_DIR=	src/asbin
 DIST_DIR=	$(HOME)/Desktop/$(APP_NAME_REF)
 DIST_BIN_DIR=	$(DIST_DIR)/bin
 
-all:		uber
+all:		all
 
 .PHONEY:
 compile:	$(LIB_JAR)
