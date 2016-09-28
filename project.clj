@@ -27,9 +27,6 @@
                  ;; command line
                  [com.zensols.tools/actioncli "0.0.10"]
 
-                 ;; dev
-                 ;[com.zensols.gui/tabres "0.0.5"]
-
                  ;; feature creation
                  [com.zensols.nlp/feature "0.0.1"]
 
@@ -60,5 +57,6 @@
               ["-Dlog4j.configurationFile=test-resources/log4j2.xml" "-Xms4g" "-Xmx12g" "-XX:+UseConcMarkSweepGC"]
               :dependencies [[edu.stanford.nlp/stanford-corenlp "3.6.0" :classifier "javadoc"]
                              [edu.stanford.nlp/stanford-corenlp "3.6.0" :classifier "sources"]
+                             [com.zensols.gui/tabres "0.0.5"]
                              [com.zensols/clj-append "1.0.4"]]}}
   :main zensols.nlparse.core)
