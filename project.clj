@@ -12,6 +12,7 @@
   :source-paths ["src/clojure"]
   :java-source-paths ["src/java"]
   :javac-options ["-Xlint:unchecked"]
+  :jar-exclusions [#".gitignore"]
   :exclusions [org.slf4j/slf4j-log4j12
                ch.qos.logback/logback-classic]
   :dependencies [[org.clojure/clojure "1.8.0"]
@@ -27,22 +28,12 @@
                  [com.zensols.tools/actioncli "0.0.10"]
 
                  ;; dev
-                 [com.zensols.gui/tabres "0.0.5"]
+                 ;[com.zensols.gui/tabres "0.0.5"]
 
-                 ;; language name to locale
-                 [com.neovisionaries/nv-i18n "1.11"]
-
-                 ;; resource data parsing
-                 [org.clojure/data.csv "0.1.2"]
-
-                 ;; feature stats
-                 [net.mikera/core.matrix.stats "0.7.0"]
+                 ;; feature creation
+                 [com.zensols.nlp/feature "0.0.1"]
 
                  ;;; NLP
-                 ;; wordnet
-                 [net.sf.extjwnl/extjwnl "1.9"]
-                 [net.sf.extjwnl/extjwnl-data-wn31 "1.2"]
-
                  ;; Stanford CoreNLP
                  [edu.stanford.nlp/stanford-corenlp "3.6.0"]
                  [edu.stanford.nlp/stanford-corenlp "3.6.0" :classifier "models"]

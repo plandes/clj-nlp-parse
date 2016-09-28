@@ -174,15 +174,8 @@ user> (->> panon p/tokens f/dictionary-features)
 
 ### Dictionary Utility
 
-There are two utilities for looking up words:
-* WordNet: wraps [this library](http://extjwnl.sourceforge.net)
-* Word lists: English word lists taken from [this repo](https://github.com/dwyl/english-words)
-
-Usage of these libraries are available as features with the
-`dictionary-features` function found [here](https://plandes.github.io/clj-nlp-parse/codox/zensols.nlparse.feature.html#var-dictionary-features).
-
-All other [word lists](ftp://ftp.gnu.org/gnu/aspell/dict/0index.html) come from
-the [GNU Aspell](http://aspell.net) dictionaries.
+See the [NLP feature library](https://github.com/plandes/clj-nlp-feature) for
+more information on dictionary specifics.
 
 
 ### Command Line Usage

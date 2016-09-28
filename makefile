@@ -25,7 +25,7 @@ ASBIN_DIR=	src/asbin
 DIST_DIR=	$(HOME)/Desktop/$(APP_NAME_REF)
 DIST_BIN_DIR=	$(DIST_DIR)/bin
 
-all:		info
+all:		uber
 
 .PHONEY:
 compile:	$(LIB_JAR)
@@ -62,7 +62,7 @@ $(LIB_JAR):
 
 $(UBER_JAR):
 	@echo compiling $(UBER_JAR)
-	lein with-profile +appasem uberjar
+	lein with-profile +uberjar uberjar
 
 $(POM):
 	lein pom
