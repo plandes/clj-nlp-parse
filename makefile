@@ -9,3 +9,12 @@ ZBHOME=		../clj-zenbuild
 all:		info
 
 include $(ZBHOME)/src/mk/compile.mk
+
+.PHONEY:
+prepare-dist:
+	mkdir src/asbin
+	echo 'JAVA_OPTS="-Dzensols.model=$(HOME)/opt/nlp/model"' > src/asbin/setupenv
+
+.PHONEY:
+clean-prepare-dist:
+	rm -rf src/asbin
