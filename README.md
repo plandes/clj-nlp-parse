@@ -193,7 +193,9 @@ To create the command line utility, do the following:
 ```bash
    git clone https://github.com/clj-nlp-parse
 ```
-- Create a setup file to point to your libs:
+- Follow the directions in [build section](#building)
+- Create a setup file to point to your libs (also see the `prepare-dist` target
+in the makefile):
 ```bash
    mkdir src/asbin
    echo 'JAVA_OPTS="-Dzensols.model=<path-to-model>"' > src/asbin/setupenv
@@ -202,7 +204,6 @@ To create the command line utility, do the following:
 ```bash
    make dist
 ```
-
 If everything goes well and you are lucky a new folder should show up on your
 desktop with everything you need to run it.  To do that:
 ```bash
@@ -211,6 +212,18 @@ cd ~/Desktop/parse/bin
 ```
 
 *Note:* I will make the distribution binaries available on request.
+
+Building
+--------
+All [leiningen](http://leiningen.org) tasks will work in this project.  For
+additional build functionality (like building the command line application and
+git tag convenience utility functionality) clone the
+[Clojure build repo](https://github.com/plandes/clj-zenbuild) in the same
+(parent of this file) directory as this project:
+```bash
+   cd ..
+   git clone https://github.com/plandes/clj-zenbuild
+```
 
 License
 --------
