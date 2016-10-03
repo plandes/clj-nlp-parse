@@ -194,12 +194,8 @@ To create the command line utility, do the following:
    git clone https://github.com/clj-nlp-parse
 ```
 - Follow the directions in [build section](#building)
-- Create a setup file to point to your libs (also see the `prepare-dist` target
-in the makefile):
-```bash
-   mkdir src/asbin
-   echo 'JAVA_OPTS="-Dzensols.model=<path-to-model>"' > src/asbin/setupenv
-```
+- Edit and uncomment the `makefile` to set the `ZMODEL` variable, which should
+  be set to a directory having the stanford POS model(s) in `standford/pos`.
 - Build the distribution binaries:
 ```bash
    make dist
