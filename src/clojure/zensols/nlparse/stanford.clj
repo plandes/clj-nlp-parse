@@ -26,26 +26,44 @@
   (res/register-resource :stanford-model
                          :pre-path :model :system-file "stanford"))
 
+(def ^:private default-component-config
+  {:tokenize {:lang "en"}
+   :pos {:pos-model-resource "english-left3words-distsim.tagger"}
+   :ner {:ner-model-paths ["edu/stanford/nlp/models/ner/english.conll.4class.distsim.crf.ser.gz"]}})
+
+(def ^:private default-components
+  [:tokenize :sents :stopword :pos :ner :tree])
+
+(defn- compose-pipeline
+  [components]
+  (->> components
+       (map (fn [comp]
+              (merge {:component comp}
+                     (get default-component-config comp))))))
+
 ;; pipeline
 (defn create-context
   "Create a default context that can (optionally) be configured.
 
+  If **pipeline-compoennts** is given, create a pipeline with only the given
+  components, which is a sequence of the following keywords:
+
+  * **:tokenize** split words per configured language
+  * **:sents** group tokens into sentences per configured language
+  * **:stopword** annotate stop words (boolean)
+  * **:pos** do part of speech tagging
+  * **:ner** do named entity recognition
+  * **:tree** create head and parse trees
+
   See [[with-context]]."
-  []
-  {:pipeline-config
-   [{:component :tokenize
-     :lang "en"}
-    {:component :sents}
-    {:component :stopword}
-    {:component :pos
-     :pos-model-resource "english-left3words-distsim.tagger"}
-    {:component :ner
-     :ner-model-paths ["edu/stanford/nlp/models/ner/english.conll.4class.distsim.crf.ser.gz"]}
-    {:component :tree}]
-   :pipeline-inst (atom nil)
-   :tagger-model (atom nil)
-   :ner-annotator (atom nil)
-   :dependency-parse-annotator (atom nil)})
+  ([]
+   (create-context default-components))
+  ([pipeline-components]
+   {:pipeline-config (compose-pipeline pipeline-components)
+    :pipeline-inst (atom nil)
+    :tagger-model (atom nil)
+    :ner-annotator (atom nil)
+    :dependency-parse-annotator (atom nil)}))
 
 (def ^{:dynamic true :private true}
   *parse-context* (create-context))
@@ -200,21 +218,23 @@
       (into {} (filter second awmap)))))
 
 (defn- parse-tree-to-map [node]
-  (merge {:label (->> node .label .value)}
-         (select-keys (->> node .label anon-word-map) [:token-index])
-         (if-not (.isLeaf node)
-           {:child (map parse-tree-to-map (.getChildrenAsList node))})))
+  (when node
+    (merge {:label (->> node .label .value)}
+           (select-keys (->> node .label anon-word-map) [:token-index])
+           (if-not (.isLeaf node)
+             {:child (map parse-tree-to-map (.getChildrenAsList node))}))))
 
 (defn- dep-parse-tree-to-map [graph]
-  (letfn [(trav [node in-edge]
-            (let [out-edges (.outgoingEdgeList graph node)]
-              (java.util.Collections/sort out-edges)
-              (merge (if in-edge
-                       {:dep (-> in-edge .getRelation .getShortName)})
-                     (select-keys (anon-word-map node) [:token-index :text])
-                     (if (not (empty? out-edges))
-                       {:child (map #(trav (.getTarget %) %) out-edges)}))))]
-    (map #(trav % nil) (.getRoots graph))))
+  (when graph
+    (letfn [(trav [node in-edge]
+              (let [out-edges (.outgoingEdgeList graph node)]
+                (java.util.Collections/sort out-edges)
+                (merge (if in-edge
+                         {:dep (-> in-edge .getRelation .getShortName)})
+                       (select-keys (anon-word-map node) [:token-index :text])
+                       (if (not (empty? out-edges))
+                         {:child (map #(trav (.getTarget %) %) out-edges)}))))]
+      (map #(trav % nil) (.getRoots graph)))))
 
 (defn- anon-map [anon]
   (log/debugf "tokens: %s" (tokens- anon))

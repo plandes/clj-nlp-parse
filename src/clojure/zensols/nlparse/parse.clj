@@ -134,7 +134,7 @@
             - head-id (id of the head in the tree)
             - dependency-label (the dependency relation)"
   [utterance]
-  (let [anon (-> utterance (str/replace #"%[a-zA-Z.]+\s*" "") sp/parse)]
+  (let [anon (sp/parse utterance)]
     (->> anon :sents
          (map (fn [sent]
                 (let [toks (:tokens sent)]
