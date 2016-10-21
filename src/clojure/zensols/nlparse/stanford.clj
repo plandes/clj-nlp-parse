@@ -32,7 +32,7 @@
    :ner {:ner-model-paths ["edu/stanford/nlp/models/ner/english.conll.4class.distsim.crf.ser.gz"]}})
 
 (def ^:private default-components
-  [:tokenize :sents :stopword :pos :ner :tree])
+  [:tokenize :sents :stopword :pos :ner :tree :coref])
 
 (defn- compose-pipeline
   [components]
@@ -63,14 +63,15 @@
     :pipeline-inst (atom nil)
     :tagger-model (atom nil)
     :ner-annotator (atom nil)
-    :dependency-parse-annotator (atom nil)}))
+    :dependency-parse-annotator (atom nil)
+    :coref-annotator (atom nil)}))
 
 (def ^{:dynamic true :private true}
   *parse-context* (create-context))
 
 (defn- reset []
   (let [atoms [:pipeline-inst :tagger-model :ner-annotator
-               :dependency-parse-annotator]]
+               :dependency-parse-annotator :coref-annotator]]
     (doseq [atom atoms]
       (-> (get *parse-context* atom)
           (reset! nil)))))
@@ -142,7 +143,12 @@
     :tree
     {:name :tree
      :annotators [(edu.stanford.nlp.pipeline.ParserAnnotator. false -1)
-                  (create-dependency-parse-annotator)]}))
+                  (create-dependency-parse-annotator)]}
+
+    :coref
+    {:name :coref
+     :annotators [(edu.stanford.nlp.pipeline.DeterministicCorefAnnotator.
+                   (java.util.Properties.))]}))
 
 (defn- pipeline []
   (let [{:keys [pipeline-inst pipeline-config]} *parse-context*]
@@ -202,6 +208,10 @@
 (defn- parse-tree- [anon]
   (get- anon edu.stanford.nlp.trees.TreeCoreAnnotations$TreeAnnotation))
 
+(defn- coref- [anon]
+  (get- anon ;edu.stanford.nlp.dcoref.CorefCoreAnnotations$CorefChainAnnotation
+        edu.stanford.nlp.hcoref.CorefCoreAnnotations$CorefChainAnnotation))
+
 (defn- children- [graph node] (.getChildren graph node))
 
 (def ^:private why-need-this-ns *ns*)
@@ -236,10 +246,28 @@
                          {:child (map #(trav (.getTarget %) %) out-edges)}))))]
       (map #(trav % nil) (.getRoots graph)))))
 
+(defn coref-tree-to-map [anon]
+  (->> anon coref- vals       
+       (map (fn [chain]
+              (let [mentions (.getMentionsInTextualOrder chain)]
+                {:id (.getChainID chain)
+                 :mention (map (fn [cm]
+                                 {:sent-index (-> cm .-sentNum)
+                                  :token-range [(.-startIndex cm) (.-endIndex cm)]
+                                  :head-index (-> cm .-headIndex)
+                                  :gender (-> cm .-gender .toString)
+                                  :animacy (-> cm .-animacy .toString)
+                                        ;:span (-> cm .-mentionSpan)
+                                  :type (-> cm .-mentionType .toString)
+                                  :number (-> cm .-number .toString)})
+                               mentions)})))
+       doall))
+
 (defn- anon-map [anon]
   (log/debugf "tokens: %s" (tokens- anon))
   {:text (text- anon)
    :mentions (map anon-word-map (mentions- anon))
+   :coref (coref-tree-to-map anon)
    :sents (map (fn [anon]
                  {:text (text- anon)
                   :sent-index (sent-index- anon)
@@ -249,7 +277,6 @@
                   :dependency-parse-tree (dep-parse-tree-to-map (dependency-parse-tree- anon))
                   :tokens (map anon-word-map (tokens- anon))})
                (sents- anon))})
-
 
 
 ;; parse
@@ -281,6 +308,12 @@
                   (func context anon)))))
           anon pipeline))
 
+(defn- parse-raw [utterance]
+  (let [anon (Annotation. utterance)
+        context (atom {})
+        pipeline (pipeline)]
+    (parse-with-pipeline pipeline context anon)))
+
 (defn parse
   "Parse natural language **utterance**.
 
@@ -290,11 +323,8 @@
   See [[with-context]] and [[create-context]]."
   [utterance]
   (log/infof "parsing: <%s>" utterance)
-  (let [anon (Annotation. utterance)
-        context (atom {})
-        pipeline (pipeline)]
-    (->> (parse-with-pipeline pipeline context anon)
-         anon-map)))
+  (->> (parse-raw utterance)
+       anon-map))
 
 (defn- tokens-equal [a b]
   (and (= (text- a) (text- b))
@@ -323,17 +353,9 @@
         (sents- anon)))
   (println (apply str (repeat 70 \-)) "all"))
 
-(defn- parse-raw [utterance]
-  (let [anon (Annotation. utterance)
-        context (atom {})
-        pipeline (pipeline)]
-    (parse-with-pipeline pipeline context anon)))
-
 (defn parse-debug [utterance]
-  (let [anon (Annotation. utterance)
-        context (atom {})
-        pipeline (pipeline)]
-    (pranon-deep (parse-with-pipeline pipeline context anon))))
+  (->> (parse-raw utterance)
+       pranon-deep))
 
 (dyn/register-purge-fn reset)
 (initialize)
