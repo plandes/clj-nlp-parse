@@ -8,7 +8,8 @@
            (edu.stanford.nlp.process CoreLabelTokenFactory)
            (edu.stanford.nlp.ling CoreLabel))
   (:require [zensols.actioncli.dynamic :as dyn]
-            [zensols.actioncli.resource :refer (resource-path) :as res]))
+            [zensols.actioncli.resource :refer (resource-path) :as res])
+  (:require [zensols.nlparse.tok-re :as tre]))
 
 (defn- initialize
   "Initialize model resource locations.
@@ -23,16 +24,23 @@
   []
   (log/debug "initializing")
   (res/register-resource :model :system-property "model")
+  (res/register-resource :data :system-property "data")
   (res/register-resource :stanford-model
-                         :pre-path :model :system-file "stanford"))
+                         :pre-path :model :system-file "stanford")
+  (res/register-resource :preprocess :pre-path :data :constant "preprocess")
+  (res/register-resource :preprocess-nascent :pre-path
+                         :preprocess :constant "nascent")
+  (res/register-resource :tok-re-resource :pre-path :preprocess-nascent
+                         :system-property "tok-res"))
 
 (def ^:private default-component-config
   {:tokenize {:lang "en"}
    :pos {:pos-model-resource "english-left3words-distsim.tagger"}
-   :ner {:ner-model-paths ["edu/stanford/nlp/models/ner/english.conll.4class.distsim.crf.ser.gz"]}})
+   :ner {:ner-model-paths ["edu/stanford/nlp/models/ner/english.conll.4class.distsim.crf.ser.gz"]}
+   :tok-re {:tok-re-resources ["token-regex.txt"]}})
 
 (def ^:private default-components
-  [:tokenize :sents :stopword :pos :ner :tree :coref])
+  [:tokenize :sents :stopword :pos :ner :tok-re :tree :coref])
 
 (defn- compose-pipeline
   [components]
@@ -63,6 +71,7 @@
     :pipeline-inst (atom nil)
     :tagger-model (atom nil)
     :ner-annotator (atom nil)
+    :tok-re-annotator (atom nil)
     :dependency-parse-annotator (atom nil)
     :coref-annotator (atom nil)}))
 
@@ -70,7 +79,7 @@
   *parse-context* (create-context))
 
 (defn- reset []
-  (let [atoms [:pipeline-inst :tagger-model :ner-annotator
+  (let [atoms [:pipeline-inst :tagger-model :ner-annotator :tok-re-annotator
                :dependency-parse-annotator :coref-annotator]]
     (doseq [atom atoms]
       (-> (get *parse-context* atom)
@@ -107,11 +116,22 @@
                       (edu.stanford.nlp.ie.NERClassifierCombiner.
                        true true (into-array String ner-model-paths)) false))))))
 
+(defn- create-tok-re-annotator [tok-re-resources]
+  (let [{:keys [tok-re-annotator]} *parse-context*
+        tok-re-path (resource-path :tok-re-resource)
+        tok-re-files (map #(io/file tok-re-path %) tok-re-resources)]
+    (swap! tok-re-annotator
+           (fn [ann]
+             (log/infof "creating token regular expression resources: %s"
+                        (pr-str tok-re-resources))
+             (or ann
+                 (edu.stanford.nlp.pipeline.TokensRegexAnnotator.
+                  (into-array (map #(.getAbsolutePath %) tok-re-files))))))))
+
 (defn- create-dependency-parse-annotator []
   (let [{:keys [dependency-parse-annotator]} *parse-context*]
     (swap! dependency-parse-annotator
            #(or % (edu.stanford.nlp.pipeline.DependencyParseAnnotator.)))))
-
 
 (defn- make-pipeline-component [{:keys [component] :as conf}]
   (log/debugf "creating component: %s" (pr-str component))
@@ -140,6 +160,12 @@
                   (create-ner-annotator (:ner-model-paths conf))
                   (edu.stanford.nlp.pipeline.EntityMentionsAnnotator.)]}
 
+    :tok-re
+    {:name :tok-re
+     :annotators [(create-tok-re-annotator (:tok-re-resources conf))
+                  (edu.stanford.nlp.pipeline.EntityMentionsAnnotator.)
+                  (zensols.stanford.nlp.TokenRegexEntityMentionsAnnotator.)]}
+
     :tree
     {:name :tree
      :annotators [(edu.stanford.nlp.pipeline.ParserAnnotator. false -1)
@@ -161,7 +187,8 @@
 ;; annotation getters
 (def ^:private annotation-keys
   [:text :pos-tag :sent-index :token-range :token-index :char-range
-   :lemma :entity-type :ner-tag :normalized-tag :stopword])
+   :lemma :entity-type :ner-tag :normalized-tag :stopword
+   :tok-re-ner-tag :tok-re-ner-item-id :tok-re-ner-features])
 
 (defn- get- [anon clazz]
   (if anon (.get anon clazz)))
@@ -175,6 +202,18 @@
 (defn- normalized-tag- [anon] (get- anon edu.stanford.nlp.ling.CoreAnnotations$NormalizedNamedEntityTagAnnotation))
 
 (defn- ner-tag- [anon] (get- anon edu.stanford.nlp.ling.CoreAnnotations$NamedEntityTagAnnotation))
+
+(defn- tok-re-ner-tag- [anon] (get- anon zensols.stanford.nlp.TokenRegexAnnotations$NERAnnotation))
+
+(defn- tok-re-ner-features- [anon]
+  (let [feat-str (get- anon zensols.stanford.nlp.TokenRegexAnnotations$NERFeatureCreateAnnotation)]
+    (if feat-str (tre/parse-features feat-str))))
+
+(defn- tok-re-ner-item-id- [anon]
+  (let [id (get- anon zensols.stanford.nlp.TokenRegexAnnotations$NERItemIDAnnotation)]
+    (if id (read-string id))))
+
+(defn- tok-re-mentions- [anon] (get- anon zensols.stanford.nlp.TokenRegexAnnotations$MentionsAnnotation))
 
 (defn- mentions- [anon] (get- anon edu.stanford.nlp.ling.CoreAnnotations$MentionsAnnotation))
 
@@ -209,8 +248,7 @@
   (get- anon edu.stanford.nlp.trees.TreeCoreAnnotations$TreeAnnotation))
 
 (defn- coref- [anon]
-  (get- anon ;edu.stanford.nlp.dcoref.CorefCoreAnnotations$CorefChainAnnotation
-        edu.stanford.nlp.hcoref.CorefCoreAnnotations$CorefChainAnnotation))
+  (get- anon edu.stanford.nlp.hcoref.CorefCoreAnnotations$CorefChainAnnotation))
 
 (defn- children- [graph node] (.getChildren graph node))
 
@@ -267,6 +305,7 @@
   (log/debugf "tokens: %s" (tokens- anon))
   {:text (text- anon)
    :mentions (map anon-word-map (mentions- anon))
+   :tok-re-mentions (map anon-word-map (tok-re-mentions- anon))
    :coref (coref-tree-to-map anon)
    :sents (map (fn [anon]
                  {:text (text- anon)
@@ -277,7 +316,6 @@
                   :dependency-parse-tree (dep-parse-tree-to-map (dependency-parse-tree- anon))
                   :tokens (map anon-word-map (tokens- anon))})
                (sents- anon))})
-
 
 ;; parse
 (defn- invoke-annotator [context annotator anon]
@@ -359,3 +397,11 @@
 
 (dyn/register-purge-fn reset)
 (initialize)
+
+(do
+  (-> *parse-context* :tok-re-annotator (#(reset! % nil)))
+  (-> *parse-context* :pipeline-inst (#(reset! % nil)))
+  (->> (parse "I like Teddy Grams on Tuesday")
+       ;:tok-re-mentions
+       clojure.pprint/pprint
+       ))

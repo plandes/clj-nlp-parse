@@ -1,0 +1,44 @@
+## example token regular expression file
+## Example: (parse "I like Teddy Grams on Tuesday")
+## ({:entity-type "PRODUCT",
+##   :token-range [2 4],
+##   :sent-index 0,
+##   :tok-re-ner-tag "PRODUCT",
+##   :char-range [7 18],
+##   :text "Teddy Grams"}
+##  {:entity-type "DAY_OF_WEEK",
+##   :token-range [5 6],
+##   :sent-index 0,
+##   :tok-re-ner-tag "DAY_OF_WEEK",
+##   :char-range [22 29],
+##   :text "Tuesday"})
+##  ...
+##    {:token-range [2 3],
+##     :ner-tag "PERSON",
+##     :pos-tag "NNP",
+##     :lemma "Teddy",
+##     :token-index 3,
+##     :sent-index 0,
+##     :tok-re-ner-features {:food-type "dessert"},
+##     :tok-re-ner-tag "PRODUCT",
+##     :tok-re-ner-item-id 497,
+##     :char-range [7 12],
+##     :text "Teddy"}
+##  ...
+## more examples:
+## http://nlp.stanford.edu/software/tokensregex.html
+
+# define ruleType to be over tokens
+ENV.defaults["ruleType"] = "tokens"
+
+# define keys for annotations when added
+zstrner = {type:"CLASS",value:"zensols.stanford.nlp.TokenRegexAnnotations$NERAnnotation"}
+zstrfeat = {type:"CLASS",value:"zensols.stanford.nlp.TokenRegexAnnotations$NERFeatureCreateAnnotation"}
+zstriid = {type:"CLASS",value:"zensols.stanford.nlp.TokenRegexAnnotations$NERItemIDAnnotation"}
+
+# Case insensitive pattern matching (see java.util.regex.Pattern flags)
+#ENV.defaultStringPatternFlags = 2
+
+# define rules
+{pattern:(/(?iu)monday|tuesday|wednesday|thursday|friday|saturday|sunday/),action:(Annotate($0,zstrner,"DAY_OF_WEEK"))}
+{pattern:([{word:"Teddy"}] [{lemma:"Grams"}]),action:(Annotate($0,zstrner,"PRODUCT"),Annotate($0,zstriid,"497"),Annotate($0,zstrfeat,"food-type={dessert}"))}
