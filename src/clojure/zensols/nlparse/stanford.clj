@@ -397,11 +397,3 @@
 
 (dyn/register-purge-fn reset)
 (initialize)
-
-(do
-  (-> *parse-context* :tok-re-annotator (#(reset! % nil)))
-  (-> *parse-context* :pipeline-inst (#(reset! % nil)))
-  (->> (parse "I like Teddy Grams on Tuesday")
-       ;:tok-re-mentions
-       clojure.pprint/pprint
-       ))
