@@ -65,10 +65,15 @@
     (register-resource :tok-re-resource :constant "target/ner")
     (with-context [(create-tok-ner-context)]
       (let [ssn "667-16-9329"
-            panon (s/parse (format ssn "My social security number is %s"))
-            mention (-> panon :tok-re-mentions first)
-            toks (p/tokens-for-mention panon mention)
+            panon (s/parse (format "My social security number is %s.  Say some bad words." ssn))
+            [ssn-ment prof-ment] (-> panon :tok-re-mentions)
+            toks (p/tokens-for-mention panon ssn-ment)
             ftok (first toks)]
+        (is (not (nil? panon)))
+        (is (not (nil? ssn-ment)))
+        (is (not (nil? prof-ment)))
+        (is (not (nil? toks)))
         (is (= {:pii-type "ssn"} (->> ftok :tok-re-ner-features)))
         (is (= "NUMBER" (->> ftok :ner-tag)))
-        (is (= "PII" (-> ftok :tok-re-ner-tag)))))))
+        (is (= "PII" (-> ftok :tok-re-ner-tag)))
+        (is (= "PROFANITY" (:tok-re-ner-tag prof-ment)))))))
