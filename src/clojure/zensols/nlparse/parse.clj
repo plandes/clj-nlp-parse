@@ -181,6 +181,20 @@
   (->> (:mentions panon)
        (filter #(->> % :token-range (tok-in-range? tok)))))
 
+(defn tokens-by-sentence
+  "Return the tokens for **sent-index** in the **token-range**."
+  [panon sent-index token-range]
+  (let [sent (-> panon :sents (nth sent-index) :tokens)]
+    (->> sent
+         (drop (first token-range))
+         (take (- (second token-range) (first token-range))))))
+
+(defn tokens-for-mention
+  "Return tokens for **mention**."
+  [panon mention]
+  (let [{:keys [token-range sent-index]} mention]
+    (tokens-by-sentence panon sent-index token-range)))
+
 (def parse-command
   "CLI command to parse an utterance"
   {:description "parse an English utterance"

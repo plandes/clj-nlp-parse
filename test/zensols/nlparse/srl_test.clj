@@ -1,6 +1,7 @@
 (ns zensols.nlparse.srl-test
-  (:require [zensols.tabres.display-results :as dr])
-  (:require zensols.nlparse.srl :refer :all))
+  (:require [clojure.string :as s]
+            [zensols.tabres.display-results :as dr]
+            [zensols.nlparse.srl :refer :all]))
 
 (defn- display-srl-tree
   "Display the Semantic Role Labeling of *tree-sents*
@@ -19,7 +20,7 @@
                (if head (.-id head))
                (if head (.getLabel head))
                (if (not (.isEmpty heads))
-                 (str/join "," heads))]))]
+                 (s/join "," heads))]))]
     (dr/display-results
      (apply concat
             (map (fn [tree]
