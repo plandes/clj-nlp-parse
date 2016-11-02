@@ -185,36 +185,39 @@
         (print ")}")))))
 
 (defn write-regex-files
-  ([regex-output-file feats-output-file items]
-   (->> regex-output-file
-        .getParentFile
-        .mkdirs)
-   (let [feats (with-open [writer (io/writer regex-output-file)]
-                 (binding [*out* writer]
-                   (print (slurp (template-resource)))
-                   (->> items
-                        (map (fn [item]
-                               (->> item
-                                    (item-to-word-regexes)
-                                    (format-rules item))
-                               (println)
-                               (if (:features item)
-                                 (map (fn [[k v]]
-                                        (if (not (nil? v))
-                                          {k (hash-set v)}))
-                                      (:features item)))))
-                        (reduce (fn [a b]
-                                  (apply merge-with union (cons a b)))
-                                {})
-                        (doall))))]
-     (log/infof "write regex compiled file: %s" regex-output-file)
-     (with-open [writer (io/writer feats-output-file)]
-       (binding [*out* writer]
-         (println (format ";; all features found in %s"
-                          (.getName regex-output-file)))
-         (pr feats)
-         (flush)))
-     (log/infof "write regex compiled features: %s" feats-output-file)
-     feats)))
+  "Write all **items** to the Stanford token regular expression files
+  **regex-output-file** with all possible features in
+  **features-output-file**."
+  [regex-output-file features-output-file items]
+  (->> regex-output-file
+       .getParentFile
+       .mkdirs)
+  (let [feats (with-open [writer (io/writer regex-output-file)]
+                (binding [*out* writer]
+                  (print (slurp (template-resource)))
+                  (->> items
+                       (map (fn [item]
+                              (->> item
+                                   (item-to-word-regexes)
+                                   (format-rules item))
+                              (println)
+                              (if (:features item)
+                                (map (fn [[k v]]
+                                       (if (not (nil? v))
+                                         {k (hash-set v)}))
+                                     (:features item)))))
+                       (reduce (fn [a b]
+                                 (apply merge-with union (cons a b)))
+                               {})
+                       (doall))))]
+    (log/infof "write regex compiled file: %s" regex-output-file)
+    (with-open [writer (io/writer features-output-file)]
+      (binding [*out* writer]
+        (println (format ";; all features found in %s"
+                         (.getName regex-output-file)))
+        (pr feats)
+        (flush)))
+    (log/infof "write regex compiled features: %s" features-output-file)
+    feats))
 
 (initialize)
