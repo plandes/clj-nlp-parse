@@ -1,0 +1,14 @@
+## token regular expression file
+
+# define ruleType to be over tokens
+ENV.defaults["ruleType"] = "tokens"
+
+# define keys for annotations when added
+zstrner = {type:"CLASS",value:"zensols.stanford.nlp.TokenRegexAnnotations$NERAnnotation"}
+zstrfeat = {type:"CLASS",value:"zensols.stanford.nlp.TokenRegexAnnotations$NERFeatureCreateAnnotation"}
+zstriid = {type:"CLASS",value:"zensols.stanford.nlp.TokenRegexAnnotations$NERItemIDAnnotation"}
+
+# Case insensitive pattern matching (see java.util.regex.Pattern flags)
+#ENV.defaultStringPatternFlags = 2
+
+# define rules

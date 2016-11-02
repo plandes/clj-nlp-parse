@@ -73,7 +73,7 @@
          (.process comp (.-o tree))))
       trees)))
 
-(defn- parse-sentences
+(defn parse-sentences
   "Returns a list of hashs each having a list of sentence trees of the form:
   ({:sent, :score, :tree) ...}.  Each element's :tree value is a list of
   DEPTree instances.  Parameter is an object returned
@@ -119,7 +119,7 @@
           (first sent-trees))
       (first sent-trees))))
 
-(defn- classify-sent-trees
+(defn classify-sent-trees
   "Return the max likelihood (by score returned from [[parse-sentences]]) tree
   set.  The returned value is a list of sentences most likely to be correct."
   ([sent-trees]

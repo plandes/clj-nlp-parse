@@ -23,15 +23,9 @@
   more information."
   []
   (log/debug "initializing")
-  (res/register-resource :model :system-property "model")
-  (res/register-resource :data :system-property "data")
   (res/register-resource :stanford-model
                          :pre-path :model :system-file "stanford")
-  (res/register-resource :preprocess :pre-path :data :constant "preprocess")
-  (res/register-resource :preprocess-nascent :pre-path
-                         :preprocess :constant "nascent")
-  (res/register-resource :tok-re-resource :pre-path :preprocess-nascent
-                         :system-property "tok-res"))
+  (res/register-resource :model :system-property "model"))
 
 (def ^:private default-component-config
   {:tokenize {:lang "en"}
@@ -40,7 +34,7 @@
    :tok-re {:tok-re-resources ["token-regex.txt"]}})
 
 (def ^:private default-components
-  [:tokenize :sents :stopword :pos :ner :tok-re :tree :coref])
+  [:tokenize :sents :stopword :pos :ner :tree :coref])
 
 (defn- compose-pipeline
   [components]

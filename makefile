@@ -10,9 +10,15 @@ ZBHOME=		../clj-zenbuild
 #ZMODEL=	$(HOME)/opt/nlp/model
 
 # clean the generated app assembly file
-ADD_CLEAN+=	$(ASBIN_DIR)
+MLINK=		~/opt/nlp/model
+ADD_CLEAN+=	$(ASBIN_DIR) model
 
 all:		info
 
 include $(ZBHOME)/src/mk/compile.mk
 include $(ZBHOME)/src/mk/dist.mk
+
+.PHONY: test
+test:
+	ln -s $(MLINK) || true
+	lein test
