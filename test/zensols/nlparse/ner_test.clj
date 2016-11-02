@@ -10,7 +10,8 @@
 (def ^:private utterance "I like Teddy Grams on Tuesday")
 
 (defn- create-tok-ner-context []
-  (s/create-context [:tokenize :sents :pos :ner :tok-re]))
+  (binding [s/pipeline-components [:tokenize :sents :pos :ner :tok-re]]
+    (s/create-context)))
 
 (defnc- tok-ner-context (create-tok-ner-context))
 

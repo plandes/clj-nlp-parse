@@ -27,13 +27,13 @@
                          :pre-path :model :system-file "stanford")
   (res/register-resource :model :system-property "model"))
 
-(def ^:private default-component-config
+(def ^:dynamic pipeline-component-config
   {:tokenize {:lang "en"}
    :pos {:pos-model-resource "english-left3words-distsim.tagger"}
    :ner {:ner-model-paths ["edu/stanford/nlp/models/ner/english.conll.4class.distsim.crf.ser.gz"]}
    :tok-re {:tok-re-resources ["token-regex.txt"]}})
 
-(def ^:private default-components
+(def ^:dynamic pipeline-components
   [:tokenize :sents :stopword :pos :ner :tree :coref])
 
 (defn- compose-pipeline
@@ -41,7 +41,7 @@
   (->> components
        (map (fn [comp]
               (merge {:component comp}
-                     (get default-component-config comp))))))
+                     (get pipeline-component-config comp))))))
 
 ;; pipeline
 (defn create-context
@@ -58,16 +58,14 @@
   * **:tree** create head and parse trees
 
   See [[with-context]]."
-  ([]
-   (create-context default-components))
-  ([pipeline-components]
-   {:pipeline-config (compose-pipeline pipeline-components)
-    :pipeline-inst (atom nil)
-    :tagger-model (atom nil)
-    :ner-annotator (atom nil)
-    :tok-re-annotator (atom nil)
-    :dependency-parse-annotator (atom nil)
-    :coref-annotator (atom nil)}))
+  []
+  {:pipeline-config (compose-pipeline pipeline-components)
+   :pipeline-inst (atom nil)
+   :tagger-model (atom nil)
+   :ner-annotator (atom nil)
+   :tok-re-annotator (atom nil)
+   :dependency-parse-annotator (atom nil)
+   :coref-annotator (atom nil)})
 
 (def ^{:dynamic true :private true}
   *parse-context* (create-context))
