@@ -41,7 +41,8 @@
   (->> components
        (map (fn [comp]
               (merge {:component comp}
-                     (get pipeline-component-config comp))))))
+                     (get pipeline-component-config comp))))
+       doall))
 
 ;; pipeline
 (defn create-context
