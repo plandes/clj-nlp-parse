@@ -184,7 +184,7 @@
 
 ;; annotation getters
 (def ^:private annotation-keys
-  [:text :pos-tag :sent-index :token-range :token-index :char-range
+  [:text :pos-tag :sent-index :token-range :token-index :index-range :char-range
    :lemma :entity-type :ner-tag :normalized-tag :stopword
    :tok-re-ner-tag :tok-re-ner-item-id :tok-re-ner-features])
 
@@ -237,6 +237,11 @@
 (defn- token-range- [anon]
   (let [beg (get- anon edu.stanford.nlp.ling.CoreAnnotations$TokenBeginAnnotation)
         end (get- anon edu.stanford.nlp.ling.CoreAnnotations$TokenEndAnnotation)]
+    (when beg end [beg end])))
+
+(defn- index-range- [anon]
+  (let [beg (get- anon edu.stanford.nlp.ling.CoreAnnotations$BeginIndexAnnotation)
+        end (get- anon edu.stanford.nlp.ling.CoreAnnotations$EndIndexAnnotation)]
     (when beg end [beg end])))
 
 (defn- dependency-parse-tree- [anon]

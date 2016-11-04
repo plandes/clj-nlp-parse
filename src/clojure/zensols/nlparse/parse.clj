@@ -168,26 +168,32 @@
   (->> sent
        :dependency-parse-tree first :token-index dec (nth (:tokens sent))))
 
-(defn tok-in-range?
+(defn token-in-range?
   "Return whether token **tok** is in tuple **range**."
   [tok range]
   (let [[st et] (:token-range tok)
         [sr er] range]
     (and (>= st sr) (<= et er))))
 
+(defn mentions
+  "Get all mentions from parse annotation **panon**."
+  [panon]
+  (->> [:mentions :tok-re-mentions]
+       (map #(get panon %))
+       (apply concat)))
+
 (defn mention-for-token
   "Return a mention for token **tok** (if any)."
-  [panon tok]
+  [panon token]
   (->> (:mentions panon)
-       (filter #(->> % :token-range (tok-in-range? tok)))))
+       (filter #(->> % :token-range (token-in-range? token)))))
 
 (defn tokens-by-sentence
   "Return the tokens for **sent-index** in the **token-range**."
   [panon sent-index token-range]
   (let [sent (-> panon :sents (nth sent-index) :tokens)]
     (->> sent
-         (drop (first token-range))
-         (take (- (second token-range) (first token-range))))))
+         (filter #(->> % :token-range (token-in-range? token))))))
 
 (defn tokens-for-mention
   "Return tokens for **mention**."
