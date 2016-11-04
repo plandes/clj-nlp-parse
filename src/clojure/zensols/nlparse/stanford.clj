@@ -36,7 +36,7 @@
 (def ^:dynamic pipeline-components
   [:tokenize :sents :stopword :pos :ner :parse :coref])
 
-(defn- compose-pipeline
+(defn compose-pipeline
   [components]
   (->> components
        (map (fn [comp]

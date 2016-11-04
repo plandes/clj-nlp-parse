@@ -101,7 +101,7 @@
 (defn- item-to-word-regexes [item]
   (let [morph (Morphology.)
         {:keys [content lem-min-len conj-regexp? delimiters
-                case-min-tok first-det-chop? is-regexp?]} item
+                case-min-tok first-det-chop?]} item
         repls (concat [[#"\"\"" "/ /"]]
                       ;; this will take more work given tok demarcation
                       (if (and false delimiters)
@@ -122,10 +122,9 @@
                                        (lemma word morph)
                                        {:word word})
                       lower (str/lower-case word)]
-                  (if-not (and (not is-regexp?) first?
-                               first-det-chop? (= "the" lower))
+                  (if-not (and first? first-det-chop? (= "the" lower))
                     (merge wmap
-                           {:text (if (or case-sen? is-regexp?) word lower)
+                           {:text (if case-sen? word lower)
                             :lemmatize lem?})))))
             (massage-tokens [wmaps]
               (log/debugf "massage tokens with wmaps: %s" (pr-str wmaps))
@@ -140,38 +139,33 @@
                   (map #(massage-word-map % false false false) middle)
                   (list (massage-word-map (last middle-and-last)
                                           lem? true true))))))]
-      (if is-regexp?
-        (->> toks
-             (map #(array-map :text % :regex true :is-regexp? true :case-sen? true)))
-        (->> toks
-            (map #(array-map :text %))
-            massage-tokens
-            (map #(replace-regex-word-map % repls case-sen?))
-            (map (fn [itok]
-                   (if (and (:regex itok) (not (:rep-regex itok)))
-                     (assoc itok :text (re-quote (:text itok)))
-                     itok))))))))
+      (->> toks
+           (map #(array-map :text %))
+           massage-tokens
+           (map #(replace-regex-word-map % repls case-sen?))
+           (map (fn [itok]
+                  (if (and (:regex itok) (not (:rep-regex itok)))
+                    (assoc itok :text (re-quote (:text itok)))
+                    itok)))))))
 
 (defn- format-rules [item word-regexes]
-  (letfn [(fmt-pattern [{:keys [case-sen? is-regexp? lemmatize regex tags text]}]
+  (letfn [(fmt-pattern [{:keys [case-sen? lemmatize regex tags text]}]
             (let [word (if case-sen? text (str"(?i)" text))
                   delim (if regex "/" "\"")
                   word-pat (str delim word delim)
-                  word-pat (if is-regexp?
-                             word-pat
-                             (str (if lemmatize "lemma" "word") ":" word-pat))
+                  word-pat (str (if lemmatize "lemma" "word") ":" word-pat)
                   tag-pat (if tags (format "tag:/%s/" (str/join "|" tags)))]
               (->> [word-pat tag-pat]
                    (map #(if % %))
                    (filter identity)
                    (str/join ";")
-                   (#(if is-regexp? % (str "[{" % "}]"))))))]
+                   (#(str "[{" % "}]")))))]
     (when-not (empty? word-regexes)
-      (let [pats (str/join " " (map fmt-pattern word-regexes))
-            pat (:pattern item)
-            pattern (if pat
-                      (str/replace pat "~" pats)
-                      (str "(" pats ")"))]
+      (let [pat (:pattern item)
+            pats (if (:is-regexp? item)
+                   (:content item)
+                   (str/join " " (map fmt-pattern word-regexes)))
+            pattern (str "(" pats ")")]
         (print "{pattern:")
         (print pattern)
         (print ",action:(")
@@ -198,7 +192,10 @@
                   (->> items
                        (map (fn [item]
                               (->> item
-                                   (item-to-word-regexes)
+                                   ((fn [item]
+                                      (if (:is-regexp? item)
+                                        item
+                                        (item-to-word-regexes item))))
                                    (format-rules item))
                               (println)
                               (if (:features item)

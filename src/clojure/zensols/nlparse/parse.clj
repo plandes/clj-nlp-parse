@@ -170,15 +170,21 @@
 
 (defn token-in-range?
   "Return whether token **tok** is in tuple **range**."
-  [tok range]
-  (let [[st et] (:token-range tok)
+  [token range]
+  (let [[st et] (:token-range token)
         [sr er] range]
     (and (>= st sr) (<= et er))))
 
 (defn mentions
-  "Get all mentions from parse annotation **panon**."
-  [panon]
-  (->> [:mentions :tok-re-mentions]
+  "Get all mentions from parse annotation **panon**.
+
+Keys
+----
+* **:mention-keys** top level keys of mentions to use and defaults to
+    `[:mentions :tok-re-mentions]`"
+  [panon & {:keys [mention-keys]
+            :or {mention-keys [:mentions :tok-re-mentions]}}]
+  (->> mention-keys
        (map #(get panon %))
        (apply concat)))
 
@@ -193,13 +199,27 @@
   [panon sent-index token-range]
   (let [sent (-> panon :sents (nth sent-index) :tokens)]
     (->> sent
-         (filter #(->> % :token-range (token-in-range? token))))))
+         (drop (first token-range))
+         (take (- (second token-range) (first token-range))))))
 
 (defn tokens-for-mention
   "Return tokens for **mention**."
   [panon mention]
   (let [{:keys [token-range sent-index]} mention]
-    (tokens-by-sentence panon sent-index token-range)))
+    (->> panon :sents (#(nth % sent-index)) :tokens
+         (filter #(token-in-range? % (:token-range mention))))))
+
+(defn token-mentions
+  "Return mentions with a `:tokens` key that includes token maps from the
+  sentence level."
+  ([panon]
+   (token-mentions panon (mentions panon)))
+  ([panon mentions]
+   (->> mentions
+        (map (fn [mention]
+               (->> mention
+                    (tokens-for-mention panon)
+                    (assoc mention :tokens)))))))
 
 (def parse-command
   "CLI command to parse an utterance"
