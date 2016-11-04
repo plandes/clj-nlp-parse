@@ -34,7 +34,7 @@
    :tok-re {:tok-re-resources ["token-regex.txt"]}})
 
 (def ^:dynamic pipeline-components
-  [:tokenize :sents :stopword :pos :ner :tree :coref])
+  [:tokenize :sents :stopword :pos :ner :parse :coref])
 
 (defn- compose-pipeline
   [components]
@@ -56,7 +56,7 @@
   * **:stopword** annotate stop words (boolean)
   * **:pos** do part of speech tagging
   * **:ner** do named entity recognition
-  * **:tree** create head and parse trees
+  * **:parse** create head and parse trees
 
   See [[with-context]]."
   []
@@ -159,15 +159,20 @@
                   (edu.stanford.nlp.pipeline.EntityMentionsAnnotator.)
                   (zensols.stanford.nlp.TokenRegexEntityMentionsAnnotator.)]}
 
-    :tree
-    {:name :tree
+    :parse
+    {:name :parse
      :annotators [(edu.stanford.nlp.pipeline.ParserAnnotator. false -1)
                   (create-dependency-parse-annotator)]}
 
     :coref
-    {:name :coref
-     :annotators [(edu.stanford.nlp.pipeline.DeterministicCorefAnnotator.
-                   (java.util.Properties.))]}))
+    ;; hack to avoid NLE in RuleBasedCorefMentionFinder getting a class space
+    ;; "parse" annotator starting in 3.6.0
+    (let [props (doto (java.util.Properties.)
+                  (.put "annotators" "tokenize,ssplit,parse"))]
+      (edu.stanford.nlp.pipeline.StanfordCoreNLP. props)
+      {:name :coref
+       :annotators [(edu.stanford.nlp.pipeline.DeterministicCorefAnnotator.
+                     (java.util.Properties.))]})))
 
 (defn- pipeline []
   (let [{:keys [pipeline-inst pipeline-config]} *parse-context*]
