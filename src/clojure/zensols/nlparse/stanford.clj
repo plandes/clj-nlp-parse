@@ -193,7 +193,10 @@
 
 (defn- sents- [anon] (get- anon edu.stanford.nlp.ling.CoreAnnotations$SentencesAnnotation))
 
-(defn- text- [anon] (get- anon edu.stanford.nlp.ling.CoreAnnotations$TextAnnotation))
+;(defn- text- [anon] (get- anon edu.stanford.nlp.ling.CoreAnnotations$TextAnnotation))
+(defn- text- [anon]
+  (or (get- anon edu.stanford.nlp.ling.CoreAnnotations$OriginalTextAnnotation)
+      (get- anon edu.stanford.nlp.ling.CoreAnnotations$TextAnnotation)))
 
 (defn- pos-tag- [anon] (get- anon edu.stanford.nlp.ling.CoreAnnotations$PartOfSpeechAnnotation))
 
