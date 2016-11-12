@@ -307,11 +307,22 @@
                                mentions)})))
        doall))
 
+(defn- anon-mention-map
+  "Create a mention map from an annotation.  We clobber the `:text` entry since
+  by default it uses the non-original annotation.  This non-original annotation
+  will substitute things like parenthesis with `-LRB-` and `-RRB-`."
+  [top-anon anon]
+  (->> anon
+       char-range-
+       (apply subs (text- top-anon))
+       (hash-map :text)
+       (merge (anon-word-map anon))))
+
 (defn- anon-map [anon]
   (log/debugf "tokens: %s" (tokens- anon))
   {:text (text- anon)
-   :mentions (map anon-word-map (mentions- anon))
-   :tok-re-mentions (map anon-word-map (tok-re-mentions- anon))
+   :mentions (map #(anon-mention-map anon %) (mentions- anon))
+   :tok-re-mentions (map #(anon-mention-map anon %) (tok-re-mentions- anon))
    :coref (coref-tree-to-map anon)
    :sents (map (fn [anon]
                  {:text (text- anon)
