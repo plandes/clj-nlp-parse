@@ -46,7 +46,7 @@
   (let [out-dir "target/ner"]
     (->> [(tr/item "bad Words" "PROFANITY"
                    :lem-min-len 0)
-          (tr/item "^(?!000|666)[0-8][0-9]{2}-(?!00)[0-9]{2}-(?!0000)[0-9]{4}$"
+          (tr/item "/^(?!000|666)[0-8][0-9]{2}-(?!00)[0-9]{2}-(?!0000)[0-9]{4}$/"
                    "PII"
                    :is-regexp? true
                    :features {:pii-type "ssn"})]
