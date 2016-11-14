@@ -8,13 +8,13 @@
 
 (defn- initialize []
   (res/register-resource :tok-re-template-resource
-                         :constant "tok-re" :type :resource))
+                         :constant "nlparse" :type :resource))
 
 (defn- template-resource
   "Get the token regular expression template resource.  This is the top portion
   of the Stanford CoreNLP Token Regular expression annotator definition file."
   []
-  (resource-path :tok-re-template-resource "template.txt"))
+  (resource-path :tok-re-template-resource "tok-re-template.txt"))
 
 (def ^:private item-defaults
 ;; * **:min-len** item skip unless **content** is at least this length (default 3)
