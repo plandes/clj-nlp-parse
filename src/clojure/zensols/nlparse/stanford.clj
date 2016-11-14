@@ -115,11 +115,12 @@
         tok-re-files (map #(io/file tok-re-path %) tok-re-resources)]
     (swap! tok-re-annotator
            (fn [ann]
-             (log/infof "creating token regular expression resources: %s"
-                        (pr-str tok-re-resources))
-             (or ann
-                 (edu.stanford.nlp.pipeline.TokensRegexAnnotator.
-                  (into-array (map #(.getAbsolutePath %) tok-re-files))))))))
+             (let [res (map str tok-re-files)]
+               (log/infof "creating token regular expression resources: %s"
+                          (pr-str res))
+               (or ann
+                   (edu.stanford.nlp.pipeline.TokensRegexAnnotator.
+                    (into-array res))))))))
 
 (defn- create-dependency-parse-annotator []
   (let [{:keys [dependency-parse-annotator]} *parse-context*]
