@@ -28,7 +28,8 @@
    :conj-regexp? true
    :is-regexp? false
    ;; :omit-single-stopword? true
-   :first-det-chop? true})
+   :first-det-chop? true
+   :feature-group-name "$0"})
 
 (defn item
   "Create an item used to create a pattern/line in the Stanford CoreNLP regular
@@ -161,7 +162,8 @@
                    (str/join ";")
                    (#(str "[{" % "}]")))))]
     (when-not (empty? word-regexes)
-      (let [pat (:pattern item)
+      (let [{pat :pattern} item
+            {:keys [feature-group-name]} item
             pats (if (:is-regexp? item)
                    (:content item)
                    (str/join " " (map fmt-pattern word-regexes)))
@@ -173,7 +175,7 @@
         (if (:id item)
           (print (format ",Annotate($0,zstriid,\"%s\")" (:id item))))
         (when (:features item)
-          (print ",Annotate($0,zstrfeat,\"")
+          (print (str ",Annotate(" feature-group-name ",zstrfeat,\""))
           (print (format-features (:features item)))
           (print "\")"))
         (print ")}")))))
