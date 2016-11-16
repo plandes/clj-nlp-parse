@@ -112,6 +112,8 @@
 (defn- create-tok-re-annotator [tok-re-resources]
   (let [{:keys [tok-re-annotator]} *parse-context*
         tok-re-path (resource-path :tok-re-resource)
+        _ (log/infof "creating tok annotator from <%s> (%s)" tok-re-path
+                     (type tok-re-path))
         tok-re-files (map #(io/file tok-re-path %) tok-re-resources)]
     (swap! tok-re-annotator
            (fn [ann]
