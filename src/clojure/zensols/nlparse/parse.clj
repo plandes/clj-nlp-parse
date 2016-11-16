@@ -168,12 +168,26 @@
   (->> sent
        :dependency-parse-tree first :token-index dec (nth (:tokens sent))))
 
+(defn overlap?
+  "Return whether two ranges overlap inclusively.  Both parameters have the
+  form: `[start end]`."
+  [a b]
+  (let [[sa ea] a
+        [sb eb] b]
+    (and (<= sa eb) (<= sb ea))))
+
+(defn in-range?
+  "Return whether **inner** range sits in inclusive range **outter**.  Both
+  parameters have the form: `[start end]`."
+  [outter inner]
+  (let [[so eo] outter
+        [si ei] inner]
+    (and (>= si so) (<= ei eo))))
+
 (defn token-in-range?
   "Return whether token **tok** is in tuple **range**."
   [token range]
-  (let [[st et] (:token-range token)
-        [sr er] range]
-    (and (>= st sr) (<= et er))))
+  (in-range? range (:token-range token)))
 
 (defn mentions
   "Get all mentions from parse annotation **panon**.
