@@ -8,6 +8,9 @@
             [zensols.nlparse.stanford :as sp]
             [zensols.nlparse.srl :as srl]))
 
+(def ^:dynamic *parse-config*
+  {:pipeline-components [:srl]})
+
 (def penn-treebank-pos-tags
   "Alphabetical list of part-of-speech tags used in the [Penn Treebank
   Project](https://www.ling.upenn.edu/courses/Fall_2003/ling001/penn_treebank_pos.html)."
@@ -109,6 +112,20 @@
        (remove nil?)
        first))
 
+(defn- srl-parse [panon]
+  (->> panon
+       :sents
+       (map (fn [sent]
+              (let [toks (:tokens sent)]
+                (->> toks
+                     (map :text)
+                     (srl/label)
+                     (#(map (fn [tok srl]
+                              (assoc tok :srl (dissoc srl [:form :lemma])))
+                            toks %))
+                     (assoc sent :tokens)))))
+       (assoc panon :sents)))
+
 (defn parse
   "Parse natural language **utterance** returning a symbol expression tree of
   it's meaning.
@@ -134,18 +151,11 @@
             - head-id (id of the head in the tree)
             - dependency-label (the dependency relation)"
   [utterance]
-  (let [anon (sp/parse utterance)]
-    (->> anon :sents
-         (map (fn [sent]
-                (let [toks (:tokens sent)]
-                  (->> toks
-                       (map :text)
-                       (srl/label)
-                       (#(map (fn [tok srl]
-                                (assoc tok :srl (dissoc srl [:form :lemma])))
-                              toks %))
-                       (assoc sent :tokens)))))
-         (assoc anon :sents))))
+  (let [{:keys [pipeline-components]} *parse-config*]
+    (->> (sp/parse utterance)
+         ((if (contains? pipeline-components :srl)
+            srl-parse
+            identity)))))
 
 (defn tokens
   "Get all tokens across all sentences."

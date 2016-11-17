@@ -1,65 +1,17 @@
 (ns ^{:doc "Wraps the Stanford CoreNLP parser."
       :author "Paul Landes"}
     zensols.nlparse.stanford
-  (:require [clojure.java.io :as io]
-            [clojure.string :as str]
-            [clojure.tools.logging :as log])
   (:import (edu.stanford.nlp.pipeline Annotation Annotator)
            (edu.stanford.nlp.process CoreLabelTokenFactory)
            (edu.stanford.nlp.ling CoreLabel))
+  (:require [clojure.java.io :as io]
+            [clojure.string :as str]
+            [clojure.tools.logging :as log])
   (:require [zensols.actioncli.dynamic :as dyn]
-            [zensols.actioncli.resource :refer (resource-path) :as res])
-  (:require [zensols.nlparse.tok-re :as tre]))
-
-(defn- initialize
-  "Initialize model resource locations.
-
-  This needs the system property `zensols.model` set to a directory that
-  has the POS tagger model `english-left3words-distsim.tagger`(or whatever
-  you configure in [[zensols.nlparse.stanford/create-context]]) in a directory
-  called `pos`.
-
-  See the [source documentation](https://github.com/plandes/zensols) for
-  more information."
-  []
-  (log/debug "initializing")
-  (res/register-resource :stanford-model
-                         :pre-path :model :system-file "stanford")
-  (res/register-resource :model :system-property "model"))
-
-(def ^:dynamic pipeline-component-config
-  "The configuration of each pipeline component defined
-  in [[pipeline-components]].  This is used with [[create-context]] to create a
-  pipeline object for NLP processing."
-  {:tokenize {:lang "en"}
-   :pos {:pos-model-resource "english-left3words-distsim.tagger"}
-   :ner {:ner-model-paths ["edu/stanford/nlp/models/ner/english.conll.4class.distsim.crf.ser.gz"]}
-   :tok-re {:tok-re-resources ["token-regex.txt"]}})
-
-(def ^:dynamic pipeline-components
-  "A sequence of keys with each representing an annotator to add to the NLP
-  pipeline.  This is used with [[create-context]] to create a pipeline object
-  for NLP processing.
-
-Keys
-----
-* **:tokenize** split words per configured language
-* **:sents** group tokens into sentences per configured language
-* **:stopword** annotate stop words (boolean)
-* **:pos** do part of speech tagging
-* **:ner** do named entity recognition
-* **:tok-re** token regular expression
-* **:parse** create head and parse trees
-* **:coref** coreference tree structure"
-  [:tokenize :sents :stopword :pos :ner :parse :coref])
-
-(defn- compose-pipeline
-  [components]
-  (->> components
-       (map (fn [comp]
-              (merge {:component comp}
-                     (get pipeline-component-config comp))))
-       doall))
+            [zensols.actioncli.resource :as res])
+  (:require [zensols.nlparse.resource :as pres]
+            [zensols.nlparse.tok-re :as tre]
+            [zensols.nlparse.config :as conf]))
 
 ;; pipeline
 (defn create-context
@@ -69,12 +21,12 @@ Keys
   components, which is a sequence of the following keywords:
 
   The output of this function depends on the bindings of:
-  * [[pipeline-components]]
-  * [[pipeline-component-config]]
+  * [[*pipeline-components*]]
+  * [[*pipeline-component-config*]]
 
   See [[with-context]]."
   []
-  {:pipeline-config (compose-pipeline pipeline-components)
+  {:pipeline-config conf/*pipeline-config*
    :pipeline-inst (atom nil)
    :tagger-model (atom nil)
    :ner-annotator (atom nil)
@@ -82,8 +34,9 @@ Keys
    :dependency-parse-annotator (atom nil)
    :coref-annotator (atom nil)})
 
-(def ^{:dynamic true :private true}
-  *parse-context* (create-context))
+(def ^{:dynamic true :private true} *parse-context*
+  "Parse context (default value when not rebound)."
+  (create-context))
 
 (defn reset
   "Reset all default cached pipeline components objects.  This can be invoked
@@ -109,7 +62,7 @@ Keys
 
 (defn- create-tagger-model [pos-model-resource]
   (let [{:keys [tagger-model]} *parse-context*
-        model-path (resource-path :stanford-model "pos")
+        model-path (res/resource-path :stanford-model "pos")
         model-file (io/file model-path pos-model-resource)]
     (swap! tagger-model
            (fn [tagger]
@@ -128,7 +81,7 @@ Keys
 
 (defn- create-tok-re-annotator [tok-re-resources]
   (let [{:keys [tok-re-annotator]} *parse-context*
-        tok-re-path (resource-path :tok-re-resource)
+        tok-re-path (res/resource-path :tok-re-resource)
         _ (log/infof "creating tok annotator from <%s> (%s)" tok-re-path
                      (type tok-re-path))
         tok-re-files (map #(io/file tok-re-path %) tok-re-resources)]
@@ -179,10 +132,13 @@ Keys
                   (edu.stanford.nlp.pipeline.EntityMentionsAnnotator.)
                   (zensols.stanford.nlp.TokenRegexEntityMentionsAnnotator.)]}
 
-    :parse
-    {:name :parse
-     :annotators [(edu.stanford.nlp.pipeline.ParserAnnotator. false -1)
-                  (create-dependency-parse-annotator)]}
+    :parse-tree
+    {:name :parse-tree
+     :annotators [(edu.stanford.nlp.pipeline.ParserAnnotator. false -1)]}
+
+    :dependency-parse-tree
+    {:name :dependency-parse-tree
+     :annotators [(create-dependency-parse-annotator)]}
 
     :coref
     ;; hack to avoid NLE in RuleBasedCorefMentionFinder getting a class space
@@ -433,4 +389,4 @@ Keys
        pranon-deep))
 
 (dyn/register-purge-fn reset)
-(initialize)
+(pres/initialize)
