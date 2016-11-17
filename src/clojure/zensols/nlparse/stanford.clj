@@ -1,20 +1,16 @@
 (ns ^{:doc "Wraps the Stanford CoreNLP parser."
       :author "Paul Landes"}
     zensols.nlparse.stanford
-  (:import (edu.stanford.nlp.pipeline Annotation Annotator)
-           (edu.stanford.nlp.process CoreLabelTokenFactory)
-           (edu.stanford.nlp.ling CoreLabel))
+  (:import [edu.stanford.nlp.pipeline Annotation])
   (:require [clojure.java.io :as io]
-            [clojure.string :as str]
             [clojure.tools.logging :as log])
   (:require [zensols.actioncli.dynamic :as dyn]
             [zensols.actioncli.resource :as res])
-  (:require [zensols.nlparse.resource :as pres]
-            [zensols.nlparse.tok-re :as tre]
+  (:require [zensols.nlparse.tok-re :as tre]
             [zensols.nlparse.config :as conf]))
 
 ;; pipeline
-(defn create-context
+(defn- create-context
   "Create a default context that can (optionally) be configured.
 
   If **pipeline-compoennts** is given, create a pipeline with only the given
@@ -25,8 +21,8 @@
   * [[*pipeline-component-config*]]
 
   See [[with-context]]."
-  []
-  {:pipeline-config conf/*pipeline-config*
+  [pipeline-config]
+  {:pipeline-config pipeline-config
    :pipeline-inst (atom nil)
    :tagger-model (atom nil)
    :ner-annotator (atom nil)
@@ -34,34 +30,23 @@
    :dependency-parse-annotator (atom nil)
    :coref-annotator (atom nil)})
 
-(def ^{:dynamic true :private true} *parse-context*
-  "Parse context (default value when not rebound)."
-  (create-context))
-
-(defn reset
+(defn reset-context
   "Reset all default cached pipeline components objects.  This can be invoked
   in the lexical context of [[with-context]] to reset a non-default contet."
-  []
-  (let [atoms [:pipeline-inst :tagger-model :ner-annotator :tok-re-annotator
-               :dependency-parse-annotator :coref-annotator]]
-    (doseq [atom atoms]
-      (-> (get *parse-context* atom)
-          (reset! nil)))))
+  [parse-context]
+  (log/infof "resting <%s>" (pr-str parse-context))
+  (when parse-context
+    (let [atoms [:pipeline-inst :tagger-model :ner-annotator :tok-re-annotator
+                 :dependency-parse-annotator :coref-annotator]]
+      (doseq [atom atoms]
+        (-> (get parse-context atom)
+            (reset! nil))))))
 
-(defmacro with-context
-  "Use the parser with a context created with [[create-context]].
-  This context is optionally configured.  Without this macro the default
-  context is created with [[create-context]]."
-  {:style/indent 1}
-  [exprs & forms]
-  (let [[raw-context- & ckeys-] exprs]
-    `(let [qkeys# (apply hash-map (quote ~ckeys-))
-           context# (merge ~raw-context- qkeys#)]
-       (binding [*parse-context* context#]
-         ~@forms))))
+(defn- context []
+  (conf/context :stanford))
 
 (defn- create-tagger-model [pos-model-resource]
-  (let [{:keys [tagger-model]} *parse-context*
+  (let [{:keys [tagger-model]} (context)
         model-path (res/resource-path :stanford-model "pos")
         model-file (io/file model-path pos-model-resource)]
     (swap! tagger-model
@@ -71,7 +56,7 @@
                          (.getAbsolutePath model-file)))))))
 
 (defn- create-ner-annotator [ner-model-paths]
-  (let [{:keys [ner-annotator]} *parse-context*]
+  (let [{:keys [ner-annotator]} (context)]
     (swap! ner-annotator
            (fn [ann]
              (log/infof "creating ner annotators: %s" (pr-str ner-model-paths))
@@ -80,7 +65,7 @@
                        true true (into-array String ner-model-paths)) false))))))
 
 (defn- create-tok-re-annotator [tok-re-resources]
-  (let [{:keys [tok-re-annotator]} *parse-context*
+  (let [{:keys [tok-re-annotator]} (context)
         tok-re-path (res/resource-path :tok-re-resource)
         _ (log/infof "creating tok annotator from <%s> (%s)" tok-re-path
                      (type tok-re-path))
@@ -95,7 +80,7 @@
                     (into-array res))))))))
 
 (defn- create-dependency-parse-annotator []
-  (let [{:keys [dependency-parse-annotator]} *parse-context*]
+  (let [{:keys [dependency-parse-annotator]} (context)]
     (swap! dependency-parse-annotator
            #(or % (edu.stanford.nlp.pipeline.DependencyParseAnnotator.)))))
 
@@ -151,7 +136,7 @@
                      (java.util.Properties.))]})))
 
 (defn- pipeline []
-  (let [{:keys [pipeline-inst pipeline-config]} *parse-context*]
+  (let [{:keys [pipeline-inst pipeline-config]} (context)]
     (log/debugf "creating pipeline with config <%s>" pipeline-config)
     (swap! pipeline-inst
            #(or % (map make-pipeline-component pipeline-config)))))
@@ -388,5 +373,8 @@
   (->> (parse-raw utterance)
        pranon-deep))
 
-(dyn/register-purge-fn reset)
-(pres/initialize)
+(conf/register-library
+ :stanford {:create-fn create-context
+            :reset-fn reset-context})
+
+(parse "This is a test")
