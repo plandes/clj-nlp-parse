@@ -28,15 +28,32 @@
   (res/register-resource :model :system-property "model"))
 
 (def ^:dynamic pipeline-component-config
+  "The configuration of each pipeline component defined
+  in [[pipeline-components]].  This is used with [[create-context]] to create a
+  pipeline object for NLP processing."
   {:tokenize {:lang "en"}
    :pos {:pos-model-resource "english-left3words-distsim.tagger"}
    :ner {:ner-model-paths ["edu/stanford/nlp/models/ner/english.conll.4class.distsim.crf.ser.gz"]}
    :tok-re {:tok-re-resources ["token-regex.txt"]}})
 
 (def ^:dynamic pipeline-components
+  "A sequence of keys with each representing an annotator to add to the NLP
+  pipeline.  This is used with [[create-context]] to create a pipeline object
+  for NLP processing.
+
+Keys
+----
+* **:tokenize** split words per configured language
+* **:sents** group tokens into sentences per configured language
+* **:stopword** annotate stop words (boolean)
+* **:pos** do part of speech tagging
+* **:ner** do named entity recognition
+* **:tok-re** token regular expression
+* **:parse** create head and parse trees
+* **:coref** coreference tree structure"
   [:tokenize :sents :stopword :pos :ner :parse :coref])
 
-(defn compose-pipeline
+(defn- compose-pipeline
   [components]
   (->> components
        (map (fn [comp]
@@ -51,12 +68,9 @@
   If **pipeline-compoennts** is given, create a pipeline with only the given
   components, which is a sequence of the following keywords:
 
-  * **:tokenize** split words per configured language
-  * **:sents** group tokens into sentences per configured language
-  * **:stopword** annotate stop words (boolean)
-  * **:pos** do part of speech tagging
-  * **:ner** do named entity recognition
-  * **:parse** create head and parse trees
+  The output of this function depends on the bindings of:
+  * [[pipeline-components]]
+  * [[pipeline-component-config]]
 
   See [[with-context]]."
   []
@@ -71,7 +85,10 @@
 (def ^{:dynamic true :private true}
   *parse-context* (create-context))
 
-(defn- reset []
+(defn reset
+  "Reset all default cached pipeline components objects.  This can be invoked
+  in the lexical context of [[with-context]] to reset a non-default contet."
+  []
   (let [atoms [:pipeline-inst :tagger-model :ner-annotator :tok-re-annotator
                :dependency-parse-annotator :coref-annotator]]
     (doseq [atom atoms]
