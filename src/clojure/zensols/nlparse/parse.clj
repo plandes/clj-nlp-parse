@@ -5,11 +5,9 @@
             [clojure.tools.logging :as log]
             [clojure.set :as set])
   (:require [zensols.actioncli.log4j2 :as lu]
+            [zensols.nlparse.config :as conf]
             [zensols.nlparse.stanford :as sp]
             [zensols.nlparse.srl :as srl]))
-
-(def ^:dynamic *parse-config*
-  {:pipeline-components [:srl]})
 
 (def penn-treebank-pos-tags
   "Alphabetical list of part-of-speech tags used in the [Penn Treebank
@@ -112,20 +110,6 @@
        (remove nil?)
        first))
 
-(defn- srl-parse [panon]
-  (->> panon
-       :sents
-       (map (fn [sent]
-              (let [toks (:tokens sent)]
-                (->> toks
-                     (map :text)
-                     (srl/label)
-                     (#(map (fn [tok srl]
-                              (assoc tok :srl (dissoc srl [:form :lemma])))
-                            toks %))
-                     (assoc sent :tokens)))))
-       (assoc panon :sents)))
-
 (defn parse
   "Parse natural language **utterance** returning a symbol expression tree of
   it's meaning.
@@ -151,11 +135,11 @@
             - head-id (id of the head in the tree)
             - dependency-label (the dependency relation)"
   [utterance]
-  (let [{:keys [pipeline-components]} *parse-config*]
-    (->> (sp/parse utterance)
-         ((if (contains? pipeline-components :srl)
-            srl-parse
-            identity)))))
+  (->> (conf/parse-functions)
+       (reduce (fn [last-res parse-fn]
+                 (log/debugf "next parser: %s" parse-fn)
+                 (parse-fn last-res))
+               utterance)))
 
 (defn tokens
   "Get all tokens across all sentences."
@@ -256,3 +240,14 @@ Keys
    :app (fn [{:keys [utterance] :as opts} & args]
           (clojure.pprint/pprint (parse utterance)))})
 
+(let [ctx (->> (conf/create-parse-config
+                :pipeline [(conf/tokenize)
+                           (conf/sentence)
+                           (conf/stopword)
+                           (conf/part-of-speech)
+                           (conf/semantic-role-labeler)
+                           ])
+               conf/create-context)]
+  (conf/with-context [ctx]
+    (->> (parse "My name is Paul Landes") clojure.pprint/pprint)
+    ))

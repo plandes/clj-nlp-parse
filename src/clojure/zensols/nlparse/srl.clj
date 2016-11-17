@@ -16,27 +16,25 @@
            (com.clearnlp.component.pos AbstractPOSTagger EnglishPOSTagger)
            (com.clearnlp.dependency DEPNode DEPLib)
            (com.clearnlp.util UTInput))
-  (:require [zensols.actioncli.dynamic :refer (defa-) :as dyn]))
-
-(def ^:dynamic *lang*
-  "Language used to create the SRL pipeline."
-  AbstractReader/LANG_EN)
-
-(def ^:dynamic *model-type*
-  "Model type used to create the SRL pipeilne."
-  "general-en")
+  (:require [zensols.actioncli.dynamic :refer (defa-) :as dyn]
+            [zensols.nlparse.config :as conf]))
 
 (def ^:dynamic first-label-token-threshold
   "Token minimum position that contains a label to help decide the best SRL
   labeled sentence to choose."
   3)
 
-(defa- pipeline-inst)
+(defn- create-context
+  [parse-config]
+  (let [srl-comp (conf/component-from-config parse-config :srl)]
+    (log/debugf "component: %s" (pr-str srl-comp))
+    {:config srl-comp
+     :pipeline-inst (atom nil)}))
 
-(defn- reset []
-  (reset! pipeline-inst nil))
-
-(dyn/register-purge-fn reset)
+(defn- reset-context
+  [parse-context]
+  (when parse-context
+    (reset! (:pipeline-inst parse-context) nil)))
 
 (defn- nlp-object-input-stream [path mode]
   (ObjectInputStream.
@@ -44,12 +42,13 @@
     (GZIPInputStream.
      (UTInput/getInputStreamsFromClasspath (str path "/" mode))))))
 
-(defn- create-pipeline []
-  (let [tagger (EnglishPOSTagger. (nlp-object-input-stream *model-type* NLPMode/MODE_POS))
-        parser (NLPGetter/getComponent *model-type* *lang* NLPMode/MODE_DEP)
-        identifier (NLPGetter/getComponent *model-type* *lang* NLPMode/MODE_PRED)
-        classifier (NLPGetter/getComponent *model-type* *lang* NLPMode/MODE_ROLE)
-        labeler (NLPGetter/getComponent *model-type* *lang* NLPMode/MODE_SRL)
+(defn- create-pipeline [lang model-type]
+  (log/debugf "creating pipeline lang: %s, model-type: %s"lang model-type)
+  (let [tagger (EnglishPOSTagger. (nlp-object-input-stream model-type NLPMode/MODE_POS))
+        parser (NLPGetter/getComponent model-type lang NLPMode/MODE_DEP)
+        identifier (NLPGetter/getComponent model-type lang NLPMode/MODE_PRED)
+        classifier (NLPGetter/getComponent model-type lang NLPMode/MODE_ROLE)
+        labeler (NLPGetter/getComponent model-type lang NLPMode/MODE_SRL)
         ;; need this to avoid a NPE
         kluge (proxy [AbstractComponent] []
                 (process [tree]
@@ -61,7 +60,9 @@
      :post [identifier classifier labeler kluge]}))
 
 (defn- pipeline []
-  (swap! pipeline-inst #(or % (create-pipeline))))
+  (let [{:keys [pipeline-inst config]} (conf/context :srl)
+        {:keys [lang model-type]} config]
+    (swap! pipeline-inst #(or % (create-pipeline lang model-type)))))
 
 (defn- parse-trees [pipeline tree]
   (let [parser (:parser pipeline)]
@@ -69,8 +70,8 @@
       (.process comp tree))
     (let [trees (.getParsedTrees parser tree true)]
       (doseq [tree trees]
-       (doseq [comp (:post pipeline)]
-         (.process comp (.-o tree))))
+        (doseq [comp (:post pipeline)]
+          (.process comp (.-o tree))))
       trees)))
 
 (defn parse-sentences
@@ -175,7 +176,7 @@
         "aux" "meta" "intj" "parataxis" "csubj" "preconj" "csubjpass" "neg"
         "number" "possessive" "expl" "predet"]))
 
-(defn label
+(defn- label
   "Label (classify) and return the tokenized sequence **tokens** of a sentence.
 
   * **tokens** are a sequence of strings that make up a sentence"
@@ -186,3 +187,21 @@
       classify-sent-trees
       mapify-parsed-sentences
       first))
+
+(defn- parse [panon]
+  (->> panon
+       :sents
+       (map (fn [sent]
+              (let [toks (:tokens sent)]
+                (->> toks
+                     (map :text)
+                     (label)
+                     (#(map (fn [tok srl]
+                              (assoc tok :srl (dissoc srl [:form :lemma])))
+                            toks %))
+                     (assoc sent :tokens)))))
+       (assoc panon :sents)))
+
+(conf/register-library :srl {:create-fn create-context
+                             :reset-fn reset-context
+                             :parse-fn parse})

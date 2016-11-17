@@ -11,18 +11,8 @@
 
 ;; pipeline
 (defn- create-context
-  "Create a default context that can (optionally) be configured.
-
-  If **pipeline-compoennts** is given, create a pipeline with only the given
-  components, which is a sequence of the following keywords:
-
-  The output of this function depends on the bindings of:
-  * [[*pipeline-components*]]
-  * [[*pipeline-component-config*]]
-
-  See [[with-context]]."
-  [pipeline-config]
-  {:pipeline-config pipeline-config
+  [parse-config]
+  {:pipeline-config (:pipeline parse-config)
    :pipeline-inst (atom nil)
    :tagger-model (atom nil)
    :ner-annotator (atom nil)
@@ -30,7 +20,7 @@
    :dependency-parse-annotator (atom nil)
    :coref-annotator (atom nil)})
 
-(defn reset-context
+(defn- reset-context
   "Reset all default cached pipeline components objects.  This can be invoked
   in the lexical context of [[with-context]] to reset a non-default contet."
   [parse-context]
@@ -133,13 +123,15 @@
       (edu.stanford.nlp.pipeline.StanfordCoreNLP. props)
       {:name :coref
        :annotators [(edu.stanford.nlp.pipeline.DeterministicCorefAnnotator.
-                     (java.util.Properties.))]})))
+                     (java.util.Properties.))]})
+    (log/debugf "skipping non-library compponent: %s" (pr-str conf))))
 
 (defn- pipeline []
   (let [{:keys [pipeline-inst pipeline-config]} (context)]
-    (log/debugf "creating pipeline with config <%s>" pipeline-config)
+    (log/debugf "creating pipeline with config <%s>" (pr-str pipeline-config))
     (swap! pipeline-inst
-           #(or % (map make-pipeline-component pipeline-config)))))
+           #(or % (->> (map make-pipeline-component pipeline-config)
+                       (remove nil?))))))
 
 
 
@@ -330,7 +322,7 @@
         pipeline (pipeline)]
     (parse-with-pipeline pipeline context anon)))
 
-(defn parse
+(defn- parse
   "Parse natural language **utterance**.
 
   See [[zensols.nlparse.parse/parse]] for a superset hierarchy of what this
@@ -373,8 +365,6 @@
   (->> (parse-raw utterance)
        pranon-deep))
 
-(conf/register-library
- :stanford {:create-fn create-context
-            :reset-fn reset-context})
-
-(parse "This is a test")
+(conf/register-library :stanford {:create-fn create-context
+                                  :reset-fn reset-context
+                                  :parse-fn parse})
