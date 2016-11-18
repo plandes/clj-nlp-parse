@@ -294,7 +294,11 @@ Keys
   []
   (->> (derive-context)
        :parse-config :pipeline
-       (map :parser)
+       (map (fn [{:keys [parser] :as comp}]
+              (log/debugf "comp %s" comp)
+              (if-not parser
+                (log/warn "no parser defined for component: %s" comp))
+              parser))
        (remove nil?)
        distinct
        (map parse-fn)))
