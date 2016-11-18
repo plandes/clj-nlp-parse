@@ -182,8 +182,7 @@ label to help decide the best SRL labeled sentence to choose."
 configuration (see [[create-parse-config]]) to create a context later
 returned with [[context]]
 * **:reset-fn** a function that takes the parse context to `null` out any atoms
-or cached data structures; this is called
-by [[zensosls.actioncli.dynamic/purge]]
+or cached data structures; this is called by [[reset]
 * **:parse-fn** a function that takes a signle human language utterance string
 or output of another parse library's output
 
@@ -241,8 +240,11 @@ Keys
         (into {})
         (merge {:parse-config parse-config}))))
 
-(defn reset [& {:keys [hard?]
-                :or {hard? true}}]
+(defn reset
+  "Reset the cached data structures and configuration in the default (or
+  currently bound [[with-context]]) context.  This is also called
+  by [[zensosls.actioncli.dynamic/purge]]."
+  [& {:keys [hard?] :or {hard? true}}]
   (log/debugf "reseting nlparse config")
   (->> @library-config-inst
        vals
