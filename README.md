@@ -178,6 +178,16 @@ See the [NLP feature library](https://github.com/plandes/clj-nlp-feature) for
 more information on dictionary specifics.
 
 
+### Pipeline Configuration
+
+You can not only configure the natural language processing pipeline and which
+specific components to use, but you can also define and add your own plugin
+library.  See the
+[config namespace](https://plandes.github.io/clj-nlp-parse/codox/zensols.nlparse.config.html)
+for more information.  For an example on how to configure the pipeline, see
+[this test case](https://github.com/plandes/clj-nlp-parse/blob/master/test/zensols/nlparse/ner_test.clj#L10-L17).
+
+
 ### Command Line Usage
 
 You can use this as a command line program to generate a prettyprint parse tree
