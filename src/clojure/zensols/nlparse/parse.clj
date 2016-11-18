@@ -1,4 +1,11 @@
-(ns ^{:doc "Parse an utterance using the Stanford CoreNLP and the ClearNLP SRL."
+(ns ^{:doc "Parse an utterance using the Stanford CoreNLP and the ClearNLP SRL.
+
+This is the main client entry point to the package.  A default out of the box
+parser works that comes with components listed
+in [[zensols.nlparse.config/all-components]].
+
+If you want to customzie or add your own parser plug in, see
+the [[zensols.nlparse.config]] namespace."
       :author "Paul Landes"}
     zensols.nlparse.parse
   (:require [clojure.string :as str]
@@ -239,15 +246,3 @@ Keys
      :validate [#(> (count %) 0) "No utterance given"]]]
    :app (fn [{:keys [utterance] :as opts} & args]
           (clojure.pprint/pprint (parse utterance)))})
-
-(let [ctx (->> (conf/create-parse-config
-                :pipeline [(conf/tokenize)
-                           (conf/sentence)
-                           (conf/stopword)
-                           (conf/part-of-speech)
-                           (conf/semantic-role-labeler)
-                           ])
-               conf/create-context)]
-  (conf/with-context [ctx]
-    (->> (parse "My name is Paul Landes") clojure.pprint/pprint)
-    ))

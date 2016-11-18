@@ -12,7 +12,7 @@
   you configure in [[zensols.nlparse.stanford/create-context]]) in a directory
   called `pos`.
 
-  See the [source documentation](https://github.com/plandes/zensols) for
+  See the [source documentation](https://github.com/plandes/clj-nlp-parse) for
   more information."
   []
   (log/debug "initializing")
