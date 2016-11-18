@@ -3,26 +3,30 @@
             [clojure.java.io :as io])
   (:require [zensols.actioncli.resource :refer :all]
             [zensols.actioncli.dynamic :refer :all]
-            [zensols.nlparse.stanford :as s :refer (with-context)]
+            [zensols.nlparse.config :as conf :refer (with-context)]
             [zensols.nlparse.parse :as p]
             [zensols.nlparse.tok-re :as tr]))
 
-(def ^:private utterance "I like Teddy Grams on Tuesday")
-
 (defn- create-tok-ner-context []
-  (binding [s/pipeline-components [:tokenize :sents :pos :ner :tok-re]]
-    (s/create-context)))
+  (->> (conf/create-parse-config
+        :pipeline [(conf/tokenize)
+                   (conf/sentence)
+                   (conf/part-of-speech)
+                   (conf/named-entity-recognizer)
+                   (conf/token-regex)])
+       conf/create-context))
 
 (defnc- tok-ner-context (create-tok-ner-context))
 
 (defn- parse [utterance]
-  (with-context [tok-ner-context]
-    (s/parse utterance)))
+  (with-context tok-ner-context
+    (p/parse utterance)))
 
 (deftest test-parse-ner
   (register-resource :tok-re-resource :constant "test-resources")
   (testing "parse ner"
-    (let [panon (parse utterance)
+    (let [utterance "I like Teddy Grams on Tuesday"
+          panon (parse utterance)
           [product dow] (->> panon :tok-re-mentions)
           mention-toks (->> panon :tok-re-mentions
                             first (p/tokens-for-mention panon))]
@@ -64,9 +68,9 @@
 (deftest test-re-file-use
   (testing "regexp file usage"
     (register-resource :tok-re-resource :constant "target/ner")
-    (with-context [(create-tok-ner-context)]
+    (with-context (create-tok-ner-context)
       (let [ssn "667-16-9329"
-            panon (s/parse (format "My social security number is %s.  Say some bad words." ssn))
+            panon (p/parse (format "My social security number is %s.  Say some bad words." ssn))
             [ssn-ment prof-ment] (-> panon :tok-re-mentions)
             toks (p/tokens-for-mention panon ssn-ment)
             ftok (first toks)]

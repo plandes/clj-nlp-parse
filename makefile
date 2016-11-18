@@ -18,7 +18,7 @@ all:		info
 include $(ZBHOME)/src/mk/compile.mk
 include $(ZBHOME)/src/mk/dist.mk
 
-.PHONEY: test
+.PHONY: test
 test:
 	ln -s $(MLINK) || true
 	lein test

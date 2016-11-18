@@ -4,11 +4,12 @@
   :license {:name "Apache License version 2.0"
             :url "https://www.apache.org/licenses/LICENSE-2.0"
             :distribution :repo}
-  :plugins [[lein-codox "0.9.5"]
+  :plugins [[lein-codox "0.10.1"]
             [org.clojars.cvillecsteele/lein-git-version "1.0.3"]]
   :codox {:metadata {:doc/format :markdown}
           :project {:name "NLP Parsing and Feature Creation"}
-          :output-path "target/doc/codox"}
+          :output-path "target/doc/codox"
+          :source-uri "https://github.com/plandes/clj-nlp-parse/blob/{version}/{filepath}#L{line}"}
   :source-paths ["src/clojure"]
   :java-source-paths ["src/java"]
   :javac-options ["-Xlint:unchecked"]
