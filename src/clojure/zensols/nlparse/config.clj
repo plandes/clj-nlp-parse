@@ -267,18 +267,6 @@ Keys
   This context is optionally configured.  Without this macro the default
   context is used as described in the [usage section](#usage) section."
   {:style/indent 1}
-  [exprs & forms]
-  (let [[raw-context- & ckeys-] exprs]
-    `(let [qkeys# (apply hash-map (quote ~ckeys-))
-           context# (merge ~raw-context- qkeys#)]
-       (binding [*parse-context* context#]
-         ~@forms))))
-
-(defmacro with-context
-  "Use the parser with a context created with [[create-context]].
-  This context is optionally configured.  Without this macro the default
-  context is used as described in the [usage section](#usage) section."
-  {:style/indent 1}
   [context & forms]
   `(let [context# ~context]
      (binding [*parse-context* context#]
