@@ -29,7 +29,7 @@
                  [com.zensols.tools/actioncli "0.0.11"]
 
                  ;; feature creation
-                 [com.zensols.nlp/feature "0.0.1"]
+                 [com.zensols.nlp/feature "0.0.3"]
 
                  ;;; NLP
                  ;; Stanford CoreNLP
