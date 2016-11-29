@@ -9,7 +9,7 @@
   :codox {:metadata {:doc/format :markdown}
           :project {:name "NLP Parsing and Feature Creation"}
           :output-path "target/doc/codox"
-          :source-uri "https://github.com/plandes/clj-nlp-parse/blob/{version}/{filepath}#L{line}"}
+          :source-uri "https://github.com/plandes/clj-nlp-parse/blob/v{version}/{filepath}#L{line}"}
   :source-paths ["src/clojure"]
   :java-source-paths ["src/java"]
   :javac-options ["-Xlint:unchecked"]
