@@ -125,6 +125,9 @@ the [[zensols.nlparse.config]] namespace."
 
 - text
 - mentions
+    - ner-tag (named entity tag)
+    - tok-re-ner-tag (ner-tag for the [[zensols.nlparse.tok-re]] namespace)
+    - entity-tag (ner-tag if present, otherwise value of tok-re-ner-tag)
     - tokens (mirrors tokens at the sents level)
 - dependency-parse-tree (dependency head)
 - parse-tree (constituency)
@@ -134,13 +137,19 @@ the [[zensols.nlparse.config]] namespace."
         - token-range (utterance inclusive tuple)
         - token-index (1-based sentence index)
         - ner-tag (named entity tag)
+        - entity-tag (same as ner-tag given in `mentions`)
+        - tok-re-ner-tag (same as ner-tag 
         - pos-tag (part of speech)
         - lemma (lemmatization)
         - char-range (utterance inclusive tuple)
         - srl (semantic role label)
             - propbank (propbank verb entry)
             - head-id (id of the head in the tree)
-            - dependency-label (the dependency relation)"
+            - dependency-label (the dependency relation)
+
+  See [test
+  token-regex](https://github.com/plandes/clj-nlp-parse/blob/v0.0.11/test-resources/token-regex.txt#L3)
+  for example of `entity-tag`."
   [utterance]
   (->> (conf/parse-functions)
        (reduce (fn [last-res parse-fn]

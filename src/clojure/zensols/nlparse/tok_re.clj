@@ -1,4 +1,14 @@
-(ns zensols.nlparse.tok-re
+(ns ^{:doc "This namespace extends the NER system to easily add any regular
+expression using the [Stanford
+TokensRegex](http://nlp.stanford.edu/software/tokensregex.html) API.
+
+This takes a sequence of regular expressions and entity metadata as input and
+produces a file format the TokensRegex API consumes to tag entities.
+
+[This](https://github.com/plandes/clj-nlp-parse/blob/v0.0.11/test-resources/token-regex.txt)
+is an example of the output."
+      :author "Paul Landes"}
+    zensols.nlparse.tok-re
   (:import (edu.stanford.nlp.process Morphology))
   (:require [clojure.java.io :as io]
             [clojure.string :as str]
