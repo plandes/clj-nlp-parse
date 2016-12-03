@@ -195,7 +195,7 @@ for more information.  For an example on how to configure the pipeline, see
 ### Command Line Usage
 
 The command line usage of this project has moved to
-the [NLP server](https://github.com/plandes/clj-nlp-parse#comand-line-usage).
+the [NLP server](https://github.com/plandes/clj-nlp-serv#comand-line-usage).
 
 
 ## License
