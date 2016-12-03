@@ -1,5 +1,4 @@
-Natural Language Parse
-======================
+# Natural Language Parse
 
 This library provides generalized library to deal with natural language.
 Specifically it:
@@ -7,32 +6,37 @@ Specifically it:
 * Gives access the data structures rendered by the parsers
 * Provides utility functions to create features
 
-Obtaining
----------
+
+## Obtaining
+
 In your `project.clj` file, add:
 
 [![Clojars Project](https://clojars.org/com.zensols.nlp/parse/latest-version.svg)](https://clojars.org/com.zensols.nlp/parse/)
 
-Documentation
--------------
+## Documentation
+
 Additional [documentation](https://plandes.github.io/clj-nlp-parse/codox/index.html).
 
-Example
--------
+
+## Example
+
 See the [example repo](https://github.com/plandes/clj-example-nlp-ml) that
 illustrates how to use this library and contains the code from where these
 examples originate.  It's highly recommended to clone it and follow along as
 you peruse this README.
 
-Usage
------
+
+## Usage
+
 This package supports:
 * [Parsing an Utterance](#parsing-an-utterance)
 * [Utility Functions](#utility-functions)
 * [Dictionary Utility](#dictionary-utility)
 * [Command Line Usage](#command-line-usage)
 
+
 ### Setup
+
 The NER model is included in the Stanford CoreNLP dependencies, but you still
 have to download the POS model.  The library can be configured to use any POS
 model (or NER for that matter), but by default it expects the
@@ -190,50 +194,13 @@ for more information.  For an example on how to configure the pipeline, see
 
 ### Command Line Usage
 
-You can use this as a command line program to generate a prettyprint parse tree
-of an utterance.  However, you have to let it know where the
-[aforementioned Stanford CoreNLP libraries](#setup) are configured.
+The command line usage of this project has moved to
+the [NLP server](https://github.com/plandes/clj-nlp-parse#comand-line-usage).
 
-To create the command line utility, do the following:
 
-- Install [Leiningen](http://leiningen.org) (this is just a script)
-- Install [GNU make](https://www.gnu.org/software/make/)
-- Install [Git](https://git-scm.com)
-- Download the source:
-```bash
-   git clone https://github.com/clj-nlp-parse
-```
-- Follow the directions in [build section](#building)
-- Edit and uncomment the `makefile` to set the `ZMODEL` variable, which should
-  be set to a directory having the stanford POS model(s) in `standford/pos`.
-- Build the distribution binaries:
-```bash
-   make dist
-```
-If everything goes well and you are lucky a new folder should show up on your
-desktop with everything you need to run it.  To do that:
-```bash
-cd ~/Desktop/parse/bin
-./nlparse -d 'I am Paul Landes'
-```
+## License
 
-*Note:* I will make the distribution binaries available on request.
-
-Building
---------
-All [leiningen](http://leiningen.org) tasks will work in this project.  For
-additional build functionality (like building the command line application and
-git tag convenience utility functionality) clone the
-[Clojure build repo](https://github.com/plandes/clj-zenbuild) in the same
-(parent of this file) directory as this project:
-```bash
-   cd ..
-   git clone https://github.com/plandes/clj-zenbuild
-```
-
-License
---------
-Copyright © 2016 Paul Landes
+Copyright © 2016, 2017 Paul Landes
 
 Apache License version 2.0
 
