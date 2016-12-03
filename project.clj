@@ -19,10 +19,6 @@
   :dependencies [[org.clojure/clojure "1.8.0"]
 
                  ;; logging
-                 [org.apache.logging.log4j/log4j-core "2.3"]
-                 [org.apache.logging.log4j/log4j-api "2.3"]
-                 [org.apache.logging.log4j/log4j-slf4j-impl "2.3"]
-                 [org.apache.logging.log4j/log4j-jcl "2.3"]
                  [org.clojure/tools.logging "0.3.1"]
 
                  ;; command line
@@ -45,19 +41,15 @@
                  [com.clearnlp/clearnlp-general-en-dep "1.2"]
                  [com.clearnlp/clearnlp-general-en-pos "1.1"]
                  [com.clearnlp/clearnlp-general-en-srl "1.1"]]
-  :pom-plugins [[org.codehaus.mojo/appassembler-maven-plugin "1.6"
-                 {:configuration ([:programs
-                                   [:program
-                                    ([:mainClass "zensols.nlparse.core"]
-                                     [:id "nlparse"])]]
-                                  [:environmentSetupFileName "setupenv"])}]]
-  :profiles {:uberjar {:aot [zensols.nlparse.core]}
-             :appassem {:aot :all}
+  :profiles {:appassem {:aot :all}
              :dev
              {:jvm-opts
               ["-Dlog4j.configurationFile=test-resources/log4j2.xml" "-Xms4g" "-Xmx12g" "-XX:+UseConcMarkSweepGC"]
               :dependencies [[edu.stanford.nlp/stanford-corenlp "3.6.0" :classifier "javadoc"]
                              [edu.stanford.nlp/stanford-corenlp "3.6.0" :classifier "sources"]
                              [com.zensols.gui/tabres "0.0.6"]
-                             [com.zensols/clj-append "1.0.4"]]}}
-  :main zensols.nlparse.core)
+                             [com.zensols/clj-append "1.0.4"]
+                             [org.apache.logging.log4j/log4j-core "2.3"]
+                             [org.apache.logging.log4j/log4j-api "2.3"]
+                             [org.apache.logging.log4j/log4j-slf4j-impl "2.3"]
+                             [org.apache.logging.log4j/log4j-jcl "2.3"]]}})

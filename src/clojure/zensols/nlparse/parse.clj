@@ -11,8 +11,7 @@ the [[zensols.nlparse.config]] namespace."
   (:require [clojure.string :as str]
             [clojure.tools.logging :as log]
             [clojure.set :as set])
-  (:require [zensols.actioncli.log4j2 :as lu]
-            [zensols.nlparse.config :as conf]
+  (:require [zensols.nlparse.config :as conf]
             [zensols.nlparse.stanford :as sp]
             [zensols.nlparse.srl :as srl]))
 
@@ -244,14 +243,3 @@ Keys
                (->> mention
                     (tokens-for-mention panon)
                     (assoc mention :tokens)))))))
-
-(def parse-command
-  "CLI command to parse an utterance"
-  {:description "parse an English utterance"
-   :options
-   [(lu/log-level-set-option)
-    ["-u" "--utterance" "The utterance to parse"
-     :required "TEXT"
-     :validate [#(> (count %) 0) "No utterance given"]]]
-   :app (fn [{:keys [utterance] :as opts} & args]
-          (clojure.pprint/pprint (parse utterance)))})
