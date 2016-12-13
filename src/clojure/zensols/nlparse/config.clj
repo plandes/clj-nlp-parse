@@ -41,7 +41,8 @@ pipeline."
     zensols.nlparse.config
   (:require [clojure.tools.logging :as log]
             [clojure.test :as test]
-            [clojure.string :as s])
+            [clojure.string :as s]
+            [clojure.repl :as repl])
   (:require [zensols.actioncli.dynamic :refer [defa- undef] :as dyn])
   (:require [zensols.nlparse.resource :as pres]))
 
@@ -192,7 +193,6 @@ label to help decide the best SRL labeled sentence to choose."
          (map (fn [parser]
                 (->> (get conf parser)
                      :component-fns
-                     ;(map #(assoc (%) :parser parser))
                      (map #(%)))))
          (apply concat))))
 
@@ -228,9 +228,7 @@ Keys
                (map #(->> % pr-str (re-find #"\[[^/]+\/(.*)\]") second)))
           (->> @library-config-inst
                (map (fn [[k v]]
-                      (map #(%)
-                                        ;#(assoc (%) :parser k)
-                           (->> v :component-fns))))
+                      (map #(%) (->> v :component-fns))))
                (apply concat))))
 
 (defn create-parse-config-by-string
