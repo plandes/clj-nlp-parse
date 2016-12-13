@@ -206,4 +206,4 @@
 (conf/register-library :srl {:create-fn create-context
                              :reset-fn reset-context
                              :parse-fn parse
-                             :component-fns [conf/semantic-role-labeler]})
+                             :component-fns [(var conf/semantic-role-labeler)]})

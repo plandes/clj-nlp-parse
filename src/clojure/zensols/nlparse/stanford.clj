@@ -378,7 +378,7 @@
   (->> (parse-raw utterance)
        pranon-deep))
 
-(let [comps (map #(var-get (ns-resolve 'zensols.nlparse.config %))
+(let [comps (map #(ns-resolve 'zensols.nlparse.config %)
                  all-components)]
   (conf/register-library :stanford {:create-fn create-context
                                     :reset-fn reset-context

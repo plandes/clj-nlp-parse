@@ -226,7 +226,7 @@ Keys
                vals
                (map :component-fns)
                (apply concat)
-               (map #(->> % pr-str (re-find #"\[[^/]+\/(.*)\]") second)))
+               (map #(-> % meta :name name)))
           (->> @library-config-inst
                (map (fn [[k v]]
                       (map #(%) (->> v :component-fns))))
@@ -345,19 +345,6 @@ Keys
        distinct
        (map parse-fn)))
 
-(defn- function-var
-  "Return function metadata with a map of the `:fn-namespace`, `:fn-name`,
-  and `:fn-var`."
-  [fn-object]
-  (let [[ns name] (->> fn-object pr-str
-                       (re-find #"\[([^/]+)\/(.*)\]")
-                       rest
-                       (map symbol))]
-    (log/tracef "fv: %s (%s): %s / %s" fn-object (pr-str fn-object) ns name)
-    {:fn-namespace ns
-     :fn-name name
-     :fn-var (ns-resolve ns name)}))
-
 (defn component-documentation
   "Return maps doc documentation with keys `:name` and `:doc`."
   []
@@ -365,10 +352,11 @@ Keys
        vals
        (map :component-fns)
        (apply concat)
-       (map function-var)
-       (map (fn [{:keys [fn-namespace fn-name fn-var]}]
+       (map meta)
+       (map (fn [{fn-name :name
+                  fn-doc :doc}]
               {:name (name fn-name)
-               :doc (->> fn-var meta :doc)}))))
+               :doc fn-doc}))))
 
 (defn print-component-documentation
   "Print the formatted component documentation see
