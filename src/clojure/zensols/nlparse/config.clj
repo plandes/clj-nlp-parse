@@ -66,23 +66,20 @@ pipeline."
    (tokenize "en"))
   ([lang-code]
    {:component :tokenize
-    :lang lang-code}))
+    :lang lang-code
+    :parser :stanford}))
 
 (defn sentence
   "Create annotator to group tokens into sentences per configured language."
   []
-  {:component :sents})
+  {:component :sents
+   :parser :stanford})
 
 (defn stopword
   "Create annotator to annotate stop words (boolean)."
   []
-  {:component :stopword})
-
-(defn morphology
-  "Create a morphology annotator, which adds the lemmatization of a word.  This
-  adds the `:lemma` keyword to each token.."
-  []
-  {:component :morph})
+  {:component :stopword
+   :parser :stanford})
 
 (defn part-of-speech
   "Create annotator to do part of speech tagging.  You can set the model with a
@@ -93,7 +90,8 @@ pipeline."
    (part-of-speech "english-left3words-distsim.tagger"))
   ([pos-model-resource]
    {:component :pos
-    :pos-model-resource pos-model-resource}))
+    :pos-model-resource pos-model-resource
+    :parser :stanford}))
 
 (defn named-entity-recognizer
   "Create annotator to do named entity recognition.  All models in the
@@ -105,7 +103,8 @@ pipeline."
     ["edu/stanford/nlp/models/ner/english.conll.4class.distsim.crf.ser.gz"]))
   ([paths]
    {:component :ner
-    :ner-model-paths paths}))
+    :ner-model-paths paths
+    :parser :stanford}))
 
 (defn token-regex
   "Create annotator to token regular expression.  You can configure an array of
@@ -116,22 +115,26 @@ pipeline."
    (token-regex ["token-regex.txt"]))
   ([paths]
    {:component :tok-re
-    :tok-re-resources paths}))
+    :tok-re-resources paths
+    :parser :stanford}))
 
 (defn parse-tree
   "Create annotator to create head and parse trees."
   []
-  {:component :parse-tree})
+  {:component :parse-tree
+   :parser :stanford})
 
 (defn dependency-parse-tree
   "Create an annotator to create a dependency parse tree."
   []
-  {:component :dependency-parse-tree})
+  {:component :dependency-parse-tree
+   :parser :stanford})
 
 (defn coreference
   "Create annotator to coreference tree structure."
   []
-  {:component :coref})
+  {:component :coref
+   :parser :stanford})
 
 (defn semantic-role-labeler
   "Create a semantic role labeler annotator.  You can configure the language
@@ -150,7 +153,8 @@ label to help decide the best SRL labeled sentence to choose."
    {:component :srl
     :lang lang-code
     :model-type (format "general-%s" lang-code)
-    :first-label-token-threshold 3}))
+    :first-label-token-threshold 3
+    :parser :srl}))
 
 (defn register-library
   "Register plugin library **lib-name** with **lib-cfg** a map containing:
@@ -181,7 +185,8 @@ label to help decide the best SRL labeled sentence to choose."
          (map (fn [parser]
                 (->> (get conf parser)
                      :component-fns
-                     (map #(assoc (%) :parser parser)))))
+                     ;(map #(assoc (%) :parser parser))
+                     (map #(%)))))
          (apply concat))))
 
 (defn create-parse-config
@@ -204,6 +209,24 @@ Keys
   {:pipeline (cond pipeline pipeline
                    only-tokenize? [(tokenize) (sentence)]
                    :else (components-by-parsers parsers))})
+
+(create-parse-config :pipeline [(tokenize) (sentence)])
+
+(defn- registered-components
+  "Return all registered component functions.  This is the `:component-fns` key
+  in the registeration map provided by each parser."
+  []
+  (zipmap (->> @library-config-inst
+               vals
+               (map :component-fns)
+               (apply concat)
+               (map #(->> % pr-str (re-find #"\[[^/]+\/(.*)\]") second)))
+          (->> @library-config-inst
+               (map (fn [[k v]]
+                      (map #(%)
+                                        ;#(assoc (%) :parser k)
+                           (->> v :component-fns))))
+               (apply concat))))
 
 (defn create-parse-config-by-string
   "See [[create-context]]."
@@ -247,21 +270,6 @@ Keys
                    {k (create-fn parse-config)}))
             (into {})
             (merge {:parse-config parse-config}))))))
-
-(defn- registered-components
-  "Return all registered component functions.  This is the `:component-fns` key
-  in the registeration map provided by each parser."
-  []
-  (zipmap (->> @library-config-inst
-               vals
-               (map :component-fns)
-               (apply concat)
-               (map #(->> % pr-str (re-find #"\[[^/]+\/(.*)\]") second)))
-          (->> @library-config-inst
-               (map (fn [[k v]]
-                      (map #(assoc (%) :parser k)
-                           (->> v :component-fns))))
-               (apply concat))))
 
 (defn components-as-string
   "Return all available components as a string"
