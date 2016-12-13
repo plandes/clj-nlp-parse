@@ -353,7 +353,7 @@ Keys
                        (re-find #"\[([^/]+)\/(.*)\]")
                        rest
                        (map symbol))]
-    (log/tracef "fv: %s / %s" ns name)
+    (log/tracef "fv: %s: %s / %s" fn-object ns name)
     {:fn-namespace ns
      :fn-name name
      :fn-var (ns-resolve ns name)}))
