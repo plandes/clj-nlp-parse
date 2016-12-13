@@ -9,6 +9,16 @@
   (:require [zensols.nlparse.tok-re :as tre]
             [zensols.nlparse.config :as conf]))
 
+(def ^:private all-components
+  '(tokenize
+    sentence
+    stopword
+    part-of-speech
+    morphology
+    named-entity-recognizer
+    parse-tree
+    coreference))
+
 ;; pipeline
 (defn- create-context
   [parse-config]
@@ -95,10 +105,13 @@
      :annotators [(edu.stanford.nlp.pipeline.POSTaggerAnnotator.
                    (create-tagger-model (:pos-model-resource conf)))]}
 
+    :morph
+    {:name :morph
+     :annotators [(edu.stanford.nlp.pipeline.MorphaAnnotator. false)]}
+
     :ner
     {:name :ner
-     :annotators [(edu.stanford.nlp.pipeline.MorphaAnnotator. false)
-                  (create-ner-annotator (:ner-model-paths conf))
+     :annotators [(create-ner-annotator (:ner-model-paths conf))
                   (edu.stanford.nlp.pipeline.EntityMentionsAnnotator.)]}
 
     :tok-re
@@ -365,6 +378,9 @@
   (->> (parse-raw utterance)
        pranon-deep))
 
-(conf/register-library :stanford {:create-fn create-context
-                                  :reset-fn reset-context
-                                  :parse-fn parse})
+(let [comps (map #(var-get (ns-resolve 'zensols.nlparse.config %))
+                 all-components)]
+  (conf/register-library :stanford {:create-fn create-context
+                                    :reset-fn reset-context
+                                    :parse-fn parse
+                                    :component-fns comps}))
