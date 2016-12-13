@@ -93,6 +93,13 @@ pipeline."
     :pos-model-resource pos-model-resource
     :parser :stanford}))
 
+(defn morphology
+  "Create a morphology annotator, which adds the lemmatization of a word.  This
+  adds the `:lemma` keyword to each token.."
+  []
+  {:component :morph
+   :parser :stanford})
+
 (defn named-entity-recognizer
   "Create annotator to do named entity recognition.  All models in the
   **paths** sequence are loaded.  By default, the [English CoNLL 4
@@ -209,8 +216,6 @@ Keys
   {:pipeline (cond pipeline pipeline
                    only-tokenize? [(tokenize) (sentence)]
                    :else (components-by-parsers parsers))})
-
-(create-parse-config :pipeline [(tokenize) (sentence)])
 
 (defn- registered-components
   "Return all registered component functions.  This is the `:component-fns` key
