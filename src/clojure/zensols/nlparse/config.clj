@@ -374,7 +374,7 @@ Keys
                      print))))
        (map s/trim)
        (s/join (str \newline\newline))
-       print))
+       println))
 
 (dyn/register-purge-fn reset)
 (pres/initialize)
