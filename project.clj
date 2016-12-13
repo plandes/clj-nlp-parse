@@ -45,6 +45,7 @@
                              [edu.stanford.nlp/stanford-corenlp "3.6.0" :classifier "sources"]
                              [org.apache.logging.log4j/log4j-core "2.7"]
                              [org.apache.logging.log4j/log4j-slf4j-impl "2.7"]
+                             [org.apache.logging.log4j/log4j-1.2-api "2.7"]
                              [org.apache.logging.log4j/log4j-jcl "2.7"]
                              [com.zensols.gui/tabres "0.0.6"]
                              [com.zensols/clj-append "1.0.5"]]}})

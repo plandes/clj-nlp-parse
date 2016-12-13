@@ -42,6 +42,7 @@ pipeline."
   (:require [clojure.tools.logging :as log]
             [clojure.test :as test]
             [clojure.string :as s]
+            [clojure.java.io :as io]
             [clojure.repl :as repl])
   (:require [zensols.actioncli.dynamic :refer [defa- undef] :as dyn])
   (:require [zensols.nlparse.resource :as pres]))
@@ -343,6 +344,48 @@ Keys
        (remove nil?)
        distinct
        (map parse-fn)))
+
+(defn- function-var
+  "Return function metadata with a map of the `:fn-namespace`, `:fn-name`,
+  and `:fn-var`."
+  [fn-object]
+  (let [[ns name] (->> fn-object pr-str
+                       (re-find #"\[([^/]+)\/(.*)\]")
+                       rest
+                       (map symbol))]
+    {:fn-namespace ns
+     :fn-name name
+     :fn-var (ns-resolve ns name)}))
+
+(defn component-documentation
+  "Return maps doc documentation with keys `:name` and `:doc`."
+  []
+  (->> @library-config-inst
+       vals
+       (map :component-fns)
+       (apply concat)
+       (map function-var)
+       (map (fn [{:keys [fn-namespace fn-name fn-var]}]
+              {:name (name fn-name)
+               :doc (->> fn-var meta :doc)}))))
+
+(defn print-component-documentation
+  "Print the formatted component documentation see
+  [[component-documentation]]."
+  []
+  (->> (component-documentation)
+       (map (fn [{:keys [name doc]}]
+              (with-out-str
+                (println name)
+                (->> (repeat (count name) \-) (apply str) println)
+                (->> (io/reader (java.io.StringReader. doc))
+                     line-seq
+                     (map s/trim)
+                     (s/join \newline)
+                     print))))
+       (map s/trim)
+       (s/join (str \newline\newline))
+       print))
 
 (dyn/register-purge-fn reset)
 (pres/initialize)
