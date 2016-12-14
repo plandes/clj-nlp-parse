@@ -7,11 +7,14 @@
             [zensols.nlparse.parse :as p]
             [zensols.nlparse.tok-re :as tr]))
 
+(register-resource :tok-re-resource :constant "test-resources")
+
 (defn- create-tok-ner-context []
   (->> (conf/create-parse-config
         :pipeline [(conf/tokenize)
                    (conf/sentence)
                    (conf/part-of-speech)
+                   (conf/morphology)
                    (conf/named-entity-recognizer)
                    (conf/token-regex)])
        conf/create-context))
@@ -23,7 +26,6 @@
     (p/parse utterance)))
 
 (deftest test-parse-ner
-  (register-resource :tok-re-resource :constant "test-resources")
   (testing "parse ner"
     (let [utterance "I like Teddy Grams on Tuesday"
           panon (parse utterance)
@@ -40,8 +42,8 @@
       (is (not (nil? mention-toks)))
       (is (= 2 (count mention-toks)))
       (is (= {:tok-re-ner-tag "PRODUCT"
-              :tok-re-ner-features {:food-type "dessert"}
-              :tok-re-ner-item-id 497}
+              :tok-re-ner-features {:food-type "snack"}
+              :tok-re-ner-item-id 123}
              (-> mention-toks first
                  (select-keys [:tok-re-ner-tag :tok-re-ner-features
                                :tok-re-ner-item-id])))))))

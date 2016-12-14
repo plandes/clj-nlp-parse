@@ -19,7 +19,7 @@
 ##     :lemma "Teddy",
 ##     :token-index 3,
 ##     :sent-index 0,
-##     :tok-re-ner-features {:food-type "dessert"},
+##     :tok-re-ner-features {:food-type "snack"},
 ##     :tok-re-ner-tag "PRODUCT",
 ##     :tok-re-ner-item-id 497,
 ##     :char-range [7 12],
@@ -41,4 +41,4 @@ zstriid = {type:"CLASS",value:"zensols.stanford.nlp.TokenRegexAnnotations$NERIte
 
 # define rules
 {pattern:(/(?iu)monday|tuesday|wednesday|thursday|friday|saturday|sunday/),action:(Annotate($0,zstrner,"DAY_OF_WEEK"))}
-{pattern:([{word:"Teddy"}] [{lemma:"Grams"}]),action:(Annotate($0,zstrner,"PRODUCT"),Annotate($0,zstriid,"497"),Annotate($0,zstrfeat,"food-type={dessert}"))}
+{pattern:([{word:"Teddy"}] [{lemma:"Grams"}]),action:(Annotate($0,zstrner,"PRODUCT"),Annotate($0,zstriid,"123"),Annotate($0,zstrfeat,"food-type={snack}"))}
