@@ -101,6 +101,7 @@ from [[zensols.nlparse.parse/parse]]."
   (->> panon
        :sents
        (map :dependency-parse-tree)
+       (remove nil?)
        (map #(.hashCode %))
        (reduce +)))
 

@@ -26,6 +26,7 @@
 
 (defn- create-context
   [parse-config]
+  (log/debugf "create context with parse-config: %s" (pr-str parse-config))
   (let [srl-comp (conf/component-from-config parse-config :srl)]
     (log/debugf "component: %s" (pr-str srl-comp))
     {:config srl-comp
@@ -204,4 +205,5 @@
 
 (conf/register-library :srl {:create-fn create-context
                              :reset-fn reset-context
-                             :parse-fn parse})
+                             :parse-fn parse
+                             :component-fns [(var conf/semantic-role-labeler)]})

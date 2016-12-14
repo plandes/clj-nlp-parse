@@ -15,11 +15,10 @@ containing keys:
 * **parser** a key that is the name of the parser it belongs to.
 
 For example, the Stanford CoreNLP word tokenizer has the following return map:
-```
-{:component :tokenize
- :lang lang-code
- :parser :stanford}
-```
+
+* **:component** :tokenize
+* **:lang**  *lang-code* (e.g. `en`)
+* **:parser** :stanford
 
 The map also has additional key/value pairs that represent remaining
 configuration given to the parser library used to create it's pipeline
@@ -40,7 +39,11 @@ Once/if configured, use [[zensols.nlparse.parse/parse]] to invoke the parsing
 pipeline."
       :author "Paul Landes"}
     zensols.nlparse.config
-  (:require [clojure.tools.logging :as log])
+  (:require [clojure.tools.logging :as log]
+            [clojure.test :as test]
+            [clojure.string :as s]
+            [clojure.java.io :as io]
+            [clojure.repl :as repl])
   (:require [zensols.actioncli.dynamic :refer [defa- undef] :as dyn])
   (:require [zensols.nlparse.resource :as pres]))
 
@@ -52,26 +55,6 @@ pipeline."
 (defa- library-config-inst)
 
 (defa- default-context-inst)
-
-(def all-components
-  "All available NLP components available in this package.  These include:
-
-* [[tokenize]]
-* [[sentence]]
-* [[stopword]]
-* [[part-of-speech]]
-* [[named-entity-recognizer]]
-* [[parse-tree]]
-* [[coreference]]
-* [[semantic-role-labeler]]"
-  '(tokenize
-    sentence
-    stopword
-    part-of-speech
-    named-entity-recognizer
-    parse-tree
-    coreference
-    semantic-role-labeler))
 
 (def all-parsers
   "All parsers available in this package (jar)."
@@ -111,6 +94,13 @@ pipeline."
    {:component :pos
     :pos-model-resource pos-model-resource
     :parser :stanford}))
+
+(defn morphology
+  "Create a morphology annotator, which adds the lemmatization of a word.  This
+  adds the `:lemma` keyword to each token.."
+  []
+  {:component :morph
+   :parser :stanford})
 
 (defn named-entity-recognizer
   "Create annotator to do named entity recognition.  All models in the
@@ -179,34 +169,39 @@ label to help decide the best SRL labeled sentence to choose."
   "Register plugin library **lib-name** with **lib-cfg** a map containing:
 
 * **:create-fn** a function taht takes a parse
-configuration (see [[create-parse-config]]) to create a context later
-returned with [[context]]
+  configuration (see [[create-parse-config]]) to create a context later
+  returned with [[context]]
 * **:reset-fn** a function that takes the parse context to `null` out any atoms
-or cached data structures; this is called by [[reset]
+  or cached data structures; this is called by [[reset]
 * **:parse-fn** a function that takes a signle human language utterance string
-or output of another parse library's output
+  or output of another parse library's output
+
+* **:component-fns** all component creating functions from this library
 
   *Implementation note*: this forces re-creation of the default context (see
   the [usage section](#usage)) to allow create-context invoked on calling
   library at next invocation to `context` for newly registered libraries."
-  [lib-name lib-cfg]
-  (if-not (contains? @library-config-inst lib-name)
+  [lib-name lib-cfg & {:keys [force?]}]
+  (if (or force? (not (contains? @library-config-inst lib-name)))
     (reset! default-context-inst nil))
   (swap! library-config-inst assoc lib-name lib-cfg))
-
-(def ^:private conf-ns *ns*)
 
 (defn- components-by-parsers
   "Return all components given in set **parsers**."
   [parsers]
-  (->> all-components
-       (map #((ns-resolve conf-ns %)))
-       (filter #(contains? parsers (:parser %)))))
+  (let [conf @library-config-inst]
+    (->> parsers
+         (map (fn [parser]
+                (->> (get conf parser)
+                     :component-fns
+                     (map #(%)))))
+         (apply concat))))
 
 (defn create-parse-config
   "Create a parse configuration given as input to [[create-context]].
 
-  If no keys are given all components provided by [[all-components]] are given.
+  If no keys are given all components are
+  configured (see [[components-as-string]]).
 
 Keys
 ----
@@ -223,22 +218,69 @@ Keys
                    only-tokenize? [(tokenize) (sentence)]
                    :else (components-by-parsers parsers))})
 
+(defn- registered-components
+  "Return all registered component functions.  This is the `:component-fns` key
+  in the registeration map provided by each parser."
+  []
+  (zipmap (->> @library-config-inst
+               vals
+               (map :component-fns)
+               (apply concat)
+               (map #(-> % meta :name name)))
+          (->> @library-config-inst
+               (map (fn [[k v]]
+                      (map #(%) (->> v :component-fns))))
+               (apply concat))))
+
+(defn create-parse-config-by-string
+  "See [[create-context]]."
+  [components]
+  (let [comps (registered-components)]
+    (->> components
+         (#(s/split % #","))
+         (map (fn [comp-str]
+                (or (get comps comp-str)
+                    (throw (ex-info (format "No such component: %s" comp-str)
+                                    {:component comp-str})))))
+         (create-parse-config :pipeline))))
+
 (defn create-context
   "Return a context used during parsing.  This calls all
   registered ([[register-library]]) parse libraries create functions and
   returns an object to be used with the parse
-  function [[zensols.nlparse.parse/parse]].
+  function [[zensols.nlparse.parse/parse]]
+
+  The parameter **parse-config** is either a parse configuration created
+  with [[create-parse-config]] or a string.  If a string is used for the
+  **parse-config** parameter create pipeline by component names separated by
+  commas.  For example:
+
+  `tokenize,sentence,part-of-speech,morphology`
+
+  Creates a pipeline that tokenizes, adds POS and lemmas.  Using the output
+  of [[components-of-string]] would create all components.  However, the easier
+  way to utilize all components is to to call this function with no parameters.
 
   See the [usage section](#usage) section."
   ([]
    (create-context (create-parse-config)))
   ([parse-config]
-   (log/debugf "creating context with <%s>" parse-config)
-   (->> @library-config-inst
-        (map (fn [[k {:keys [create-fn]}]]
-               {k (create-fn parse-config)}))
-        (into {})
-        (merge {:parse-config parse-config}))))
+   (if (string? parse-config)
+     (create-context (create-parse-config-by-string parse-config))
+     (do
+       (log/debugf "creating context with <%s>" parse-config)
+       (->> @library-config-inst
+            (map (fn [[k {:keys [create-fn]}]]
+                   {k (create-fn parse-config)}))
+            (into {})
+            (merge {:parse-config parse-config}))))))
+
+(defn components-as-string
+  "Return all available components as a string"
+  []
+  (->> (registered-components)
+       keys
+       (s/join ",")))
 
 (defn reset
   "Reset the cached data structures and configuration in the default (or
@@ -297,11 +339,42 @@ Keys
        (map (fn [{:keys [parser] :as comp}]
               (log/debugf "comp %s" comp)
               (if-not parser
-                (log/warn "no parser defined for component: %s" comp))
+                (log/warnf "no parser defined for component: %s" comp))
               parser))
        (remove nil?)
        distinct
        (map parse-fn)))
+
+(defn component-documentation
+  "Return maps doc documentation with keys `:name` and `:doc`."
+  []
+  (->> @library-config-inst
+       vals
+       (map :component-fns)
+       (apply concat)
+       (map meta)
+       (map (fn [{fn-name :name
+                  fn-doc :doc}]
+              {:name (name fn-name)
+               :doc fn-doc}))))
+
+(defn print-component-documentation
+  "Print the formatted component documentation see
+  [[component-documentation]]."
+  []
+  (->> (component-documentation)
+       (map (fn [{:keys [name doc]}]
+              (with-out-str
+                (println name)
+                (->> (repeat (count name) \-) (apply str) println)
+                (->> (io/reader (java.io.StringReader. doc))
+                     line-seq
+                     (map s/trim)
+                     (s/join \newline)
+                     print))))
+       (map s/trim)
+       (s/join (str \newline\newline))
+       println))
 
 (dyn/register-purge-fn reset)
 (pres/initialize)

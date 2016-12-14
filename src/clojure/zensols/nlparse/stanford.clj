@@ -6,8 +6,19 @@
             [clojure.tools.logging :as log])
   (:require [zensols.actioncli.dynamic :as dyn]
             [zensols.actioncli.resource :as res])
-  (:require [zensols.nlparse.tok-re :as tre]
+  (:require [zensols.nlparse.util :as util]
+            [zensols.nlparse.tok-re :as tre]
             [zensols.nlparse.config :as conf]))
+
+(def ^:private all-components
+  '(tokenize
+    sentence
+    stopword
+    part-of-speech
+    morphology
+    named-entity-recognizer
+    parse-tree
+    coreference))
 
 ;; pipeline
 (defn- create-context
@@ -95,10 +106,13 @@
      :annotators [(edu.stanford.nlp.pipeline.POSTaggerAnnotator.
                    (create-tagger-model (:pos-model-resource conf)))]}
 
+    :morph
+    {:name :morph
+     :annotators [(edu.stanford.nlp.pipeline.MorphaAnnotator. false)]}
+
     :ner
     {:name :ner
-     :annotators [(edu.stanford.nlp.pipeline.MorphaAnnotator. false)
-                  (create-ner-annotator (:ner-model-paths conf))
+     :annotators [(create-ner-annotator (:ner-model-paths conf))
                   (edu.stanford.nlp.pipeline.EntityMentionsAnnotator.)]}
 
     :tok-re
@@ -142,11 +156,10 @@
    :tok-re-ner-tag :tok-re-ner-item-id :tok-re-ner-features])
 
 (defn- get- [anon clazz]
-  (if anon (.get anon clazz)))
+  (.get anon clazz))
 
 (defn- sents- [anon] (get- anon edu.stanford.nlp.ling.CoreAnnotations$SentencesAnnotation))
 
-;(defn- text- [anon] (get- anon edu.stanford.nlp.ling.CoreAnnotations$TextAnnotation))
 (defn- text- [anon]
   (or (get- anon edu.stanford.nlp.ling.CoreAnnotations$OriginalTextAnnotation)
       (get- anon edu.stanford.nlp.ling.CoreAnnotations$TextAnnotation)))
@@ -273,19 +286,21 @@
 
 (defn- anon-map [anon]
   (log/debugf "tokens: %s" (tokens- anon))
-  {:text (text- anon)
-   :mentions (map #(anon-mention-map anon %) (mentions- anon))
-   :tok-re-mentions (map #(anon-mention-map anon %) (tok-re-mentions- anon))
-   :coref (coref-tree-to-map anon)
-   :sents (map (fn [anon]
-                 {:text (text- anon)
-                  :sent-index (sent-index- anon)
-                  ;; :dependency-parse-tree (dependency-parse-tree- anon)
-                  ;; :parse-tree (parse-tree- anon)
-                  :parse-tree (parse-tree-to-map (parse-tree- anon))
-                  :dependency-parse-tree (dep-parse-tree-to-map (dependency-parse-tree- anon))
-                  :tokens (map anon-word-map (tokens- anon))})
-               (sents- anon))})
+  (->> [[:text (text- anon)]
+        [:mentions (map #(anon-mention-map anon %) (mentions- anon))]
+        [:tok-re-mentions (map #(anon-mention-map anon %)
+                               (tok-re-mentions- anon))]
+        [:coref (coref-tree-to-map anon)]
+        [:sents (map (fn [anon]
+                       (->> [[:text (text- anon)]
+                             [:sent-index (sent-index- anon)]
+                             [:parse-tree (parse-tree-to-map (parse-tree- anon))]
+                             [:dependency-parse-tree
+                              (dep-parse-tree-to-map (dependency-parse-tree- anon))]
+                             [:tokens (map anon-word-map (tokens- anon))]]
+                            util/map-if-data))
+                     (sents- anon))]]
+       util/map-if-data))
 
 ;; parse
 (defn- invoke-annotator [context annotator anon]
@@ -365,6 +380,9 @@
   (->> (parse-raw utterance)
        pranon-deep))
 
-(conf/register-library :stanford {:create-fn create-context
-                                  :reset-fn reset-context
-                                  :parse-fn parse})
+(let [comps (map #(ns-resolve 'zensols.nlparse.config %)
+                 all-components)]
+  (conf/register-library :stanford {:create-fn create-context
+                                    :reset-fn reset-context
+                                    :parse-fn parse
+                                    :component-fns comps}))
