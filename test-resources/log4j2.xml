@@ -14,7 +14,7 @@
     <loggers>
         <logger name="zensols.nlparse" level="info"/>
         <root level="warn">
-            <appenderRef ref="console"/>
+            <!--appenderRef ref="console"/-->
             <appenderRef ref="repl"/>
         </root>
     </loggers>
