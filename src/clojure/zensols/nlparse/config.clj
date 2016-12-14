@@ -181,8 +181,8 @@ label to help decide the best SRL labeled sentence to choose."
   *Implementation note*: this forces re-creation of the default context (see
   the [usage section](#usage)) to allow create-context invoked on calling
   library at next invocation to `context` for newly registered libraries."
-  [lib-name lib-cfg]
-  (if-not (contains? @library-config-inst lib-name)
+  [lib-name lib-cfg & {:keys [force?]}]
+  (if (or force? (not (contains? @library-config-inst lib-name)))
     (reset! default-context-inst nil))
   (swap! library-config-inst assoc lib-name lib-cfg))
 
