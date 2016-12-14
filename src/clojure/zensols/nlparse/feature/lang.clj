@@ -98,9 +98,11 @@ from [[zensols.nlparse.parse/parse]]."
 (defn- dependency-tree-id
   "Get a hash code for the dependency parse tree of sentence **sent**."
   [panon]
+  (reset! x panon)
   (->> panon
        :sents
        (map :dependency-parse-tree)
+       (remove nil?)
        (map #(.hashCode %))
        (reduce +)))
 
