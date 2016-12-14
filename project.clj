@@ -16,9 +16,6 @@
   :jar-exclusions [#".gitignore"]
   :dependencies [[org.clojure/clojure "1.8.0"]
 
-                 ;; logging
-                 [org.clojure/tools.logging "0.3.1"]
-
                  ;; feature creation
                  [com.zensols.nlp/feature "0.0.4"]
 
