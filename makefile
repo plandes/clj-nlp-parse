@@ -5,6 +5,7 @@ ZBHOME=		../clj-zenbuild
 
 # clean the generated app assembly file
 MLINK=		~/opt/nlp/model
+ADD_CLEAN+=	model
 
 all:		info
 
