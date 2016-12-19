@@ -214,6 +214,7 @@ public class TokenRegexEntityMentionsAnnotator implements Annotator {
               token.setNER("ORGANIZATION");
               CoreMap chunk = ChunkAnnotationUtils.getAnnotatedChunk(tokens,
                   i, i + 1, totalTokensOffset, null, null, null);
+              chunk.set(CoreAnnotations.NamedEntityTagAnnotation.class,"ORGANIZATION");
               mentions.add(chunk);
 
             }
