@@ -13,6 +13,7 @@ In your `project.clj` file, add:
 
 [![Clojars Project](https://clojars.org/com.zensols.nlp/parse/latest-version.svg)](https://clojars.org/com.zensols.nlp/parse/)
 
+
 ## Documentation
 
 Additional [documentation](https://plandes.github.io/clj-nlp-parse/codox/index.html).
