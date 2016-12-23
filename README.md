@@ -1,6 +1,6 @@
 # Natural Language Parse
 
-This library provides generalized library to deal with natural language.
+This repository provides generalized library to deal with natural language.
 Specifically it:
 * Wraps several Java natural language parsing libraries
 * Gives access the data structures rendered by the parsers
