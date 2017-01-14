@@ -70,15 +70,17 @@
         tok-re-path (res/resource-path :tok-re-resource)
         _ (log/infof "creating tok annotator from <%s> (%s)" tok-re-path
                      (type tok-re-path))
-        tok-re-files (map #(io/file tok-re-path %) tok-re-resources)]
+        tok-re-resources (if (sequential? (first tok-re-resources))
+                           tok-re-resources
+                           (list tok-re-resources))]
     (swap! tok-re-annotator
            (fn [ann]
-             (let [res (map str tok-re-files)]
-               (log/infof "creating token regular expression resources: %s"
-                          (pr-str res))
-               (or ann
-                   (edu.stanford.nlp.pipeline.TokensRegexAnnotator.
-                    (into-array res))))))))
+             (->> tok-re-resources
+                  (map (fn [paths]
+                         (let [paths (map #(->> % (io/file tok-re-path) str)
+                                          paths)]
+                           (edu.stanford.nlp.pipeline.TokensRegexAnnotator.
+                            (into-array paths))))))))))
 
 (defn- create-dependency-parse-annotator []
   (let [{:keys [dependency-parse-annotator]} (context)]
@@ -117,10 +119,11 @@
 
     :tok-re
     {:name :tok-re
-     :annotators [(create-tok-re-annotator (:tok-re-resources conf))
-                  (edu.stanford.nlp.pipeline.EntityMentionsAnnotator.)
-                  (zensols.stanford.nlp.TokenRegexEntityMentionsAnnotator.)]}
-
+     :annotators (->> [(create-tok-re-annotator (:tok-re-resources conf))
+                       (edu.stanford.nlp.pipeline.EntityMentionsAnnotator.)
+                       (zensols.stanford.nlp.TokenRegexEntityMentionsAnnotator.)]
+                      flatten vec)}
+    
     :parse-tree
     {:name :parse-tree
      :annotators [(edu.stanford.nlp.pipeline.ParserAnnotator. false -1)]}

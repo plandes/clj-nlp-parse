@@ -119,7 +119,12 @@ pipeline."
   "Create annotator to token regular expression.  You can configure an array of
   strings identifying either resources or files using the **paths** parameter,
   which defaults to `token-regex.txt`, which is included in the resources of
-  this package as an example and used with the test cases."
+  this package as an example and used with the test cases.
+
+  The `:tok-re-resources` is a sequence of string paths to create a single
+  annotator or a sequence of sequence string paths.  If more than one annotator
+  is created the output of an annotator can be used in the patterns of the
+  next."
   ([]
    (token-regex ["token-regex.txt"]))
   ([paths]
