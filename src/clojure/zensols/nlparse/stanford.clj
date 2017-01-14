@@ -123,7 +123,7 @@
                        (edu.stanford.nlp.pipeline.EntityMentionsAnnotator.)
                        (zensols.stanford.nlp.TokenRegexEntityMentionsAnnotator.)]
                       flatten vec)}
-    
+
     :parse-tree
     {:name :parse-tree
      :annotators [(edu.stanford.nlp.pipeline.ParserAnnotator. false -1)]}
@@ -260,7 +260,7 @@
       (map #(trav % nil) (.getRoots graph)))))
 
 (defn coref-tree-to-map [anon]
-  (->> anon coref- vals       
+  (->> anon coref- vals
        (map (fn [chain]
               (let [mentions (.getMentionsInTextualOrder chain)]
                 {:id (.getChainID chain)
