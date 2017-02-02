@@ -1,4 +1,0 @@
-# Ignore everything in this directory (this dir needed for creation of version.clj)
-*
-# Except this file
-!.gitignore
