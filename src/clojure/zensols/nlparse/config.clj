@@ -138,6 +138,12 @@ pipeline."
   {:component :parse-tree
    :parser :stanford})
 
+(defn sentiment
+  "Create annotator for sentiment analysis."
+  []
+  {:component :sentiment
+   :parser :stanford})
+
 (defn dependency-parse-tree
   "Create an annotator to create a dependency parse tree."
   []

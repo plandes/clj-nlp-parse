@@ -1,6 +1,7 @@
 (ns ^{:doc "Wraps the Stanford CoreNLP parser."
       :author "Paul Landes"}
     zensols.nlparse.stanford
+  (:import [java.util Properties])
   (:import [edu.stanford.nlp.pipeline Annotation])
   (:require [clojure.java.io :as io]
             [clojure.tools.logging :as log])
@@ -89,59 +90,68 @@
 
 (defn- make-pipeline-component [{:keys [component] :as conf}]
   (log/debugf "creating component: %s" (pr-str component))
-  (case component
-    :tokenize
-    {:name :tok
-     :annotators [(edu.stanford.nlp.pipeline.TokenizerAnnotator.
-                   false (:lang conf))]}
+  (let [name "clj-stanford"
+        props (doto (Properties.)
+                (.putAll {(str name "." "binaryTrees") "true"}))]
+   (case component
+     :tokenize
+     {:name :tok
+      :annotators [(edu.stanford.nlp.pipeline.TokenizerAnnotator.
+                    false (:lang conf))]}
 
-    :stopword
-    {:name :stopword
-     :annotators [(intoxicant.analytics.corenlp.StopwordAnnotator.)]}
+     :stopword
+     {:name :stopword
+      :annotators [(intoxicant.analytics.corenlp.StopwordAnnotator.)]}
 
-    :sents
-    {:name :sents
-     :annotators [(edu.stanford.nlp.pipeline.WordsToSentencesAnnotator. false)]}
+     :sents
+     {:name :sents
+      :annotators [(edu.stanford.nlp.pipeline.WordsToSentencesAnnotator. false)]}
 
-    :pos
-    {:name :pos
-     :annotators [(edu.stanford.nlp.pipeline.POSTaggerAnnotator.
-                   (create-tagger-model (:pos-model-resource conf)))]}
+     :pos
+     {:name :pos
+      :annotators [(edu.stanford.nlp.pipeline.POSTaggerAnnotator.
+                    (create-tagger-model (:pos-model-resource conf)))]}
 
-    :morph
-    {:name :morph
-     :annotators [(edu.stanford.nlp.pipeline.MorphaAnnotator. false)]}
+     :morph
+     {:name :morph
+      :annotators [(edu.stanford.nlp.pipeline.MorphaAnnotator. false)]}
 
-    :ner
-    {:name :ner
-     :annotators [(create-ner-annotator (:ner-model-paths conf))
-                  (edu.stanford.nlp.pipeline.EntityMentionsAnnotator.)]}
+     :ner
+     {:name :ner
+      :annotators [(create-ner-annotator (:ner-model-paths conf))
+                   (edu.stanford.nlp.pipeline.EntityMentionsAnnotator.)]}
 
-    :tok-re
-    {:name :tok-re
-     :annotators (->> [(create-tok-re-annotator (:tok-re-resources conf))
-                       (edu.stanford.nlp.pipeline.EntityMentionsAnnotator.)
-                       (zensols.stanford.nlp.TokenRegexEntityMentionsAnnotator.)]
-                      flatten vec)}
+     :tok-re
+     {:name :tok-re
+      :annotators (->> [(create-tok-re-annotator (:tok-re-resources conf))
+                        (edu.stanford.nlp.pipeline.EntityMentionsAnnotator.)
+                        (zensols.stanford.nlp.TokenRegexEntityMentionsAnnotator.)]
+                       flatten vec)}
 
-    :parse-tree
-    {:name :parse-tree
-     :annotators [(edu.stanford.nlp.pipeline.ParserAnnotator. false -1)]}
+     :parse-tree
+     {:name :parse-tree
+      :annotators [(edu.stanford.nlp.pipeline.ParserAnnotator. name props)]}
 
-    :dependency-parse-tree
-    {:name :dependency-parse-tree
-     :annotators [(create-dependency-parse-annotator)]}
+     :sentiment
+     {:name :sentiment
+      :annotators (->> [;(edu.stanford.nlp.pipeline.BinarizerAnnotator. name props)
+                        (edu.stanford.nlp.pipeline.SentimentAnnotator.
+                         name props)])}
 
-    :coref
-    ;; hack to avoid NLE in RuleBasedCorefMentionFinder getting a class space
-    ;; "parse" annotator starting in 3.6.0
-    (let [props (doto (java.util.Properties.)
-                  (.put "annotators" "tokenize,ssplit,parse"))]
-      (edu.stanford.nlp.pipeline.StanfordCoreNLP. props)
-      {:name :coref
-       :annotators [(edu.stanford.nlp.pipeline.DeterministicCorefAnnotator.
-                     (java.util.Properties.))]})
-    (log/debugf "skipping non-library compponent: %s" (pr-str conf))))
+     :dependency-parse-tree
+     {:name :dependency-parse-tree
+      :annotators [(create-dependency-parse-annotator)]}
+
+     :coref
+     ;; hack to avoid NLE in RuleBasedCorefMentionFinder getting a class space
+     ;; "parse" annotator starting in 3.6.0
+     (let [props (doto (Properties.)
+                   (.put "annotators" "tokenize,ssplit,parse"))]
+       (edu.stanford.nlp.pipeline.StanfordCoreNLP. props)
+       {:name :coref
+        :annotators [(edu.stanford.nlp.pipeline.DeterministicCorefAnnotator.
+                      props)]})
+     (log/debugf "skipping non-library compponent: %s" (pr-str conf)))))
 
 (defn- pipeline []
   (let [{:keys [pipeline-inst pipeline-config]} (context)]
@@ -155,7 +165,7 @@
 ;; annotation getters
 (def ^:private annotation-keys
   [:text :pos-tag :sent-index :token-range :token-index :index-range :char-range
-   :lemma :entity-type :ner-tag :normalized-tag :stopword
+   :lemma :entity-type :ner-tag :normalized-tag :stopword :sentiment-class
    :tok-re-ner-tag :tok-re-ner-item-id :tok-re-ner-features])
 
 (defn- get- [anon clazz]
@@ -222,6 +232,15 @@
 (defn- parse-tree- [anon]
   (get- anon edu.stanford.nlp.trees.TreeCoreAnnotations$TreeAnnotation))
 
+(defn- sentiment-class- [anon]
+  (get- anon edu.stanford.nlp.sentiment.SentimentCoreAnnotations$SentimentClass))
+
+(defn- sentiment-tree- [anon]
+  (get- anon edu.stanford.nlp.sentiment.SentimentCoreAnnotations$SentimentAnnotatedTree))
+
+(defn- rnn-predicted-class [anon]
+  (get- anon edu.stanford.nlp.neural.rnn.RNNCoreAnnotations$PredictedClass))
+
 (defn- coref- [anon]
   (get- anon edu.stanford.nlp.hcoref.CorefCoreAnnotations$CorefChainAnnotation))
 
@@ -240,12 +259,35 @@
           awmap (zipmap keys (map attr-fn-map keys))]
       (into {} (filter second awmap)))))
 
+(defn- parse-tree-to-map [node senti-node]
+  (when node
+    (let [label (.label node)
+          [pchild schild] (if-not (.isLeaf node)
+                            (let [pchild (.getChildrenAsList node)]
+                             [pchild
+                              (if senti-node
+                                (.getChildrenAsList senti-node)
+                                (repeat (count pchild) nil))]))]
+      (merge {:label (->> label .value)}
+             (select-keys (->> label anon-word-map)
+                          [:token-index :index-range])
+             (let [score (.score node)]
+               (if-not (Double/isNaN score)
+                 {:score score}))
+             (if pchild
+               {:child (map parse-tree-to-map pchild schild)})))))
+
 (defn- parse-tree-to-map [node]
   (when node
-    (merge {:label (->> node .label .value)}
-           (select-keys (->> node .label anon-word-map) [:token-index])
-           (if-not (.isLeaf node)
-             {:child (map parse-tree-to-map (.getChildrenAsList node))}))))
+    (let [label (.label node)]
+     (merge {:label (->> label .value)}
+            (select-keys (->> label anon-word-map)
+                         [:token-index :index-range :sentiment-class])
+            (let [score (.score node)]
+              (if-not (Double/isNaN score)
+                {:score score}))
+            (if-not (.isLeaf node)
+              {:child (map parse-tree-to-map (.getChildrenAsList node))})))))
 
 (defn- dep-parse-tree-to-map [graph]
   (when graph
@@ -287,22 +329,28 @@
        (hash-map :text)
        (merge (anon-word-map anon))))
 
+(defn- anon-sent-map [anon]
+  (->> [[:text (text- anon)]
+        [:sent-index (sent-index- anon)]
+        [:parse-tree (parse-tree-to-map (parse-tree- anon)
+                                        ;(sentiment-tree- anon)
+                                        )]
+        [:dependency-parse-tree
+         (dep-parse-tree-to-map (dependency-parse-tree- anon))]
+        [:sentiment-class (sentiment-class- anon)]
+        [:sentiment-tree (parse-tree-to-map (sentiment-tree- anon))]
+        [:tokens (map anon-word-map (tokens- anon))]]
+       util/map-if-data))
+
 (defn- anon-map [anon]
   (log/debugf "tokens: %s" (tokens- anon))
   (->> [[:text (text- anon)]
         [:mentions (map #(anon-mention-map anon %) (mentions- anon))]
         [:tok-re-mentions (map #(anon-mention-map anon %)
                                (tok-re-mentions- anon))]
+        [:sentiment-class (sentiment-class- anon)]
         [:coref (coref-tree-to-map anon)]
-        [:sents (map (fn [anon]
-                       (->> [[:text (text- anon)]
-                             [:sent-index (sent-index- anon)]
-                             [:parse-tree (parse-tree-to-map (parse-tree- anon))]
-                             [:dependency-parse-tree
-                              (dep-parse-tree-to-map (dependency-parse-tree- anon))]
-                             [:tokens (map anon-word-map (tokens- anon))]]
-                            util/map-if-data))
-                     (sents- anon))]]
+        [:sents (map anon-sent-map (sents- anon))]]
        util/map-if-data))
 
 ;; parse
