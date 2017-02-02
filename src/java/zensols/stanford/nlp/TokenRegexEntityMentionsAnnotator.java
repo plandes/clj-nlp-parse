@@ -226,14 +226,17 @@ public class TokenRegexEntityMentionsAnnotator implements Annotator {
 
 
   @Override
-  public Set<Requirement> requires() {
-    return new ArraySet<>(TOKENIZE_REQUIREMENT, NER_REQUIREMENT);
+  public Set<Class<? extends CoreAnnotation>> requires() {
+    return Collections.unmodifiableSet(new ArraySet<>(Arrays.asList(
+        CoreAnnotations.TokensAnnotation.class,
+        CoreAnnotations.SentencesAnnotation.class,
+        CoreAnnotations.NamedEntityTagAnnotation.class
+    )));
   }
 
   @Override
-  public Set<Requirement> requirementsSatisfied() {
-    // TODO: figure out what this produces
-    return Collections.emptySet();
+  public Set<Class<? extends CoreAnnotation>> requirementsSatisfied() {
+    return Collections.singleton(CoreAnnotations.MentionsAnnotation.class);
   }
 
 }

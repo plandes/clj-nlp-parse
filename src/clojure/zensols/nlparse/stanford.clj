@@ -14,7 +14,7 @@
 (def ^:private all-components
   '(tokenize
     sentence
-    stopword
+    ;stopword
     part-of-speech
     morphology
     named-entity-recognizer
@@ -57,14 +57,19 @@
              (or tagger (edu.stanford.nlp.tagger.maxent.MaxentTagger.
                          (.getAbsolutePath model-file)))))))
 
+(defn- ner-classifier-combiner [ner-model-paths]
+  (let [lang (edu.stanford.nlp.ie.NERClassifierCombiner$Language/valueOf "ENGLISH")]
+    (->> (into-array String ner-model-paths)
+         (edu.stanford.nlp.ie.NERClassifierCombiner.
+          true lang true true (Properties.)))))
+
 (defn- create-ner-annotator [ner-model-paths]
   (let [{:keys [ner-annotator]} (context)]
     (swap! ner-annotator
            (fn [ann]
              (log/infof "creating ner annotators: %s" (pr-str ner-model-paths))
              (or ann (edu.stanford.nlp.pipeline.NERCombinerAnnotator.
-                      (edu.stanford.nlp.ie.NERClassifierCombiner.
-                       true true (into-array String ner-model-paths)) false))))))
+                      (ner-classifier-combiner ner-model-paths) false))))))
 
 (defn- create-tok-re-annotator [tok-re-resources]
   (let [{:keys [tok-re-annotator]} (context)
@@ -99,9 +104,9 @@
       :annotators [(edu.stanford.nlp.pipeline.TokenizerAnnotator.
                     false (:lang conf))]}
 
-     :stopword
-     {:name :stopword
-      :annotators [(intoxicant.analytics.corenlp.StopwordAnnotator.)]}
+     ;; :stopword
+     ;; {:name :stopword
+     ;;  :annotators [(intoxicant.analytics.corenlp.StopwordAnnotator.)]}
 
      :sents
      {:name :sents
@@ -165,7 +170,7 @@
 ;; annotation getters
 (def ^:private annotation-keys
   [:text :pos-tag :sent-index :token-range :token-index :index-range :char-range
-   :lemma :entity-type :ner-tag :normalized-tag :stopword :sentiment-class
+   :lemma :entity-type :ner-tag :normalized-tag :sentiment-class ;:stopword
    :tok-re-ner-tag :tok-re-ner-item-id :tok-re-ner-features])
 
 (defn- get- [anon clazz]
@@ -207,9 +212,9 @@
 
 (defn- tokens- [anon] (get- anon edu.stanford.nlp.ling.CoreAnnotations$TokensAnnotation))
 
-(defn- stopword- [anon]
-  (let [pair (get- anon intoxicant.analytics.corenlp.StopwordAnnotator)]
-    (and pair (.first pair))))
+;; (defn- stopword- [anon]
+;;   (let [pair (get- anon intoxicant.analytics.corenlp.StopwordAnnotator)]
+;;     (and pair (.first pair))))
 
 (defn- char-range- [anon]
   (let [beg (get- anon edu.stanford.nlp.ling.CoreAnnotations$CharacterOffsetBeginAnnotation)
@@ -242,7 +247,7 @@
   (get- anon edu.stanford.nlp.neural.rnn.RNNCoreAnnotations$PredictedClass))
 
 (defn- coref- [anon]
-  (get- anon edu.stanford.nlp.hcoref.CorefCoreAnnotations$CorefChainAnnotation))
+  (get- anon edu.stanford.nlp.dcoref.CorefCoreAnnotations$CorefChainAnnotation))
 
 (defn- children- [graph node] (.getChildren graph node))
 
