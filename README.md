@@ -1,4 +1,4 @@
-# Natural Language Parse
+# Natural Language Parse and Feature Generation
 
 This repository provides generalized library to deal with natural language.
 Specifically it:
@@ -12,7 +12,24 @@ This framework stitches the results of the following frameworks:
 * [Stop Word Annotator](https://github.com/plandes/stopword-annotator)
 
 
-# Features
+## Contents
+
+* [Features](#features)
+* [Obtaining](#obtaining)
+* [Documentation](#documentation)
+* [Example](#example)
+* [Usage](#usage)
+  - [Setup](#setup)
+    + [Parsing an Utterance](#parsing-an-utterance)
+    + [Utility Functions](#utility-functions)
+	+ [Features](#features)
+	+ [Dictionary Utility](#dictionary-utility)
+	+ [Command Line Usage](#command-line-usage)
+* [Changelog](#changelog)
+* [License](#license)
+
+
+## Features
 
 * Completely customize
 * Easily Extendable
@@ -227,6 +244,11 @@ for more information.  For an example on how to configure the pipeline, see
 
 The command line usage of this project has moved to
 the [NLP server](https://github.com/plandes/clj-nlp-serv#comand-line-usage).
+
+
+## Changelog
+
+An extensive changelog is available [here](CHANGELOG.md).
 
 
 ## License
