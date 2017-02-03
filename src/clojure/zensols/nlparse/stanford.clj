@@ -19,6 +19,7 @@
     stopword
     named-entity-recognizer
     parse-tree
+    sentiment
     coreference))
 
 ;; pipeline

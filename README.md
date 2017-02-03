@@ -6,6 +6,36 @@ Specifically it:
 * Gives access the data structures rendered by the parsers
 * Provides utility functions to create features
 
+This framework stitches the results of the following frameworks:
+* [Stanford CoreNLP](https://github.com/stanfordnlp/CoreNLP)
+* [ClearNLP](https://github.com/emorynlp/nlp4j)
+* [Stop Word Annotator](https://github.com/plandes/stopword-annotator)
+
+
+# Features
+
+* Completely customize
+* Easily Extendable
+* All data structures are 100% pure Clojure data structures.
+* Provides a feature creation libraries:
+  - [Character](https://plandes.github.io/clj-nlp-feature/codox/zensols.nlparse.feature.char.html)
+  - [Dictionary, Word Lists](https://plandes.github.io/clj-nlp-feature/codox/zensols.nlparse.feature.word.html)
+  - [Language (SRL, POS, etc)](https://plandes.github.io/clj-nlp-parse/codox/zensols.nlparse.feature.lang.html)
+  - [Word Counts](https://plandes.github.io/clj-nlp-parse/codox/zensols.nlparse.feature.word-count.html)
+* Stitches multiple frameworks to provide the following features:
+  - [Tokenizing](https://en.wikipedia.org/wiki/Lexical_analysis#Token)
+  - Grouping Tokens into Sentences
+  - [Lemmatisation](https://en.wikipedia.org/wiki/Lemmatisation)
+  - [Part of Speech Tagging](https://en.wikipedia.org/wiki/Part-of-speech_tagging)
+  - [Stop Words](https://en.wikipedia.org/wiki/Stop_words) (both word and
+    lemma)
+  - [Named Entity Recognition](https://en.wikipedia.org/wiki/Named-entity_recognition)
+  - [Syntactic Parse Tree](https://en.wikipedia.org/wiki/Parse_tree)
+  - [Dependency Parse Tree](https://en.wikipedia.org/wiki/Dependency_grammar)
+  - [Co-reference Graph](https://en.wikipedia.org/wiki/Coreference)
+  - [Sentiment Analysis](https://en.wikipedia.org/wiki/Sentiment_analysis)
+  - [Semantic Role Labeler](https://en.wikipedia.org/wiki/Semantic_role_labeling)
+
 
 ## Obtaining
 
@@ -16,7 +46,7 @@ In your `project.clj` file, add:
 
 ## Documentation
 
-Additional [documentation](https://plandes.github.io/clj-nlp-parse/codox/index.html).
+API [documentation](https://plandes.github.io/clj-nlp-parse/codox/index.html).
 
 
 ## Example
