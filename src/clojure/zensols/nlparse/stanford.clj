@@ -269,24 +269,6 @@
           awmap (zipmap keys (map attr-fn-map keys))]
       (into {} (filter second awmap)))))
 
-(defn- parse-tree-to-map [node senti-node]
-  (when node
-    (let [label (.label node)
-          [pchild schild] (if-not (.isLeaf node)
-                            (let [pchild (.getChildrenAsList node)]
-                             [pchild
-                              (if senti-node
-                                (.getChildrenAsList senti-node)
-                                (repeat (count pchild) nil))]))]
-      (merge {:label (->> label .value)}
-             (select-keys (->> label anon-word-map)
-                          [:token-index :index-range])
-             (let [score (.score node)]
-               (if-not (Double/isNaN score)
-                 {:score score}))
-             (if pchild
-               {:child (map parse-tree-to-map pchild schild)})))))
-
 (defn- parse-tree-to-map [node]
   (when node
     (let [label (.label node)]
@@ -342,13 +324,11 @@
 (defn- anon-sent-map [anon]
   (->> [[:text (text- anon)]
         [:sent-index (sent-index- anon)]
-        [:parse-tree (parse-tree-to-map (parse-tree- anon)
-                                        ;(sentiment-tree- anon)
-                                        )]
+        [:parse-tree (parse-tree-to-map (parse-tree- anon))]
         [:dependency-parse-tree
          (dep-parse-tree-to-map (dependency-parse-tree- anon))]
         [:sentiment-class (sentiment-class- anon)]
-        [:sentiment-tree (parse-tree-to-map (sentiment-tree- anon))]
+        ;[:sentiment-tree (parse-tree-to-map (sentiment-tree- anon))]
         [:tokens (map anon-word-map (tokens- anon))]]
        util/map-if-data))
 
