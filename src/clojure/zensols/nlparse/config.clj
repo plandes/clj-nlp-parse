@@ -77,12 +77,6 @@ pipeline."
   {:component :sents
    :parser :stanford})
 
-(defn stopword
-  "Create annotator to annotate stop words (boolean)."
-  []
-  {:component :stopword
-   :parser :stanford})
-
 (defn part-of-speech
   "Create annotator to do part of speech tagging.  You can set the model with a
   resource identified with the **pos-model-resource** string, which defaults to
@@ -100,6 +94,12 @@ pipeline."
   adds the `:lemma` keyword to each token.."
   []
   {:component :morph
+   :parser :stanford})
+
+(defn stopword
+  "Create annotator to annotate stop words (boolean)."
+  []
+  {:component :stopword
    :parser :stanford})
 
 (defn named-entity-recognizer

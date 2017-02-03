@@ -28,7 +28,7 @@
                  [edu.stanford.nlp/stanford-corenlp "3.7.0" :classifier "models"]
 
                  ;; stopword
-                 [com.zensols/stopword-annotator "2.1"]
+                 [com.zensols/stopword-annotator "2.2"]
 
                  ;; ClearNLP for semantic role labeling
                  [com.clearnlp/clearnlp "2.0.2"]
