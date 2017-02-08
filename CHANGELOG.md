@@ -9,9 +9,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [0.0.15] - 2017-02-07
 ### Added
-- Changelog
-- Pipeline configuration parsing DSL
-- Added sentiment
+- Changelog.
+- Pipeline configuration parsing DSL.
+- Added sentiment.
 
 ### Changed
 - Upgrade to lein-git 1.2.7
