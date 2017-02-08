@@ -236,8 +236,46 @@ You can not only configure the natural language processing pipeline and which
 specific components to use, but you can also define and add your own plugin
 library.  See the
 [config namespace](https://plandes.github.io/clj-nlp-parse/codox/zensols.nlparse.config.html)
-for more information.  For an example on how to configure the pipeline, see
-[this test case](https://github.com/plandes/clj-nlp-parse/blob/master/test/zensols/nlparse/ner_test.clj#L10-L17).
+for more information.
+
+
+#### Usage
+
+For example, if all you need is tokenization and sentence chunking create a
+context and parse it using macro `with-context` and the context you create with
+specific components:
+```clojure
+(require '[zensols.nlparse.config :as conf :refer (with-context)]
+         '[zensols.nlparse.parse :refer (parse)])
+
+(let [ctx (->> (conf/create-parse-config
+                :pipeline [(conf/tokenize)
+                           (conf/sentence)])
+               conf/create-context)]
+  (with-context ctx
+    (parse "I love Clojure.  I enjoy it.")))
+```
+
+You can also specify the configuration in the form of a string:
+```clojure
+(let [ctx (conf/create-context "tokenize,sentence,part-of-speech")]
+  (with-context ctx
+    (parse "I love Clojure.  I enjoy it.")))
+```
+
+The configuration string can also take parameters (ex the `en` parameter to the
+tokenizer specifying English as the natural language):
+```clojure
+(let [ctx (conf/create-context "tokenize(en),sentence,part-of-speech")]
+  (with-context ctx
+    (parse "I love Clojure.  I enjoy it.")))
+```
+
+For an example on how to configure the pipeline, see
+[this test case](https://github.com/plandes/clj-nlp-parse/blob/master/test/zensols/nlparse/ner_test.clj#L12-L20).
+For more information on the DSL itself see the
+[DSL parser](https://github.com/plandes/clj-nlp-parse/blob/master/src/clojure/zensols/nlparse/config_parse.clj).
+
 
 
 ### Command Line Usage

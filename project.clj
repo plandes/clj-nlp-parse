@@ -4,7 +4,7 @@
   :license {:name "Apache License version 2.0"
             :url "https://www.apache.org/licenses/LICENSE-2.0"
             :distribution :repo}
-  :plugins [[lein-codox "0.10.1"]
+  :plugins [[lein-codox "0.10.3"]
             [org.clojars.cvillecsteele/lein-git-version "1.2.7"]]
   :codox {:metadata {:doc/format :markdown}
           :project {:name "NLP Parsing and Feature Creation"}
@@ -20,7 +20,7 @@
   :dependencies [[org.clojure/clojure "1.8.0"]
 
                  ;; feature creation
-                 [com.zensols.nlp/feature "0.0.4"]
+                 [com.zensols.nlp/feature "0.0.5"] 
 
                  ;;; NLP
                  ;; Stanford CoreNLP
@@ -29,6 +29,9 @@
 
                  ;; stopword
                  [com.zensols/stopword-annotator "2.2"]
+
+                 ;; config DSL
+                 [instaparse "1.4.5"]
 
                  ;; ClearNLP for semantic role labeling
                  [com.clearnlp/clearnlp "2.0.2"]

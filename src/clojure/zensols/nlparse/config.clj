@@ -45,7 +45,8 @@ pipeline."
             [clojure.java.io :as io]
             [clojure.repl :as repl])
   (:require [zensols.actioncli.dynamic :refer [defa- undef] :as dyn])
-  (:require [zensols.nlparse.resource :as pres]))
+  (:require [zensols.nlparse.resource :as pres])
+  (:require [zensols.nlparse.config-parse :as confpar]))
 
 (def ^{:dynamic true :private true}
   *parse-context*
@@ -208,6 +209,16 @@ label to help decide the best SRL labeled sentence to choose."
                      (map #(%)))))
          (apply concat))))
 
+(defn- registered-namespaces
+  "Return all component function namespaces."
+  []
+  (->> @library-config-inst
+       vals
+       (map :component-fns)
+       (apply concat)
+       (map #(-> % meta :ns ns-name))
+       distinct))
+
 (defn create-parse-config
   "Create a parse configuration given as input to [[create-context]].
 
@@ -243,18 +254,6 @@ Keys
                       (map #(%) (->> v :component-fns))))
                (apply concat))))
 
-(defn create-parse-config-by-string
-  "See [[create-context]]."
-  [components]
-  (let [comps (registered-components)]
-    (->> components
-         (#(s/split % #","))
-         (map (fn [comp-str]
-                (or (get comps comp-str)
-                    (throw (ex-info (format "No such component: %s" comp-str)
-                                    {:component comp-str})))))
-         (create-parse-config :pipeline))))
-
 (defn create-context
   "Return a context used during parsing.  This calls all
   registered ([[register-library]]) parse libraries create functions and
@@ -264,20 +263,21 @@ Keys
   The parameter **parse-config** is either a parse configuration created
   with [[create-parse-config]] or a string.  If a string is used for the
   **parse-config** parameter create pipeline by component names separated by
-  commas.  For example:
+  commas.  See [[zensols.nlparse.config-parse]] for more inforamation on this
+  DSL.
 
-  `tokenize,sentence,part-of-speech,morphology`
-
-  Creates a pipeline that tokenizes, adds POS and lemmas.  Using the output
-  of [[components-of-string]] would create all components.  However, the easier
-  way to utilize all components is to to call this function with no parameters.
+  Using the output of [[components-of-string]] would create all components.
+  However, the easier way to utilize all components is to to call this function
+  with no parameters.
 
   See the [usage section](#usage) section."
   ([]
    (create-context (create-parse-config)))
   ([parse-config]
    (if (string? parse-config)
-     (create-context (create-parse-config-by-string parse-config))
+     (->> (confpar/parse parse-config (registered-namespaces))
+          (create-parse-config :pipeline)
+          create-context)
      (do
        (log/debugf "creating context with <%s>" parse-config)
        (->> @library-config-inst
