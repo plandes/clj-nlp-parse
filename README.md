@@ -66,7 +66,10 @@ In your `project.clj` file, add:
 
 ## Documentation
 
-API [documentation](https://plandes.github.io/clj-nlp-parse/codox/index.html).
+API Documentation:
+
+* [Java](https://plandes.github.io/clj-nlp-parse/apidocs/index.html)
+* [Clojure](https://plandes.github.io/clj-nlp-parse/codox/index.html)
 
 
 ## Example
