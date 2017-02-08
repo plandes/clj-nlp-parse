@@ -3,11 +3,11 @@ DSL for parsing a pipeline configuration (see [[zensols.nlparse.config]]).  The
 *configuration string* represents is a component separated by commas as a set
 of *forms*.  For example the forms:
 ```
-tokenize(en),sentence,part-of-speech(english.tagger),morphology
+tokenize(\"en\"),sentence,part-of-speech(\"english.tagger\"),morphology
 ```
-
 creates a pipeline that tokenizes, adds POS and lemmas when called
-with [[parse]].  The [[parse]] function does this by calling in order:
+with [[parse]].  Note the double quotes in the `tokenize` and `part-of-speech`
+mnemonics.  The [[parse]] function does this by calling in order:
 
 * ([[zensols.nlparse.config/tokenize]] \"en\")
 * ([[zensols.nlparse.config/sentence]])
@@ -106,12 +106,13 @@ example.namespace/myfunc(arg1,arg2)
      (->> (to-metadata config-str)
           (map (fn [{:keys [namespace func params] :as meta}]
                  (try
-                   (-> (concat (if namespace
-                                 (-> namespace symbol list)
-                                 namespaces))
-                       (find-function (symbol func))
-                       (validate namespace func)
-                       (apply params))
+                   (let [args (map read-string params)]
+                     (-> (concat (if namespace
+                                   (-> namespace symbol list)
+                                   namespaces))
+                         (find-function (symbol func))
+                         (validate namespace func)
+                         (apply args)))
                    (catch Exception e
                      (-> (format "Cannot parse (%s/%s %s): %s"
                                  namespace func (pr-str params) (.toString e))

@@ -72,30 +72,32 @@ Expected:")))
 (deftest test-to-parse []
   (is (= '({:component :tokenize, :lang "en", :parser :stanford})
          (parse-with-ns "tokenize")))
-  (is (= '({:component :tokenize, :lang "arg1", :parser :stanford})
+  (is (= '({:component :tokenize, :lang arg1, :parser :stanford})
          (parse-with-ns "tokenize(arg1)")))
+  (is (= '({:component :tokenize, :lang "arg1" :parser :stanford})
+         (parse-with-ns "tokenize(\"arg1\")")))
   (is (= '({:component :tokenize, :lang "LANG1", :parser :stanford})
-         (parse-with-ns "zensols.nlparse.config/tokenize(LANG1)")))
+         (parse-with-ns "zensols.nlparse.config/tokenize(\"LANG1\")")))
   (is (= '({:component :tokenize, :lang "arg1", :parser :stanford}
            {:component :sents, :parser :stanford})
-         (parse-with-ns "zensols.nlparse.config/tokenize(arg1),sentence")))
+         (parse-with-ns "zensols.nlparse.config/tokenize(\"arg1\"),sentence")))
   (is (= '({:component :sents, :parser :stanford}
            {:component :tokenize, :lang "arg1", :parser :stanford})
-         (parse-with-ns "sentence,zensols.nlparse.config/tokenize(arg1)")))
+         (parse-with-ns "sentence,zensols.nlparse.config/tokenize(\"arg1\")")))
   (is (= '({:component :tokenize, :lang "arg1", :parser :stanford}
            {:component :sents, :parser :stanford})
-         (parse-with-ns "zensols.nlparse.config/tokenize(arg1),zensols.nlparse.config/sentence")))
+         (parse-with-ns "zensols.nlparse.config/tokenize(\"arg1\"),zensols.nlparse.config/sentence")))
   (is (= '({:component :sents, :parser :stanford}
            {:component :tokenize, :lang "arg1", :parser :stanford})
-         (parse-with-ns "sentence,zensols.nlparse.config/tokenize(arg1)")))
+         (parse-with-ns "sentence,zensols.nlparse.config/tokenize(\"arg1\")")))
   (is (= '({:component :pos, :pos-model-resource "arg2", :parser :stanford}
            {:component :tokenize, :lang "arg1", :parser :stanford})
-         (parse-with-ns "part-of-speech(arg2),zensols.nlparse.config/tokenize(arg1)")))
+         (parse-with-ns "part-of-speech(\"arg2\"),zensols.nlparse.config/tokenize(\"arg1\")")))
   (is (= '({:component :tokenize, :lang "en", :parser :stanford}
            {:component :sents, :parser :stanford}
            {:component :pos, :pos-model-resource "english.tagger", :parser :stanford}
            {:component :morph, :parser :stanford})
-         (parse-with-ns "tokenize(en),sentence,part-of-speech(english.tagger),morphology")))
+         (parse-with-ns "tokenize(\"en\"),sentence,part-of-speech(\"english.tagger\"),morphology")))
   (is (= '({:component :sentiment, :parser :stanford, :aggregate? true})
          (parse-with-ns "sentiment")))
   (is (= '({:component :sentiment, :parser :stanford, :aggregate? true})
