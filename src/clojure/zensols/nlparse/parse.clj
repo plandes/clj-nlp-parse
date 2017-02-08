@@ -15,6 +15,11 @@ the [[zensols.nlparse.config]] namespace."
             [zensols.nlparse.stanford :as sp]
             [zensols.nlparse.srl :as srl]))
 
+(def sentimnet-labels
+  "All labels returned by [[sentiment-score-to-label]] in order of positive to
+  negative."
+  ["very positive" "positive" "very negative" "negative" "neutral"])
+
 (def penn-treebank-pos-tags
   "Alphabetical list of part-of-speech tags used in the [Penn Treebank
   Project](https://www.ling.upenn.edu/courses/Fall_2003/ling001/penn_treebank_pos.html)."
@@ -243,11 +248,6 @@ Keys
                (->> mention
                     (tokens-for-mention panon)
                     (assoc mention :tokens)))))))
-
-(def sentimnet-labels
-  "All labels returned by [[sentiment-score-to-label]] in order of positive to
-  negative."
-  ["very positive" "positive" "very negative" "negative" "neutral"])
 
 (defn sentiment-score-to-label
   "Create a human readable tag from the sentiment score.
