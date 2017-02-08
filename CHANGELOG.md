@@ -25,6 +25,6 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Upgraded to Stanford CoreNLP 3.7
 
 
-[Unreleased]: https://github.com/plandes/clj-mkproj/compare/v0.0.15...HEAD
-[0.0.15]: https://github.com/plandes/clj-mkproj/compare/v0.0.14...v0.0.15
-[0.0.14]: https://github.com/plandes/clj-mkproj/compare/v0.0.13...v0.0.14
+[Unreleased]: https://github.com/plandes/clj-nlp-parse/compare/v0.0.15...HEAD
+[0.0.15]: https://github.com/plandes/clj-nlp-parse/compare/v0.0.14...v0.0.15
+[0.0.14]: https://github.com/plandes/clj-nlp-parse/compare/v0.0.13...v0.0.14
