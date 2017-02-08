@@ -95,4 +95,10 @@ Expected:")))
            {:component :sents, :parser :stanford}
            {:component :pos, :pos-model-resource "english.tagger", :parser :stanford}
            {:component :morph, :parser :stanford})
-         (parse-with-ns "tokenize(en),sentence,part-of-speech(english.tagger),morphology"))))
+         (parse-with-ns "tokenize(en),sentence,part-of-speech(english.tagger),morphology")))
+  (is (= '({:component :sentiment, :parser :stanford, :aggregate? true})
+         (parse-with-ns "sentiment")))
+  (is (= '({:component :sentiment, :parser :stanford, :aggregate? true})
+         (parse-with-ns "sentiment(true)")))
+  (is (= '({:component :sentiment, :parser :stanford, :aggregate? false})
+         (parse-with-ns "sentiment(false)"))))

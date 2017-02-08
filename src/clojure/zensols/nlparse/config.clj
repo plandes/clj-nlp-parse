@@ -140,10 +140,15 @@ pipeline."
    :parser :stanford})
 
 (defn sentiment
-  "Create annotator for sentiment analysis."
-  []
-  {:component :sentiment
-   :parser :stanford})
+  "Create annotator for sentiment analysis.  The **aggregate?** parameter tells
+  the parser to create a top (root) sentiment level score for the entire parse
+  utterance."
+  ([]
+   (sentiment true))
+  ([aggregate?]
+   {:component :sentiment
+    :parser :stanford
+    :aggregate? (true? aggregate?)}))
 
 (defn dependency-parse-tree
   "Create an annotator to create a dependency parse tree."
@@ -326,6 +331,14 @@ Keys
   `(let [context# ~context]
      (binding [*parse-context* context#]
        ~@forms)))
+
+(defn component-from-context
+  "Return a component by **name** from parse **context**."
+  [context name]
+  (->> context
+       :pipeline-config
+       (filter #(= (:component %) name))
+       first))
 
 (defn component-from-config
   "Return a component by **name** from parse **config**."

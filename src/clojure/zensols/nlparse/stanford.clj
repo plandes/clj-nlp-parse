@@ -4,7 +4,8 @@
   (:import [java.util Properties])
   (:import [edu.stanford.nlp.pipeline Annotation])
   (:require [clojure.java.io :as io]
-            [clojure.tools.logging :as log])
+            [clojure.tools.logging :as log]
+            [clojure.string :as s])
   (:require [zensols.actioncli.dynamic :as dyn]
             [zensols.actioncli.resource :as res])
   (:require [zensols.nlparse.util :as util]
@@ -140,8 +141,7 @@
 
      :sentiment
      {:name :sentiment
-      :annotators (->> [;(edu.stanford.nlp.pipeline.BinarizerAnnotator. name props)
-                        (edu.stanford.nlp.pipeline.SentimentAnnotator.
+      :annotators (->> [(edu.stanford.nlp.pipeline.SentimentAnnotator.
                          name props)])}
 
      :dependency-parse-tree
@@ -172,7 +172,7 @@
 (def ^:private annotation-keys
   [:text :pos-tag :sent-index :token-range :token-index :index-range :char-range
    :lemma :entity-type :ner-tag :normalized-tag :stopword :stoplemma
-   :sentiment-class :tok-re-ner-tag :tok-re-ner-item-id :tok-re-ner-features])
+   :sentiment :tok-re-ner-tag :tok-re-ner-item-id :tok-re-ner-features])
 
 (defn- get- [anon clazz]
   (.get anon clazz))
@@ -242,8 +242,16 @@
 (defn- parse-tree- [anon]
   (get- anon edu.stanford.nlp.trees.TreeCoreAnnotations$TreeAnnotation))
 
-(defn- sentiment-class- [anon]
-  (get- anon edu.stanford.nlp.sentiment.SentimentCoreAnnotations$SentimentClass))
+(defn- sentiment- [anon]
+  (let [stag (get- anon edu.stanford.nlp.sentiment.SentimentCoreAnnotations$SentimentClass)
+        stag (if stag (s/lower-case stag))]
+    (case stag
+      "positive" 1
+      "very positive" 2
+      "negative" -1
+      "very negative" -2
+      "neutral" 0
+      nil)))
 
 (defn- sentiment-tree- [anon]
   (get- anon edu.stanford.nlp.sentiment.SentimentCoreAnnotations$SentimentAnnotatedTree))
@@ -274,7 +282,7 @@
     (let [label (.label node)]
      (merge {:label (->> label .value)}
             (select-keys (->> label anon-word-map)
-                         [:token-index :index-range :sentiment-class])
+                         [:token-index :index-range :sentiment])
             (let [score (.score node)]
               (if-not (Double/isNaN score)
                 {:score score}))
@@ -327,21 +335,25 @@
         [:parse-tree (parse-tree-to-map (parse-tree- anon))]
         [:dependency-parse-tree
          (dep-parse-tree-to-map (dependency-parse-tree- anon))]
-        [:sentiment-class (sentiment-class- anon)]
+        [:sentiment (sentiment- anon)]
         ;[:sentiment-tree (parse-tree-to-map (sentiment-tree- anon))]
         [:tokens (map anon-word-map (tokens- anon))]]
        util/map-if-data))
 
 (defn- anon-map [anon]
   (log/debugf "tokens: %s" (tokens- anon))
-  (->> [[:text (text- anon)]
-        [:mentions (map #(anon-mention-map anon %) (mentions- anon))]
-        [:tok-re-mentions (map #(anon-mention-map anon %)
-                               (tok-re-mentions- anon))]
-        [:sentiment-class (sentiment-class- anon)]
-        [:coref (coref-tree-to-map anon)]
-        [:sents (map anon-sent-map (sents- anon))]]
-       util/map-if-data))
+  (let [agg? (->> (conf/component-from-context (context) :sentiment)
+                  :aggregate?)]
+   (->> [[:text (text- anon)]
+         [:mentions (map #(anon-mention-map anon %) (mentions- anon))]
+         [:tok-re-mentions (map #(anon-mention-map anon %)
+                                (tok-re-mentions- anon))]
+         [:sentiment (if agg? (->> anon sents- (map sentiment-) (reduce +)))]
+         [:coref (coref-tree-to-map anon)]
+         [:sents (map anon-sent-map (sents- anon))]]
+        util/map-if-data)))
+
+
 
 ;; parse
 (defn- invoke-annotator [context annotator anon]

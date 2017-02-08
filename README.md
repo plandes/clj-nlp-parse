@@ -24,6 +24,8 @@ This framework stitches the results of the following frameworks:
     + [Utility Functions](#utility-functions)
 	+ [Features](#features)
 	+ [Dictionary Utility](#dictionary-utility)
+	+ [Pipeline Configuration](#pipeline-configuration)
+	  - [Usage](#pipeline-usage)
 	+ [Command Line Usage](#command-line-usage)
 * [Changelog](#changelog)
 * [License](#license)
@@ -31,9 +33,10 @@ This framework stitches the results of the following frameworks:
 
 ## Features
 
-* Completely customize
-* Easily Extendable
-* All data structures are 100% pure Clojure data structures.
+* Completely customize.
+* Easily Extendable.
+* [Callable](https://dzone.com/articles/java-clojure-interop-calling) from Java.
+* Combines all annotations as 100% pure Clojure data structures.
 * Provides a feature creation libraries:
   - [Character](https://plandes.github.io/clj-nlp-feature/codox/zensols.nlparse.feature.char.html)
   - [Dictionary, Word Lists](https://plandes.github.io/clj-nlp-feature/codox/zensols.nlparse.feature.word.html)
@@ -239,7 +242,7 @@ library.  See the
 for more information.
 
 
-#### Usage
+#### Pipeline Usage
 
 For example, if all you need is tokenization and sentence chunking create a
 context and parse it using macro `with-context` and the context you create with

@@ -243,3 +243,20 @@ Keys
                (->> mention
                     (tokens-for-mention panon)
                     (assoc mention :tokens)))))))
+
+(def sentimnet-labels
+  "All labels returned by [[sentiment-score-to-label]] in order of positive to
+  negative."
+  ["very positive" "positive" "very negative" "negative" "neutral"])
+
+(defn sentiment-score-to-label
+  "Create a human readable tag from the sentiment score.
+
+  See [[sentimnet-labels]]."
+  [sentiment-score]
+  (cond (nil? sentiment-score) nil
+        (> sentiment-score 1) "very positive"
+        (= sentiment-score 1) "positive"
+        (< sentiment-score -1) "very negative"
+        (= sentiment-score -1) "negative"
+        (= 0 sentiment-score) "neutral"))
