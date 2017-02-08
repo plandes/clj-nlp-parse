@@ -12,7 +12,7 @@
           :output-path "target/doc/codox"
           :source-uri "https://github.com/plandes/clj-nlp-parse/blob/v{version}/{filepath}#L{line}"}
   :javadoc-opts {:package-names ["zensols.stanford.nlp"]
-                 :output-dir "doc/apidocs"}
+                 :output-dir "target/doc/apidocs"}
   :git-version {:root-ns "zensols.nlparse"
                 :path "src/clojure/zensols/nlparse"
                 :version-cmd "git describe --match v*.* --abbrev=4 --dirty=-dirty"}
