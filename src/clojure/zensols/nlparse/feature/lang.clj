@@ -74,6 +74,7 @@ from [[zensols.nlparse.parse/parse]]."
         tc (count tokens)]
     (->> (map :pos-tag tokens)
          (map pt/pos-tag-type)
+         (remove nil?)
          (reduce (fn [ret ttype]
                    (merge ret {ttype (inc (or (get ret ttype) 0))}))
                  {})
