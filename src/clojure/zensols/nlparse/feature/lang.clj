@@ -69,7 +69,31 @@ from [[zensols.nlparse.parse/parse]]."
 (defn- pos-tag-count-keyword [lab]
   (-> (format "pos-tag-count-%s" lab) keyword))
 
-(defn pos-tag-features [tokens]
+(defn- pos-tag-or-none [tag]
+  (if (contains? (pt/pos-tags) tag)
+    tag
+    none-label))
+
+(defn pos-tag-features
+  "Return POS tag features computed all **tokens**, which include:
+
+  * **:pos-first-tag** The first POS tag.
+  * **:pos-last-tag** The last POS tag.
+  * **:pos-tag-count-adjective*: The number of adjectives found.
+  * **:pos-tag-ratio-adjective*: The ratio of adjectives to other POS tags.
+  * **:pos-tag-count-adverb*: The number of adverbs found.
+  * **:pos-tag-ratio-adverb*: The ratio of adverbs to other POS tags.
+  * **:pos-tag-count-noun*: The number of nouns found.
+  * **:pos-tag-ratio-noun*: The ratio of nouns to other POS tags.
+  * **:pos-tag-count-verb*: The number of verbs found.
+  * **:pos-tag-ratio-verb*: The ratio of verbs to other POS tags.
+  * **:pos-tag-count-wh*: The number of what/when/where type questions POS
+  tags.
+  * **:pos-tag-ratio-wh*: The ratio of what/when/where type question POS tags
+  to other POS tags.
+  * **:pos-tag-count-adjective*: The number of adjectives found.
+  * **:pos-tag-ratio-adjective*: The ratio of adjectives to other POS tags."
+  [tokens]
   (let [pos-tag-types (pt/pos-tag-types)
         tc (count tokens)]
     (->> (map :pos-tag tokens)
@@ -83,12 +107,12 @@ from [[zensols.nlparse.parse/parse]]."
                 {(pos-tag-ratio-keyword k) (/ v tc)
                  (pos-tag-count-keyword k) v}))
          (apply merge)
-         (merge {:pos-last-tag (->> tokens last :pos-tag)
-                 :pos-first-tag (->> tokens first :pos-tag)}))))
+         (merge {:pos-last-tag (->> tokens last :pos-tag pos-tag-or-none)
+                 :pos-first-tag (->> tokens first :pos-tag pos-tag-or-none)}))))
 
 (defn pos-tag-feature-metas []
-  (vec (concat [[:pos-last-tag (into () (pt/pos-tags))]
-                [:pos-first-tag (into () (pt/pos-tags))]]
+  (vec (concat [[:pos-last-tag (cons none-label (into () (pt/pos-tags)))]
+                [:pos-first-tag (cons none-label (into () (pt/pos-tags)))]]
                (map #(vector (pos-tag-ratio-keyword %) 'numeric)
                     (pt/pos-tag-types))
                (map #(vector (pos-tag-count-keyword %) 'numeric)
