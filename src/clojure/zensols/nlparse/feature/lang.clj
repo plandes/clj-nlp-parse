@@ -104,7 +104,7 @@ from [[zensols.nlparse.parse/parse]]."
                  {})
          (merge (zipmap pos-tag-types (repeat (count pos-tag-types) 0)))
          (map (fn [[k v]]
-                {(pos-tag-ratio-keyword k) (/ v tc)
+                {(pos-tag-ratio-keyword k) (if (= 0 tc) 0 (/ v tc))
                  (pos-tag-count-keyword k) v}))
          (apply merge)
          (merge {:pos-last-tag (->> tokens last :pos-tag pos-tag-or-none)
