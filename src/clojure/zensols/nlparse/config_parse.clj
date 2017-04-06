@@ -106,9 +106,11 @@ example.namespace/myfunc(arg1,arg2)
      (->> (to-metadata config-str)
           (map (fn [{:keys [namespace func params] :as meta}]
                  (try
-                   (let [args (map read-string params)]
+                   (let [args (map read-string params)
+                         nssym (if namespace (symbol namespace))]
+                     (if nssym (eval (list 'require `(quote [~nssym]))))
                      (-> (concat (if namespace
-                                   (-> namespace symbol list)
+                                   (list nssym)
                                    namespaces))
                          (find-function (symbol func))
                          (validate namespace func)

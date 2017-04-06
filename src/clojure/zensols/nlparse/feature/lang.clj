@@ -6,6 +6,7 @@ from [[zensols.nlparse.parse/parse]]."
   (:require [clojure.tools.logging :as log]
             [clojure.pprint :refer (pprint)]
             [clojure.string :as s])
+  (:require [clojure.core.matrix.stats :as stat])
   (:require [zensols.nlparse.feature.util :refer :all]
             [zensols.nlparse.wordnet :as wn]
             [zensols.nlparse.parse :as pt]))
@@ -158,3 +159,80 @@ from [[zensols.nlparse.parse/parse]]."
 (defn srl-features [toks]
   {:srl-propbank-id (srl-propbank-ids toks)
    :srl-argument-counts (srl-argument-count toks)})
+
+
+
+;;; sentiment
+(defn sentiment-features
+  "Return sentiment features for parsed annotation **panon**, which include:
+
+  * **:sentiment-utterance** The utterance level sentimment score.
+  * **:sentiment-sentence-sum** The utterance sum across sentences.
+  * **:sentiment-sentence-mean** The sentiment mean across sentences.
+  * **:sentiment-sentence-variance** The sentiment variance across sentences."
+  [panon]
+  (let [sent-sents (->> panon :sents (map :sentiment) (remove nil?))]
+    {:sentiment-utterance (->> panon :sentiment)
+     :sentiment-sentence-max (reduce max sent-sents)
+     :sentiment-sentence-min (reduce min sent-sents)
+     :sentiment-sentence-sum (reduce + sent-sents)
+     :sentiment-sentence-mean (or-empty-0 sent-sents stat/mean)
+     :sentiment-sentence-variance (or-empty-0 sent-sents stat/variance)}))
+
+(defn sentiment-feature-metas
+  "Return the feature metadata for [[sentiment-features]]."
+  []
+  [[:sentiment-utterance 'numeric]
+   [:sentiment-sentence-min 'numeric]
+   [:sentiment-sentence-max 'numeric]
+   [:sentiment-sentence-sum 'numeric]
+   [:sentiment-sentence-mean 'numeric]
+   [:sentiment-sentence-variance 'numeric]])
+
+
+
+;;; mentions
+(defn- mentions-feature-key [type s]
+  (->> (s/lower-case s) (format "mentions-%s-%s" type) keyword))
+
+(defn mentions-feature-metas
+  "Return the feature metadata for [[mentions-features]]."
+  [entities]
+  (->> entities
+       (mapcat (fn [entity]
+                 [[(mentions-feature-key "count" entity) 'numeric]
+                  [(mentions-feature-key "ratio" entity) 'numeric]]))))
+
+(defn mentions-features
+  "Return mentions features for **panon** with defaults of 0 for all named
+  **entities**.  The parameter **mentions-keys** are a list of mentions keys
+  (defaults to `:mentions`) and can include custom mentions (i.e. token regular
+  expression entities).  Features are computed on the top level mentions
+  comments returned include
+
+  * **:mentions-count-E** number of times entity *E* has occurred
+  * **:mentions-ratio-E** number of times entity *E* has occured / total
+  tokens."
+  ([panon tokens entities]
+   (mentions-features tokens panon entities [:mentions]))
+  ([panon tokens entities mentions-keys]
+   (let [tok-count (count tokens)
+         defs (->> entities
+                   (map (fn [entity]
+                          {(mentions-feature-key "count" entity) 0
+                           (mentions-feature-key "ratio" entity) 0}))
+                   (apply merge))]
+     (->> panon
+          (#(select-keys % mentions-keys))
+          (mapcat second)
+          (map :entity-type)
+          (reduce (fn [res tag]
+                    (let [org (or (get res tag) 0)]
+                      (assoc res tag (inc org))))
+                  {})
+          (map (fn [[k v]]
+                 {(mentions-feature-key "count" k) v
+                  (mentions-feature-key "ratio" k)
+                  (ratio-0-if-empty v tok-count)}))
+          (cons defs)
+          (into {})))))

@@ -7,7 +7,7 @@
   [data]
   (and data
        (or (not (or (associative? data) (sequential? data)
-                    (instance? java.util.Set data )))
+                    (instance? java.util.Set data)))
            (not (empty? data)))))
 
 (defn map-if-data
