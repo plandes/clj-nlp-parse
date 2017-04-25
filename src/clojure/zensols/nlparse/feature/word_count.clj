@@ -6,12 +6,13 @@
 
 ;; word counts
 (def ^:dynamic *word-count-config*
-  "Configuration for word-count-* and calculate-word* functions."
+  "Configuration for `word-count-*` and `calculate-word*` functions."
   {;; number of word counts for each label
    :words-by-label-count 3
    ;; function maps a top level annotation to get its label
-   :anon-to-label-fn nil
-   :label-format-fn #(format "label-count-%s" %)
+   :anon-to-label-fn #(:class-label %)
+   :anon-to-parse-fn #(:instance %)
+   :label-format-fn #(format "word-count-%s" %)
    :pos-tags #{"JJ" "JJR" "JJS"
                "MD"
                "NN" "NNS", "NNPS"
@@ -51,11 +52,11 @@
                                      counts)))))))))
 
 (defn- calculate-words-by-label [anons]
-  (let [{:keys [anon-to-label-fn]} *word-count-config*]
+  (let [{:keys [anon-to-label-fn anon-to-parse-fn]} *word-count-config*]
     (->> anons
          (map (fn [anon]
                 (if-let [label (anon-to-label-fn anon)]
-                  (->> (pt/tokens (:parse-anon anon))
+                  (->> (pt/tokens (anon-to-parse-fn anon))
                        (filter word-count-candidate?)
                        (map #(hash-map (word-count-form %) 1))
                        (apply merge-with +)
@@ -73,7 +74,7 @@
     {:words-by-label wba
      :word-count-dist (calculate-word-count-dist wba label-keys)}))
 
-(defn label-word-count-feature-key [label]
+(defn- label-word-count-feature-key [label]
   (keyword ((:label-format-fn *word-count-config*) label)))
 
 (defn- label-word-count-scores [tokens word-count-dist]
@@ -102,8 +103,17 @@
                   (double score)})
                scores))))
 
+(defn label-word-count-feature-metas
+  "Return the feature metadatas for [[label-count-score-features]]."
+  [thing]
+  (->> (if (map? thing)
+         (->> thing :words-by-label keys)
+         thing)
+       (map (fn [label]
+              [(label-word-count-feature-key label) 'numeric]))))
+
 (defn top-count-scores
-  "Return the top **num-counts**.
+  "Return the top **num-counts** as a list of strings.
 
   * **panon*** is the parsed annotation to generate features on
   * **feature-stats** is the trained stats from [[calculate-feature-stats]]."
