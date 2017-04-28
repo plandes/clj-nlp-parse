@@ -23,7 +23,7 @@
   :dependencies [[org.clojure/clojure "1.8.0"]
 
                  ;; feature creation
-                 [com.zensols.nlp/feature "0.0.5"] 
+                 [com.zensols.nlp/feature "0.0.6"] 
 
                  ;;; NLP
                  ;; Stanford CoreNLP
