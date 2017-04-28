@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+## [0.0.16] - 2017-04-27
+### Added
+- Sentiment features.
+- Travis build.
+
+
 ## [0.0.15] - 2017-02-07
 ### Added
 - Changelog.
@@ -25,6 +31,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Upgraded to Stanford CoreNLP 3.7
 
 
-[Unreleased]: https://github.com/plandes/clj-nlp-parse/compare/v0.0.15...HEAD
+[Unreleased]: https://github.com/plandes/clj-nlp-parse/compare/v0.0.16...HEAD
+[0.0.16]: https://github.com/plandes/clj-nlp-parse/compare/v0.0.15...v0.0.16
 [0.0.15]: https://github.com/plandes/clj-nlp-parse/compare/v0.0.14...v0.0.15
 [0.0.14]: https://github.com/plandes/clj-nlp-parse/compare/v0.0.13...v0.0.14

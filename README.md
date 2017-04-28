@@ -1,5 +1,10 @@
 # Natural Language Parse and Feature Generation
 
+[![Travis CI Build Status][travis-badge]][travis-link]
+
+  [travis-link]: https://travis-ci.org/plandes/clj-nlp-parse
+  [travis-badge]: https://travis-ci.org/plandes/clj-nlp-parse.svg?branch=master
+
 This repository provides generalized library to deal with natural language.
 Specifically it:
 * Wraps several Java natural language parsing libraries

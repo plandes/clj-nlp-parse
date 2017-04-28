@@ -1,0 +1,8 @@
+language: clojure
+lein: 2.7.1
+before_script:
+  - mkdir -p target
+  - git clone http://github.com/plandes/clj-zenbuild
+script: ZBHOME=clj-zenbuild make checkdep
+jdk:
+  - oraclejdk8
