@@ -11,7 +11,6 @@ from [[zensols.nlparse.parse/parse]]."
             [zensols.nlparse.wordnet :as wn]
             [zensols.nlparse.parse :as pt]))
 
-
 ;; propbank
 (defn first-sent-propbank-label
   "Find the first propbank label for a sentence."
