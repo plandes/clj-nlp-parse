@@ -2,7 +2,6 @@
   (:require [clojure.test :refer :all]
             [clojure.java.io :as io])
   (:require [zensols.actioncli.resource :refer :all]
-            [zensols.actioncli.dynamic :refer :all]
             [zensols.nlparse.config :as conf :refer (with-context)]
             [zensols.nlparse.parse :as p]
             [zensols.nlparse.tok-re :as tr]))
@@ -19,7 +18,7 @@
                    (conf/token-regex)])
        conf/create-context))
 
-(defnc- tok-ner-context (create-tok-ner-context))
+(defonce ^:private tok-ner-context (create-tok-ner-context))
 
 (defn- parse [utterance]
   (with-context tok-ner-context

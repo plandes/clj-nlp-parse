@@ -233,9 +233,11 @@ Keys
 (defn tokens-for-mention
   "Return tokens for **mention**."
   [panon mention]
-  (let [{:keys [token-range sent-index]} mention]
-    (->> panon :sents (#(nth % sent-index)) :tokens
-         (filter #(token-in-range? % (:token-range mention))))))
+  (let [{:keys [token-range sent-index]} mention
+        sents (->> panon :sents)]
+    (when (and mention (< sent-index (count sents)))
+     (->> sents (#(nth % sent-index)) :tokens
+          (filter #(token-in-range? % (:token-range mention)))))))
 
 (defn token-mentions
   "Return mentions with a `:tokens` key that includes token maps from the
