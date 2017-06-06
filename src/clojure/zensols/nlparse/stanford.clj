@@ -51,27 +51,32 @@
 
 (defn- create-tagger-model [pos-model-resource]
   (let [{:keys [tagger-model]} (context)
-        model-path (res/resource-path :stanford-model "pos")
-        model-file (io/file model-path pos-model-resource)]
+        model-res (res/resource-path :stanford-pos-tagger pos-model-resource)
+        model-res (if (instance? java.io.File model-res)
+                    (.getAbsolutePath model-res)
+                    model-res)]
     (swap! tagger-model
            (fn [tagger]
-             (log/infof "creating tagger model at %s" model-file)
-             (or tagger (edu.stanford.nlp.tagger.maxent.MaxentTagger.
-                         (.getAbsolutePath model-file)))))))
+             (if-not tagger
+               (do (log/infof "creating tagger model with %s" model-res)
+                   (edu.stanford.nlp.tagger.maxent.MaxentTagger. model-res))
+               tagger)))))
 
-(defn- ner-classifier-combiner [ner-model-paths]
-  (let [lang (edu.stanford.nlp.ie.NERClassifierCombiner$Language/valueOf "ENGLISH")]
+(defn- ner-classifier-combiner [ner-model-paths lang]
+  (let [lang (edu.stanford.nlp.ie.NERClassifierCombiner$Language/valueOf lang)]
     (->> (into-array String ner-model-paths)
          (edu.stanford.nlp.ie.NERClassifierCombiner.
           true lang true true (Properties.)))))
 
-(defn- create-ner-annotator [ner-model-paths]
+(defn- create-ner-annotator [ner-model-paths lang]
   (let [{:keys [ner-annotator]} (context)]
     (swap! ner-annotator
            (fn [ann]
-             (log/infof "creating ner annotators: %s" (pr-str ner-model-paths))
-             (or ann (edu.stanford.nlp.pipeline.NERCombinerAnnotator.
-                      (ner-classifier-combiner ner-model-paths) false))))))
+             (if-not ann
+               (do (log/infof "creating ner annotators: %s"
+                              (pr-str ner-model-paths))
+                   (edu.stanford.nlp.pipeline.NERCombinerAnnotator.
+                    (ner-classifier-combiner ner-model-paths lang) false)))))))
 
 (defn- create-tok-re-annotator [tok-re-resources]
   (let [{:keys [tok-re-annotator]} (context)
@@ -125,7 +130,8 @@
 
      :ner
      {:name :ner
-      :annotators [(create-ner-annotator (:ner-model-paths conf))
+      :annotators [(create-ner-annotator (:ner-model-paths conf)
+                                         (:language conf))
                    (edu.stanford.nlp.pipeline.EntityMentionsAnnotator.)]}
 
      :tok-re

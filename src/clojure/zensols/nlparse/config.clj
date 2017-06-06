@@ -64,7 +64,7 @@ pipeline."
 (defn tokenize
   "Create annotator to split words per configured language.  The tokenization
   langauge is set with the **lang-code** parameter, which is a two string
-  language code and defaults to English."
+  language code and defaults to `en` (English)."
   ([]
    (tokenize "en"))
   ([lang-code]
@@ -105,15 +105,24 @@ pipeline."
 
 (defn named-entity-recognizer
   "Create annotator to do named entity recognition.  All models in the
-  **paths** sequence are loaded.  By default, the [English CoNLL 4
+  **paths** sequence are loaded.  The **lang** is the language parameter, which
+  can be either `ENGLISH` or `CHINESE` and defaults to `ENGLISH`.  See
+  the [NERClassifierCominer
+  Javadoc](https://nlp.stanford.edu/nlp/javadoc/javanlp/edu/stanford/nlp/ie/NERClassifierCombiner.html)
+  for more information.
+
+  By default, the [English CoNLL 4
   class](http://www.cnts.ua.ac.be/conll2003/ner/) is used.  See the [Stanford
   NER](http://nlp.stanford.edu/software/CRF-NER.shtml) for more information."
   ([]
    (named-entity-recognizer
     ["edu/stanford/nlp/models/ner/english.conll.4class.distsim.crf.ser.gz"]))
   ([paths]
+   (named-entity-recognizer paths "ENGLISH"))
+  ([paths lang]
    {:component :ner
     :ner-model-paths paths
+    :language lang
     :parser :stanford}))
 
 (defn token-regex
@@ -306,7 +315,8 @@ Keys
   (log/debugf "reseting nlparse config")
   (->> @library-config-inst
        vals
-       (map #((:reset-fn %) *parse-context*)))
+       (map #((:reset-fn %) *parse-context*))
+       doall)
   (if hard?
     (reset! default-context-inst nil)))
 

@@ -16,6 +16,8 @@
   more information."
   []
   (log/debug "initializing")
+  (res/register-resource :stanford-pos-tagger
+                         :pre-path :stanford-model :system-file "pos")
   (res/register-resource :stanford-model
                          :pre-path :model :system-file "stanford")
   (res/register-resource :model :system-property "model"))

@@ -44,7 +44,7 @@
      (UTInput/getInputStreamsFromClasspath (str path "/" mode))))))
 
 (defn- create-pipeline [lang model-type]
-  (log/debugf "creating pipeline lang: %s, model-type: %s"lang model-type)
+  (log/debugf "creating pipeline lang: %s, model-type: %s" lang model-type)
   (let [tagger (EnglishPOSTagger. (nlp-object-input-stream model-type NLPMode/MODE_POS))
         parser (NLPGetter/getComponent model-type lang NLPMode/MODE_DEP)
         identifier (NLPGetter/getComponent model-type lang NLPMode/MODE_PRED)
