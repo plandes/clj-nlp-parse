@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+
+## [0.0.17 - 2017-06-09
+### Changed
+- More robust processing of mentions.
+- Part of speech model resource loading is more flexible and add language
+  config.
+
+
 ## [0.0.16] - 2017-04-27
 ### Added
 - Sentiment features.
@@ -31,7 +39,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Upgraded to Stanford CoreNLP 3.7
 
 
-[Unreleased]: https://github.com/plandes/clj-nlp-parse/compare/v0.0.16...HEAD
+[Unreleased]: https://github.com/plandes/clj-nlp-parse/compare/v0.0.17...HEAD
+[0.0.17]: https://github.com/plandes/clj-nlp-parse/compare/v0.0.16...v0.0.17
 [0.0.16]: https://github.com/plandes/clj-nlp-parse/compare/v0.0.15...v0.0.16
 [0.0.15]: https://github.com/plandes/clj-nlp-parse/compare/v0.0.14...v0.0.15
 [0.0.14]: https://github.com/plandes/clj-nlp-parse/compare/v0.0.13...v0.0.14
