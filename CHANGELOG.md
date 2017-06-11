@@ -6,9 +6,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 
 ## [Unreleased]
+### Changed
+- Update default stanford pipeline.
 
 
-## [0.0.17 - 2017-06-09
+## [0.0.17] - 2017-06-09
 ### Changed
 - More robust processing of mentions.
 - Part of speech model resource loading is more flexible and add language
