@@ -20,6 +20,8 @@
     stopword
     named-entity-recognizer
     parse-tree
+    ;; TODO: this seems to be added regardless
+    dependency-parse-tree
     sentiment
     coreference))
 
