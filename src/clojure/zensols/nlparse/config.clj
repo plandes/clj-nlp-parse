@@ -201,7 +201,6 @@ label to help decide the best SRL labeled sentence to choose."
   or cached data structures; this is called by [[reset]
 * **:parse-fn** a function that takes a signle human language utterance string
   or output of another parse library's output
-
 * **:component-fns** all component creating functions from this library
 
   *Implementation note*: this forces re-creation of the default context (see

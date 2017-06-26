@@ -35,7 +35,7 @@ example.namespace/myfunc(arg1,arg2)
      form = (namespace '/')? func params?
      params = '(' param-list ')'
      param-list = arg+{',' arg}
-     arg = #\"[^,) ]+\"
+     arg = #\"[^,)]+\"
      func = #\"[a-zA-Z0-9-]+\"
      namespace = #\"[a-zA-Z0-9-.]+\""))
 

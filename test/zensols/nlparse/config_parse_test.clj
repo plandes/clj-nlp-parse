@@ -2,7 +2,8 @@
   (:require [clojure.test :refer :all]
             [clojure.java.io :as io]
             [instaparse.core :as insta]
-            [zensols.nlparse.config-parse :refer :all]))
+            [zensols.nlparse.config-parse :refer :all]
+            [zensols.nlparse.config :as conf]))
 
 (deftest test-to-forms []
   (is (= [:forms [:form [:func "tokenize"]]]
@@ -104,3 +105,22 @@ Expected:")))
          (parse-with-ns "sentiment(true)")))
   (is (= '({:component :sentiment, :parser :stanford, :aggregate? false})
          (parse-with-ns "sentiment(false)"))))
+
+(defn config-func
+  [{:keys [lang-code param1]} param2]
+  {:component :tokenize
+   :lang lang-code
+   :param1 param1
+   :param2 param2
+   :parser :stanford})
+
+(defn- create-context
+  [parse-config]
+  {:config (conf/component-from-config parse-config :test-comp)})
+
+(conf/register-library :test-comp {:create-fn identity
+                                   :component-fns [(var config-func)]})
+
+(deftest test-to-parse-map []
+  (is (= '({:component :tokenize, :lang "es", :param1 123, :param2 "p2", :parser :stanford})
+         (parse-with-ns "zensols.nlparse.config-parse-test/config-func({:lang-code \"es\" :param1 123}, \"p2\")"))))
