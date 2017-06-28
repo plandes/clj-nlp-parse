@@ -31,7 +31,8 @@ This framework stitches the results of the following frameworks:
 	+ [Dictionary Utility](#dictionary-utility)
 	+ [Pipeline Configuration](#pipeline-configuration)
 	  - [Usage](#pipeline-usage)
-	+ [Command Line Usage](#command-line-usage)
+	  - [Convenience Namespace](#convenience-namespace)
++ [Command Line Usage](#command-line-usage)
 * [Changelog](#changelog)
 * [License](#license)
 
@@ -286,6 +287,47 @@ For an example on how to configure the pipeline, see
 [this test case](https://github.com/plandes/clj-nlp-parse/blob/master/test/zensols/nlparse/ner_test.clj#L12-L20).
 For more information on the DSL itself see the
 [DSL parser](https://github.com/plandes/clj-nlp-parse/blob/master/src/clojure/zensols/nlparse/config_parse.clj).
+
+
+#### Convenience Namespace
+
+If you use a particular configuration that doesn't change often consider your
+own utility parse namespace:
+
+```clojure
+(ns example.nlp.parse
+  (:require [zensols.nlparse.parse :as p]
+            [zensols.nlparse.config :as conf :refer (with-context)]))
+
+(defonce ^:private parse-context-inst (atom nil))
+
+(defn- create-context []
+  (->> ["tokenize"
+        "sentence"
+        "part-of-speech"
+        "morphology"
+        "named-entity-recognizer"
+        "parse-tree"]
+       (clojure.string/join ",")
+       conf/create-context))
+
+(defn- context []
+  (swap! parse-context-inst #(or % (create-context))))
+
+(defn parse [utterance]
+  (with-context (context)
+    (p/parse utterance)))
+```
+
+Now in your application namespace:
+
+```clojure
+(ns example.nlp.core
+  (:require [example.nlp.parse :as p]))
+
+(defn somefn []
+  (p/parse "an utterance"))
+```
 
 
 ### Command Line Usage
