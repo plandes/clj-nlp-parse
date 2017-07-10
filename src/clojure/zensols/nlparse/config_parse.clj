@@ -3,7 +3,7 @@ DSL for parsing a pipeline configuration (see [[zensols.nlparse.config]]).  The
 *configuration string* represents is a component separated by commas as a set
 of *forms*.  For example the forms:
 ```
-tokenize(\"en\"),sentence,part-of-speech(\"english.tagger\"),morphology
+zensols.nlparse.config/tokenize(\"en\"),zensols.nlparse.config/sentence,part-of-speech(\"english.tagger\"),zensols.nlparse.config/morphology
 ```
 creates a pipeline that tokenizes, adds POS and lemmas when called
 with [[parse]].  Note the double quotes in the `tokenize` and `part-of-speech`
@@ -14,9 +14,16 @@ mnemonics.  The [[parse]] function does this by calling in order:
 * ([[zensols.nlparse.config/part-of-speech]] \"english.tagger\")
 * ([[zensols.nlparse.config/morphology]])
 
-Note that arguments are option (the parenthetical portion of the form) and so
-is the namespace, which defaults to `zensols.nlparse.config`.  To use a
-separate namespace for custom plug and play
+Soem configuration functions are parameterized by positions or maps.
+Positional functions are shown in the above example and a map configuration
+follows:
+```
+zensols.nlparse.config/parse-tree({:use-shift-reduce? true :maxtime 1000})
+```
+which creates a shift reduce parser that times out after a second (per
+sentence).
+
+To use a separate namespace for custom plug and play
 components (see [[zensols.nlparse.config/register-library]]) you can specify
 your own namespace with a `/`, for example:
 ```
