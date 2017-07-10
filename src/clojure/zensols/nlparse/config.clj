@@ -143,10 +143,26 @@ pipeline."
     :parser :stanford}))
 
 (defn parse-tree
-  "Create annotator to create head and parse trees."
-  []
-  {:component :parse-tree
-   :parser :stanford})
+  "Create annotator to create head and parse trees.
+
+Keys
+----
+* **:include-score?** `true` if computed per node accuracy scores are included
+  in parse tree
+* **:maxtime** the maximum time in milliseconds to wait for the tree parser to
+  complete (per sentence)
+* **:use-shift-reduce? if `true` use the faster and smaller shift reduce model,
+  but the model must be present and model load time is slower (see the [shift
+  reduce doc](https://nlp.stanford.edu/software/srparser.shtml))
+* **:language** the parse language model (currently only used for shift
+  reduce), defaults to `english`"
+  ([] (parse-tree {}))
+  ([{:keys [include-score? maxtime use-shift-reduce? language] :as conf}]
+   (merge {:include-score? false
+           :language "english"}
+          conf
+          {:component :parse-tree
+           :parser :stanford})))
 
 (defn sentiment
   "Create annotator for sentiment analysis.  The **aggregate?** parameter tells

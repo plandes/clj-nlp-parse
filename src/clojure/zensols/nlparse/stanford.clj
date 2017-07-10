@@ -14,6 +14,8 @@
 
 (def ^:private annotator-prop-name (->> *ns* ns-name name))
 
+(def ^:private zero-arg-string-arr (into-array String []))
+
 (def ^:private all-components
   '(tokenize
     sentence
@@ -33,6 +35,7 @@
    :pipeline-inst (atom nil)
    :tagger-model (atom nil)
    :ner-annotator (atom nil)
+   :sr-parser-model (atom nil)
    :tok-re-annotator (atom nil)
    :dependency-parse-annotator (atom nil)
    :coref-annotator (atom nil)})
@@ -119,6 +122,52 @@
        into-properties
        (edu.stanford.nlp.pipeline.EntityMentionsAnnotator. annotator-prop-name)))
 
+(defn- create-parse-default-annotator [maxtime props]
+  (->> (if maxtime
+         (-> (into {} props)
+             (assoc (str annotator-prop-name ".maxtime") (str maxtime))
+             into-properties)
+         props)
+       (edu.stanford.nlp.pipeline.ParserAnnotator. annotator-prop-name)))
+
+(defn- create-shift-reduce-parser [lang]
+  (-> (res/resource-path :stanford-sr-model
+                         (format "%sSR.ser.gz" lang))
+      .getAbsolutePath
+      (edu.stanford.nlp.parser.shiftreduce.ShiftReduceParser/loadModel
+       zero-arg-string-arr)))
+
+(declare sents- tokens-)
+
+(defn- shift-reduce-parse-annotate [anon]
+  (let [{:keys [sr-parser-model]} (context)
+        parser @sr-parser-model
+        binarizer (edu.stanford.nlp.parser.lexparser.TreeBinarizer/simpleTreeBinarizer
+                   (->> parser .getTLPParams .headFinder)
+                   (->> parser .treebankLanguagePack))]
+    (doseq [sent (sents- anon)]
+      (let [toks (tokens- sent)
+            ;; SR parser doesn't offer a `keep binarized trees option` and/or
+            ;; is ignoring the `record binarized tree` option
+            tree (.parse parser toks)
+            binarized (.transformTree binarizer tree)]
+        (edu.stanford.nlp.trees.Trees/convertToCoreLabels binarized)
+        (.set sent
+              edu.stanford.nlp.trees.TreeCoreAnnotations$TreeAnnotation
+              tree)
+        (.set sent
+              edu.stanford.nlp.trees.TreeCoreAnnotations$BinarizedTreeAnnotation
+              binarized)))))
+
+(defn- create-parse-annotator-set
+  [{:keys [maxtime use-shift-reduce? language] :as m} props]
+  (if use-shift-reduce?
+    (let [{:keys [sr-parser-model]} (context)]
+      (swap! sr-parser-model
+             #(or % (create-shift-reduce-parser language)))
+      [shift-reduce-parse-annotate])
+    [(create-parse-default-annotator maxtime props)]))
+
 (defn- make-pipeline-component [{:keys [component] :as conf}]
   (log/debugf "creating component: %s" (pr-str component))
   (let [props (->> {(str annotator-prop-name "." "binaryTrees") "true"}
@@ -161,8 +210,7 @@
 
      :parse-tree
      {:name :parse-tree
-      :annotators [(edu.stanford.nlp.pipeline.ParserAnnotator.
-                    annotator-prop-name props)]}
+      :annotators (create-parse-annotator-set conf props)}
 
      :sentiment
      {:name :sentiment
@@ -301,17 +349,19 @@
           awmap (zipmap keys (map attr-fn-map keys))]
       (into {} (filter second awmap)))))
 
-(defn- parse-tree-to-map [node]
+(defn- parse-tree-to-map [node {:keys [include-score?] :as conf}]
   (when node
     (let [label (.label node)]
      (merge {:label (->> label .value)}
             (select-keys (->> label anon-word-map)
                          [:token-index :index-range :sentiment])
-            (let [score (.score node)]
-              (if-not (Double/isNaN score)
-                {:score score}))
+            (if include-score?
+              (let [score (.score node)]
+                (if-not (Double/isNaN score)
+                  {:score score})))
             (if-not (.isLeaf node)
-              {:child (map parse-tree-to-map (.getChildrenAsList node))})))))
+              {:child (map #(parse-tree-to-map % conf)
+                           (.getChildrenAsList node))})))))
 
 (defn- dep-parse-tree-to-map [graph]
   (when graph
@@ -336,7 +386,6 @@
                                   :head-index (-> cm .-headIndex)
                                   :gender (-> cm .-gender .toString)
                                   :animacy (-> cm .-animacy .toString)
-                                        ;:span (-> cm .-mentionSpan)
                                   :type (-> cm .-mentionType .toString)
                                   :number (-> cm .-number .toString)})
                                mentions)})))
@@ -353,36 +402,44 @@
        (hash-map :text)
        (merge (anon-word-map anon))))
 
-(defn- anon-sent-map [anon]
-  (->> [[:text (text- anon)]
-        [:sent-index (sent-index- anon)]
-        [:parse-tree (parse-tree-to-map (parse-tree- anon))]
-        [:dependency-parse-tree
-         (dep-parse-tree-to-map (dependency-parse-tree- anon))]
-        [:sentiment (sentiment- anon)]
-        ;[:sentiment-tree (parse-tree-to-map (sentiment-tree- anon))]
-        [:tokens (map anon-word-map (tokens- anon))]]
-       util/map-if-data))
+(defn- anon-sent-map [context anon]
+  (let [parse-tree-conf (conf/component-from-context context :parse-tree)]
+    (->> [[:text (text- anon)]
+          [:sent-index (sent-index- anon)]
+          [:parse-tree (parse-tree-to-map (parse-tree- anon) parse-tree-conf)]
+          [:dependency-parse-tree
+           (dep-parse-tree-to-map (dependency-parse-tree- anon))]
+          [:sentiment (sentiment- anon)]
+          [:tokens (map anon-word-map (tokens- anon))]]
+         util/map-if-data)))
 
 (defn- anon-map [anon]
   (log/debugf "tokens: %s" (tokens- anon))
-  (let [agg? (->> (conf/component-from-context (context) :sentiment)
+  (let [context (context)
+        agg? (->> (conf/component-from-context context :sentiment)
                   :aggregate?)]
-   (->> [[:text (text- anon)]
-         [:mentions (map #(anon-mention-map anon %) (mentions- anon))]
-         [:tok-re-mentions (map #(anon-mention-map anon %)
-                                (tok-re-mentions- anon))]
-         [:sentiment (if agg? (->> anon sents- (map sentiment-) (reduce +)))]
-         [:coref (coref-tree-to-map anon)]
-         [:sents (map anon-sent-map (sents- anon))]]
-        util/map-if-data)))
+    (->> [[:text (text- anon)]
+          [:mentions (map #(anon-mention-map anon %) (mentions- anon))]
+          [:tok-re-mentions (map #(anon-mention-map anon %)
+                                 (tok-re-mentions- anon))]
+          [:sentiment (if agg? (->> anon sents- (map sentiment-) (reduce +)))]
+          [:coref (coref-tree-to-map anon)]
+          [:sents (map #(anon-sent-map context %) (sents- anon))]]
+         util/map-if-data)))
 
 
 
 ;; parse
 (defn- invoke-annotator [context annotator anon]
   (log/debugf "invoking %s on %s" annotator anon)
-  (.annotate annotator anon))
+  (let [annotator? (instance? edu.stanford.nlp.pipeline.Annotator annotator)]
+    (cond (clojure.test/function? annotator) (annotator anon)
+          annotator? (.annotate annotator anon)
+          true (-> (format "Unknown annotator type: %s" annotator)
+                   (ex-info {:annotator annotator
+                             :anon anon
+                             :context context})
+                   throw))))
 
 (defn- parse-with-pipeline [pipeline context anon]
   (log/debugf "parse: pipeline: %s, context: %s, anon: %s"

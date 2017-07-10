@@ -57,6 +57,7 @@ This framework combines the results of the following frameworks:
     lemma)
   - [Named Entity Recognition](https://en.wikipedia.org/wiki/Named-entity_recognition)
   - [Syntactic Parse Tree](https://en.wikipedia.org/wiki/Parse_tree)
+  - [Fast Shift Reduce Parse Tree](https://en.wikipedia.org/wiki/Shift-reduce_parser)
   - [Dependency Parse Tree](https://en.wikipedia.org/wiki/Dependency_grammar)
   - [Co-reference Graph](https://en.wikipedia.org/wiki/Coreference)
   - [Sentiment Analysis](https://en.wikipedia.org/wiki/Sentiment_analysis)
