@@ -11,7 +11,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Removed
 - Java class `TokenRegexEntityMentionsAnnotator.java` that is now supplanted by
-  the [pull request to fold in it's changes](https://github.com/stanfordnlp/CoreNLP/pull/323).
+  the [pull request](https://github.com/stanfordnlp/CoreNLP/pull/323) to fold
+  in its changes.
 
 
 ## [0.1.0] - 2017-06-26
