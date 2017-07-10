@@ -7,13 +7,13 @@
 
 This repository provides generalized library to deal with natural language.
 Specifically it:
-* Wraps several Java natural language parsing libraries
-* Gives access the data structures rendered by the parsers
-* Provides utility functions to create features
+* Wraps several Java natural language parsing libraries.
+* Gives access the data structures rendered by the parsers.
+* Provides utility functions to create features.
 
-This framework stitches the results of the following frameworks:
-* [Stanford CoreNLP](https://github.com/stanfordnlp/CoreNLP)
-* [ClearNLP](https://github.com/emorynlp/nlp4j)
+This framework combines the results of the following frameworks:
+* [Stanford CoreNLP 3.8.0](https://github.com/stanfordnlp/CoreNLP)
+* [ClearNLP 2.0.2](https://github.com/emorynlp/nlp4j)
 * [Stop Word Annotator](https://github.com/plandes/stopword-annotator)
 
 

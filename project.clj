@@ -27,8 +27,8 @@
 
                  ;;; NLP
                  ;; Stanford CoreNLP
-                 [edu.stanford.nlp/stanford-corenlp "3.7.0"]
-                 [edu.stanford.nlp/stanford-corenlp "3.7.0" :classifier "models"]
+                 [edu.stanford.nlp/stanford-corenlp "3.8.0"]
+                 [edu.stanford.nlp/stanford-corenlp "3.8.0" :classifier "models"]
 
                  ;; stopword
                  [com.zensols/stopword-annotator "2.2"]
@@ -47,9 +47,13 @@
              :dev
              {:exclusions [org.slf4j/slf4j-log4j12
                            ch.qos.logback/logback-classic]
-              :dependencies [[edu.stanford.nlp/stanford-corenlp "3.7.0" :classifier "javadoc"]
-                             [edu.stanford.nlp/stanford-corenlp "3.7.0" :classifier "sources"]
+              :dependencies [[edu.stanford.nlp/stanford-corenlp "3.8.0" :classifier "javadoc"]
+                             [edu.stanford.nlp/stanford-corenlp "3.8.0" :classifier "sources"]
                              [org.apache.logging.log4j/log4j-core "2.7"]
                              [org.apache.logging.log4j/log4j-slf4j-impl "2.7"]
                              [org.apache.logging.log4j/log4j-1.2-api "2.7"]
-                             [org.apache.logging.log4j/log4j-jcl "2.7"]]}})
+                             [org.apache.logging.log4j/log4j-jcl "2.7"]
+                             [com.zensols.gui/tabres "0.0.6"]]
+              ;:resource-paths ["resources" "test-resources"]
+              }
+             :test {:jvm-opts ["-Dlog4j.configurationFile=test-resources/test-log4j2.xml" "-Xms4g" "-Xmx12g" "-XX:+UseConcMarkSweepGC"]}})

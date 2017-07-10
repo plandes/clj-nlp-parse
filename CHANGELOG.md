@@ -6,6 +6,13 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 
 ## [Unreleased]
+### Changed
+- Upgrade to Stanford CoreNLP version 3.8.0.
+
+### Removed
+- Java class `TokenRegexEntityMentionsAnnotator.java` that is now supplanted by
+  the [pull request to fold in it's changes](https://github.com/stanfordnlp/CoreNLP/pull/323).
+
 
 ## [0.1.0] - 2017-06-26
 ### Added

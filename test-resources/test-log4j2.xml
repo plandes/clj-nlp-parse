@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<configuration status="OFF" monitorInterval="5">
+    <appenders>
+        <console name="console" target="SYSTEM_OUT">
+            <patternLayout pattern="%c{1}: %m%n"/>
+        </console>
+    </appenders>
+    <loggers>
+        <logger name="zensols.nlparse" level="info"/>
+        <root level="warn">
+            <appenderRef ref="console"/>
+        </root>
+    </loggers>
+</configuration>

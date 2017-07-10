@@ -1,8 +1,8 @@
 (ns ^{:doc "Wraps the Stanford CoreNLP parser."
       :author "Paul Landes"}
     zensols.nlparse.stanford
-  (:import [java.util Properties])
-  (:import [edu.stanford.nlp.pipeline Annotation])
+  (:import [java.util Properties]
+           [edu.stanford.nlp.pipeline Annotation])
   (:require [clojure.java.io :as io]
             [clojure.tools.logging :as log]
             [clojure.string :as s])
@@ -12,6 +12,8 @@
             [zensols.nlparse.tok-re :as tre]
             [zensols.nlparse.config :as conf]))
 
+(def ^:private annotator-prop-name (->> *ns* ns-name name))
+
 (def ^:private all-components
   '(tokenize
     sentence
@@ -20,7 +22,6 @@
     stopword
     named-entity-recognizer
     parse-tree
-    ;; TODO: this seems to be added regardless
     dependency-parse-tree
     sentiment
     coreference))
@@ -51,6 +52,12 @@
 (defn- context []
   (conf/context :stanford))
 
+(defn- into-properties
+  ([] (into-properties {}))
+  ([map]
+   (doto (Properties.)
+     (.putAll map))))
+
 (defn- create-tagger-model [pos-model-resource]
   (let [{:keys [tagger-model]} (context)
         model-res (res/resource-path :stanford-pos-tagger pos-model-resource)
@@ -68,7 +75,7 @@
   (let [lang (edu.stanford.nlp.ie.NERClassifierCombiner$Language/valueOf lang)]
     (->> (into-array String ner-model-paths)
          (edu.stanford.nlp.ie.NERClassifierCombiner.
-          true lang true true (Properties.)))))
+          true lang true true (into-properties)))))
 
 (defn- create-ner-annotator [ner-model-paths lang]
   (let [{:keys [ner-annotator]} (context)]
@@ -102,11 +109,20 @@
     (swap! dependency-parse-annotator
            #(or % (edu.stanford.nlp.pipeline.DependencyParseAnnotator.)))))
 
+(defn- create-tok-re-mentions-annotator []
+  (->> ["nerCoreAnnotation" "nerNormalizedCoreAnnotation" "mentionsCoreAnnotation"]
+       (map #(str annotator-prop-name "." %))
+       (#(zipmap % (map (fn [c] (.getName c))
+                        [zensols.stanford.nlp.TokenRegexAnnotations$NERAnnotation
+                         zensols.stanford.nlp.TokenRegexAnnotations$NERNormalizedAnnotation
+                         zensols.stanford.nlp.TokenRegexAnnotations$MentionsAnnotation])))
+       into-properties
+       (edu.stanford.nlp.pipeline.EntityMentionsAnnotator. annotator-prop-name)))
+
 (defn- make-pipeline-component [{:keys [component] :as conf}]
   (log/debugf "creating component: %s" (pr-str component))
-  (let [name "clj-stanford"
-        props (doto (Properties.)
-                (.putAll {(str name "." "binaryTrees") "true"}))]
+  (let [props (->> {(str annotator-prop-name "." "binaryTrees") "true"}
+                   into-properties)]
    (case component
      :tokenize
      {:name :tok
@@ -140,17 +156,18 @@
      {:name :tok-re
       :annotators (->> [(create-tok-re-annotator (:tok-re-resources conf))
                         (edu.stanford.nlp.pipeline.EntityMentionsAnnotator.)
-                        (zensols.stanford.nlp.TokenRegexEntityMentionsAnnotator.)]
+                        (create-tok-re-mentions-annotator)]
                        flatten vec)}
 
      :parse-tree
      {:name :parse-tree
-      :annotators [(edu.stanford.nlp.pipeline.ParserAnnotator. name props)]}
+      :annotators [(edu.stanford.nlp.pipeline.ParserAnnotator.
+                    annotator-prop-name props)]}
 
      :sentiment
      {:name :sentiment
       :annotators (->> [(edu.stanford.nlp.pipeline.SentimentAnnotator.
-                         name props)])}
+                         annotator-prop-name props)])}
 
      :dependency-parse-tree
      {:name :dependency-parse-tree
@@ -159,8 +176,7 @@
      :coref
      ;; hack to avoid NLE in RuleBasedCorefMentionFinder getting a class space
      ;; "parse" annotator starting in 3.6.0
-     (let [props (doto (Properties.)
-                   (.put "annotators" "tokenize,ssplit,parse"))]
+     (let [props (into-properties {"annotators" "tokenize,ssplit,parse"})]
        (edu.stanford.nlp.pipeline.StanfordCoreNLP. props)
        {:name :coref
         :annotators [(edu.stanford.nlp.pipeline.DeterministicCorefAnnotator.

@@ -53,9 +53,9 @@ pipeline."
   "Parse context that's created with [[create-context]]."
   nil)
 
-(defa- library-config-inst)
+(defonce ^:private library-config-inst (atom nil))
 
-(defa- default-context-inst)
+(defonce ^:private default-context-inst (atom nil))
 
 (def all-parsers
   "All parsers available in this package (jar)."

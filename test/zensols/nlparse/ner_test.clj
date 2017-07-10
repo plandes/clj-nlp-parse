@@ -18,6 +18,7 @@
                    (conf/token-regex)])
        conf/create-context))
 
+;(ns-unmap *ns* 'tok-ner-context)
 (defonce ^:private tok-ner-context (create-tok-ner-context))
 
 (defn- parse [utterance]
