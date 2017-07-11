@@ -23,7 +23,10 @@ zensols.nlparse.config/parse-tree({:use-shift-reduce? true :maxtime 1000})
 which creates a shift reduce parser that times out after a second (per
 sentence).
 
-To use a separate namespace for custom plug and play
+Note that arguments are option (the parenthetical portion of the form) and so
+is the namespace, which defaults to `zensols.nlparse.config`.  To use a
+separate namespace for custom plug and play To use a separate namespace for
+custom plug and play
 components (see [[zensols.nlparse.config/register-library]]) you can specify
 your own namespace with a `/`, for example:
 ```
