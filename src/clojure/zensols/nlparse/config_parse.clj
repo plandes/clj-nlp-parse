@@ -18,7 +18,7 @@ Soem configuration functions are parameterized by positions or maps.
 Positional functions are shown in the above example and a map configuration
 follows:
 ```
-zensols.nlparse.config/parse-tree({:use-shift-reduce? true :maxtime 1000})
+parse-tree({:use-shift-reduce? true :maxtime 1000})
 ```
 which creates a shift reduce parser that times out after a second (per
 sentence).
