@@ -20,7 +20,7 @@
                          :pre-path :stanford-model :system-file "pos")
   (res/register-resource :stanford-sr-model
                          :pre-path :stanford-model
-                         :system-file "sr/edu/stanford/nlp/models/srparser")
+                         :system-file "sr")
   (res/register-resource :stanford-model
                          :pre-path :model :system-file "stanford")
   (res/register-resource :model :system-property "model"))

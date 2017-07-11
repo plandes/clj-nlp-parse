@@ -7,7 +7,8 @@
         </console>
     </appenders>
     <loggers>
-        <!--logger name="zensols.nlparse" level="info"/-->
+        <logger name="zensols.nlparse" level="info"/>
+        <logger name="zensols.nlparse.parse" level="warn"/>
         <root level="warn">
             <appenderRef ref="console"/>
         </root>

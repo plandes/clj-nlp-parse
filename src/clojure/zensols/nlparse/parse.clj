@@ -12,6 +12,7 @@ the [[zensols.nlparse.config]] namespace."
             [clojure.tools.logging :as log]
             [clojure.set :as set])
   (:require [zensols.nlparse.config :as conf]
+            [zensols.nlparse.util :refer (trunc)]
             [zensols.nlparse.stanford :as sp]
             [zensols.nlparse.srl :as srl]))
 
@@ -155,6 +156,7 @@ the [[zensols.nlparse.config]] namespace."
   token-regex](https://github.com/plandes/clj-nlp-parse/blob/v0.0.11/test-resources/token-regex.txt#L3)
   for example of `entity-tag`."
   [utterance]
+  (log/infof "parsing: <%s>" (trunc utterance))
   (->> (conf/parse-functions)
        (reduce (fn [last-res parse-fn]
                  (log/debugf "next parser: %s" parse-fn)

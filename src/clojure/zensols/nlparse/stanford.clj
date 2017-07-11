@@ -70,7 +70,7 @@
     (swap! tagger-model
            (fn [tagger]
              (if-not tagger
-               (do (log/infof "creating tagger model with %s" model-res)
+               (do (log/infof "loading tagger model with %s" model-res)
                    (edu.stanford.nlp.tagger.maxent.MaxentTagger. model-res))
                tagger)))))
 
@@ -131,11 +131,14 @@
        (edu.stanford.nlp.pipeline.ParserAnnotator. annotator-prop-name)))
 
 (defn- create-shift-reduce-parser [lang]
-  (-> (res/resource-path :stanford-sr-model
-                         (format "%sSR.ser.gz" lang))
-      .getAbsolutePath
-      (edu.stanford.nlp.parser.shiftreduce.ShiftReduceParser/loadModel
-       zero-arg-string-arr)))
+  (let [res (-> (res/resource-path :stanford-sr-model (format "%sSR.ser.gz" lang)))]
+    (log/infof "loading shift reduce model: %s..." res)
+    (with-open [is (io/input-stream res)]
+      (->> is
+           java.io.BufferedInputStream.
+           java.util.zip.GZIPInputStream.
+           java.io.ObjectInputStream.
+           .readObject))))
 
 (declare sents- tokens-)
 
@@ -479,7 +482,7 @@
 
   See [[with-context]] and [[create-context]]."
   [utterance]
-  (log/infof "parsing: <%s>" utterance)
+  (log/debugf "parsing: <%s>" utterance)
   (->> (parse-raw utterance)
        anon-map))
 
