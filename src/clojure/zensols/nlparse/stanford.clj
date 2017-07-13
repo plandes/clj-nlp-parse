@@ -176,68 +176,68 @@
   (log/debugf "creating component: %s" (pr-str component))
   (let [props (->> {(str annotator-prop-name "." "binaryTrees") "true"}
                    into-properties)]
-   (case component
-     :tokenize
-     {:name :tok
-      :annotators [(edu.stanford.nlp.pipeline.TokenizerAnnotator.
-                    false (:lang conf))]}
+    (case component
+      :tokenize
+      {:name :tok
+       :annotators [(edu.stanford.nlp.pipeline.TokenizerAnnotator.
+                     false (:lang conf))]}
 
-     :stopword
-     {:name :stopword
-      :annotators [(intoxicant.analytics.corenlp.StopwordAnnotator.)]}
+      :stopword
+      {:name :stopword
+       :annotators [(intoxicant.analytics.corenlp.StopwordAnnotator.)]}
 
-     :sents
-     {:name :sents
-      :annotators [(edu.stanford.nlp.pipeline.WordsToSentencesAnnotator. false)]}
+      :sents
+      {:name :sents
+       :annotators [(edu.stanford.nlp.pipeline.WordsToSentencesAnnotator. false)]}
 
-     :pos
-     {:name :pos
-      :annotators [(edu.stanford.nlp.pipeline.POSTaggerAnnotator.
-                    (create-tagger-model (:pos-model-resource conf)))]}
+      :pos
+      {:name :pos
+       :annotators [(edu.stanford.nlp.pipeline.POSTaggerAnnotator.
+                     (create-tagger-model (:pos-model-resource conf)))]}
 
-     :morph
-     {:name :morph
-      :annotators [(edu.stanford.nlp.pipeline.MorphaAnnotator. false)]}
+      :morph
+      {:name :morph
+       :annotators [(edu.stanford.nlp.pipeline.MorphaAnnotator. false)]}
 
-     :ner
-     {:name :ner
-      :annotators [(create-ner-annotator (:ner-model-paths conf)
-                                         (:language conf))
-                   (edu.stanford.nlp.pipeline.EntityMentionsAnnotator.)]}
+      :ner
+      {:name :ner
+       :annotators [(create-ner-annotator (:ner-model-paths conf)
+                                          (:language conf))
+                    (edu.stanford.nlp.pipeline.EntityMentionsAnnotator.)]}
 
-     :tok-re
-     {:name :tok-re
-      :annotators (->> [(create-tok-re-annotator (:tok-re-resources conf))
-                        (edu.stanford.nlp.pipeline.EntityMentionsAnnotator.)
-                        (create-tok-re-mentions-annotator)]
-                       flatten vec)}
+      :tok-re
+      {:name :tok-re
+       :annotators (->> [(create-tok-re-annotator (:tok-re-resources conf))
+                         (edu.stanford.nlp.pipeline.EntityMentionsAnnotator.)
+                         (create-tok-re-mentions-annotator)]
+                        flatten vec)}
 
-     :parse-tree
-     {:name :parse-tree
-      :annotators (create-parse-annotator-set conf props)}
+      :parse-tree
+      {:name :parse-tree
+       :annotators (create-parse-annotator-set conf props)}
 
-     :natural-logic
-     {:name :natural-logic 
-      :annotators [(edu.stanford.nlp.naturalli.NaturalLogicAnnotator.)]}
+      :natural-logic
+      {:name :natural-logic
+       :annotators [(edu.stanford.nlp.naturalli.NaturalLogicAnnotator.)]}
 
-     :sentiment
-     {:name :sentiment
-      :annotators (->> [(edu.stanford.nlp.pipeline.SentimentAnnotator.
-                         annotator-prop-name props)])}
+      :sentiment
+      {:name :sentiment
+       :annotators (->> [(edu.stanford.nlp.pipeline.SentimentAnnotator.
+                          annotator-prop-name props)])}
 
-     :dependency-parse-tree
-     {:name :dependency-parse-tree
-      :annotators [(create-dependency-parse-annotator)]}
+      :dependency-parse-tree
+      {:name :dependency-parse-tree
+       :annotators [(create-dependency-parse-annotator)]}
 
-     :coref
-     ;; hack to avoid NLE in RuleBasedCorefMentionFinder getting a class space
-     ;; "parse" annotator starting in 3.6.0
-     (let [props (into-properties {"annotators" "tokenize,ssplit,parse"})]
-       (edu.stanford.nlp.pipeline.StanfordCoreNLP. props)
-       {:name :coref
-        :annotators [(edu.stanford.nlp.pipeline.DeterministicCorefAnnotator.
-                      props)]})
-     (log/debugf "skipping non-library compponent: %s" (pr-str conf)))))
+      :coref
+      ;; hack to avoid NLE in RuleBasedCorefMentionFinder getting a class space
+      ;; "parse" annotator starting in 3.6.0
+      (let [props (into-properties {"annotators" "tokenize,ssplit,parse"})]
+        (edu.stanford.nlp.pipeline.StanfordCoreNLP. props)
+        {:name :coref
+         :annotators [(edu.stanford.nlp.pipeline.DeterministicCorefAnnotator.
+                       props)]})
+      (log/debugf "skipping non-library compponent: %s" (pr-str conf)))))
 
 (defn- pipeline []
   (let [{:keys [pipeline-inst pipeline-config]} (context)]
@@ -366,16 +366,16 @@
 (defn- parse-tree-to-map [node {:keys [include-score?] :as conf}]
   (when node
     (let [label (.label node)]
-     (merge {:label (->> label .value)}
-            (select-keys (->> label anon-word-map)
-                         [:token-index :index-range :sentiment])
-            (if include-score?
-              (let [score (.score node)]
-                (if-not (Double/isNaN score)
-                  {:score score})))
-            (if-not (.isLeaf node)
-              {:child (map #(parse-tree-to-map % conf)
-                           (.getChildrenAsList node))})))))
+      (merge {:label (->> label .value)}
+             (select-keys (->> label anon-word-map)
+                          [:token-index :index-range :sentiment])
+             (if include-score?
+               (let [score (.score node)]
+                 (if-not (Double/isNaN score)
+                   {:score score})))
+             (if-not (.isLeaf node)
+               {:child (map #(parse-tree-to-map % conf)
+                            (.getChildrenAsList node))})))))
 
 (defn- dep-parse-tree-to-map [graph]
   (when graph
