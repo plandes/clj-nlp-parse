@@ -1,7 +1,7 @@
 # Annotation Definitions
 
 The definition of annotations returned from the
-[parse function](codox/zensols.nlparse.parse.html#var-parse) is
+[parse function](doc/codox/zensols.nlparse.parse.html#var-parse) is
 given below.  Each node in the tree represents the keyword in the tree (nested
 maps), the type and any domain information and the description.  When the
 domain is given conventional math notation is given.  For example:
