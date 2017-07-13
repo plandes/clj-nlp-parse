@@ -164,6 +164,18 @@ Keys
           {:component :parse-tree
            :parser :stanford})))
 
+(defn dependency-parse-tree
+  "Create an annotator to create a dependency parse tree."
+  []
+  {:component :dependency-parse-tree
+   :parser :stanford})
+
+(defn natural-logic
+  "Create a natural logic annotator."
+  []
+  {:component :natural-logic
+   :parser :stanford})
+
 (defn sentiment
   "Create annotator for sentiment analysis.  The **aggregate?** parameter tells
   the parser to create a top (root) sentiment level score for the entire parse
@@ -174,12 +186,6 @@ Keys
    {:component :sentiment
     :parser :stanford
     :aggregate? (true? aggregate?)}))
-
-(defn dependency-parse-tree
-  "Create an annotator to create a dependency parse tree."
-  []
-  {:component :dependency-parse-tree
-   :parser :stanford})
 
 (defn coreference
   "Create annotator to coreference tree structure."

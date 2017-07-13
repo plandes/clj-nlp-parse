@@ -25,6 +25,7 @@
     named-entity-recognizer
     parse-tree
     dependency-parse-tree
+    natural-logic
     sentiment
     coreference))
 
@@ -215,6 +216,10 @@
      {:name :parse-tree
       :annotators (create-parse-annotator-set conf props)}
 
+     :natural-logic
+     {:name :natural-logic 
+      :annotators [(edu.stanford.nlp.naturalli.NaturalLogicAnnotator.)]}
+
      :sentiment
      {:name :sentiment
       :annotators (->> [(edu.stanford.nlp.pipeline.SentimentAnnotator.
@@ -317,6 +322,12 @@
 (defn- parse-tree- [anon]
   (get- anon edu.stanford.nlp.trees.TreeCoreAnnotations$TreeAnnotation))
 
+(defn- natlog-operator- [anon]
+  (get- anon edu.stanford.nlp.naturalli.NaturalLogicAnnotations$OperatorAnnotation))
+
+(defn- natlog-polarity- [anon]
+  (get- anon edu.stanford.nlp.naturalli.NaturalLogicAnnotations$PolarityAnnotation))
+
 (defn- sentiment- [anon]
   (let [stag (get- anon edu.stanford.nlp.sentiment.SentimentCoreAnnotations$SentimentClass)
         stag (if stag (s/lower-case stag))]
@@ -405,6 +416,26 @@
        (hash-map :text)
        (merge (anon-word-map anon))))
 
+(defn- anon-operator-map [^edu.stanford.nlp.naturalli.OperatorSpec op-spec]
+  (let [op (-> op-spec .-instance)]
+    ;; all of these are sentence indexed
+    {:surface-form (-> op .-surfaceForm)
+     :subject-token-range [(-> op-spec .-subjectBegin) (-> op-spec .-subjectEnd)]
+     :object-token-range [(-> op-spec .-objectBegin) (-> op-spec .-objectEnd)]
+     :quantifier-token-range [(-> op-spec .-quantifierBegin) (-> op-spec .-quantifierEnd)]
+     :quantifier-token-head-index (-> op-spec .-quantifierHead)}))
+
+(defn- anon-token-map [anon]
+  (let [nat-op (natlog-operator- anon)
+        nat-pol (natlog-polarity- anon)]
+    (merge (anon-word-map anon)
+           (if (or nat-op nat-pol)
+             {:natlog
+              (merge (if nat-op
+                       {:operator (anon-operator-map nat-op)})
+                     (if nat-pol
+                       {:polarity (.toString nat-pol)}))}))))
+
 (defn- anon-sent-map [context anon]
   (let [parse-tree-conf (conf/component-from-context context :parse-tree)]
     (->> [[:text (text- anon)]
@@ -413,7 +444,7 @@
           [:dependency-parse-tree
            (dep-parse-tree-to-map (dependency-parse-tree- anon))]
           [:sentiment (sentiment- anon)]
-          [:tokens (map anon-word-map (tokens- anon))]]
+          [:tokens (map anon-token-map (tokens- anon))]]
          util/map-if-data)))
 
 (defn- anon-map [anon]
@@ -468,13 +499,13 @@
                   (func context anon)))))
           anon pipeline))
 
-(defn- parse-raw [utterance]
+(defn parse-object [utterance]
   (let [anon (Annotation. utterance)
         context (atom {})
         pipeline (pipeline)]
     (parse-with-pipeline pipeline context anon)))
 
-(defn- parse
+(defn parse
   "Parse natural language **utterance**.
 
   See [[zensols.nlparse.parse/parse]] for a superset hierarchy of what this
@@ -483,7 +514,7 @@
   See [[with-context]] and [[create-context]]."
   [utterance]
   (log/debugf "parsing: <%s>" utterance)
-  (->> (parse-raw utterance)
+  (->> (parse-object utterance)
        anon-map))
 
 (defn- tokens-equal [a b]
@@ -491,7 +522,8 @@
        (= (sent-index- a) (sent-index- b))
        (= (token-range- a) (token-range- b))))
 
-(defn- pranon [anon & {:keys [full-class-name?] :or {full-class-name? false}}]
+(defn pr-anon [anon & {:keys [full-class-name?]
+                       :or {full-class-name? false}}]
   (println (apply str (take 40 (repeat '-))))
   (dorun (map (fn [key]
                 (println (format "%s => %s"
@@ -502,20 +534,20 @@
                                  (.get anon key))))
               (.keySet anon))))
 
-(defn- pranon-deep [anon]
+(defn pr-anon-deep [anon]
   (println (apply str (repeat 70 \=)) "top level")
-  (pranon anon :full-class-name? true)
+  (pr-anon anon :full-class-name? true)
   (println (apply str (repeat 70 \-)) "sents")
   (doall
    (map (fn [sent-anon]
-          (pranon sent-anon)
-          (doall (map pranon (tokens- sent-anon))))
+          (pr-anon sent-anon)
+          (doall (map pr-anon (tokens- sent-anon))))
         (sents- anon)))
   (println (apply str (repeat 70 \-)) "all"))
 
 (defn parse-debug [utterance]
-  (->> (parse-raw utterance)
-       pranon-deep))
+  (->> (parse-object utterance)
+       pr-anon-deep))
 
 (let [comps (map #(ns-resolve 'zensols.nlparse.config %)
                  all-components)]
