@@ -13,6 +13,11 @@ the ending range.  Each index or range is either based on an "absolute"
 _utterance_ or _sentence_.  If the latter it starts at the beginning of each
 sentence in which it is contained.
 
+An example of an annotation parse data structure
+is [given here](example-parse.md).
+
+The annotation definitions follow:
+
 
 * **text** (sting): Entire _utterance_ text that creates the complete annotation
   tree.

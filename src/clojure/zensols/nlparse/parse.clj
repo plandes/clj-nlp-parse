@@ -126,8 +126,9 @@ the [[zensols.nlparse.config]] namespace."
   "Parse natural language **utterance** returning a symbol expression tree of
   it's meaning.
 
-  This returns a symbolic expression (map of maps).  A definition of these
-  annotations can be [seen here](doc/annotation-definitions.md).
+  This returns a symbolic expression (map of maps).  A definition of these and
+  structure of these annotations are [given
+  here](https://github.com/plandes/clj-nlp-parse/blob/master/doc/annotation-definitions.md).
 
   See [test
   token-regex](https://github.com/plandes/clj-nlp-parse/blob/v0.0.11/test-resources/token-regex.txt#L3)
