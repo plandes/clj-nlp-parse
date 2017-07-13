@@ -11,6 +11,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
   [fast shift reduce parser](https://nlp.stanford.edu/software/srparser.shtml).
   See the [parse tree](https://plandes.github.io/clj-nlp-parse/codox/zensols.nlparse.config.html#var-parse-tree)
   component configuration function.
+- Support for
+  [natural logic](https://stanfordnlp.github.io/CoreNLP/natlog.html) annotation.
+- More annotation documentation.
 
 ### Changed
 - Upgrade to Stanford CoreNLP version 3.8.0.

@@ -171,7 +171,11 @@ Keys
    :parser :stanford})
 
 (defn natural-logic
-  "Create a natural logic annotator."
+  "Create a natural logic annotator.
+
+  See the [Stanford CoreNLP
+  documentation](https://stanfordnlp.github.io/CoreNLP/natlog.html) for more
+  information."
   []
   {:component :natural-logic
    :parser :stanford})

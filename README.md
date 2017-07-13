@@ -17,24 +17,31 @@ This framework combines the results of the following frameworks:
 * [Stop Word Annotator](https://github.com/plandes/stopword-annotator)
 
 
-## Contents
+<!-- markdown-toc start - Don't edit this section. Run M-x markdown-toc-generate-toc again -->
+## Table of Contents
 
-* [Features](#features)
-* [Obtaining](#obtaining)
-* [Documentation](#documentation)
-* [Example](#example)
-* [Usage](#usage)
-  - [Setup](#setup)
-    + [Parsing an Utterance](#parsing-an-utterance)
-    + [Utility Functions](#utility-functions)
-	+ [Features](#features)
-	+ [Dictionary Utility](#dictionary-utility)
-	+ [Pipeline Configuration](#pipeline-configuration)
-	  - [Usage](#pipeline-usage)
-	  - [Convenience Namespace](#convenience-namespace)
-+ [Command Line Usage](#command-line-usage)
-* [Changelog](#changelog)
-* [License](#license)
+- [Features](#features)
+- [Obtaining](#obtaining)
+- [Documentation](#documentation)
+    - [API Documentation](#api-documentation)
+    - [Annotation Definitions](#annotation-definitions)
+- [Example Parse](#example-parse)
+- [Usage](#usage)
+    - [Usage Example](#usage-example)
+    - [Setup](#setup)
+    - [Parsing an Utterance](#parsing-an-utterance)
+    - [Utility Functions](#utility-functions)
+    - [Features](#features)
+    - [Dictionary Utility](#dictionary-utility)
+    - [Pipeline Configuration](#pipeline-configuration)
+        - [Pipeline Usage](#pipeline-usage)
+        - [Convenience Namespace](#convenience-namespace)
+    - [Command Line Usage](#command-line-usage)
+- [Building](#building)
+- [Changelog](#changelog)
+- [License](#license)
+
+<!-- markdown-toc end -->
 
 
 ## Features
@@ -42,7 +49,7 @@ This framework combines the results of the following frameworks:
 * Completely customize.
 * Easily Extendable.
 * [Callable](https://dzone.com/articles/java-clojure-interop-calling) from Java.
-* Combines all annotations as 100% pure Clojure data structures.
+* Combines all annotations as pure Clojure data structures.
 * Provides a feature creation libraries:
   - [Character](https://plandes.github.io/clj-nlp-feature/codox/zensols.nlparse.feature.char.html)
   - [Dictionary, Word Lists](https://plandes.github.io/clj-nlp-feature/codox/zensols.nlparse.feature.word.html)
@@ -58,7 +65,7 @@ This framework combines the results of the following frameworks:
   - [Named Entity Recognition](https://en.wikipedia.org/wiki/Named-entity_recognition)
   - [Syntactic Parse Tree](https://en.wikipedia.org/wiki/Parse_tree)
   - [Fast Shift Reduce Parse Tree](https://en.wikipedia.org/wiki/Shift-reduce_parser)
-  - [Dependency Parse Tree](https://en.wikipedia.org/wiki/Dependency_grammar)
+  - [Dependency Tree](https://en.wikipedia.org/wiki/Dependency_grammar)
   - [Co-reference Graph](https://en.wikipedia.org/wiki/Coreference)
   - [Sentiment Analysis](https://en.wikipedia.org/wiki/Sentiment_analysis)
   - [Semantic Role Labeler](https://en.wikipedia.org/wiki/Semantic_role_labeling)
@@ -73,18 +80,21 @@ In your `project.clj` file, add:
 
 ## Documentation
 
-API Documentation:
+### API Documentation
 
-* [Java](https://plandes.github.io/clj-nlp-parse/apidocs/index.html)
 * [Clojure](https://plandes.github.io/clj-nlp-parse/codox/index.html)
+* [Java](https://plandes.github.io/clj-nlp-parse/apidocs/index.html)
 
 
-## Example
+### Annotation Definitions
 
-See the [example repo](https://github.com/plandes/clj-example-nlp-ml) that
-illustrates how to use this library and contains the code from where these
-examples originate.  It's highly recommended to clone it and follow along as
-you peruse this README.
+The utterance parse annotation tree
+definitions is [given here](doc/annotation-definitions.md).
+
+
+## Example Parse
+
+An example of a full annotation parse is [given here](doc/example-parse.md).
 
 
 ## Usage
@@ -94,6 +104,13 @@ This package supports:
 * [Utility Functions](#utility-functions)
 * [Dictionary Utility](#dictionary-utility)
 * [Command Line Usage](#command-line-usage)
+
+### Usage Example
+
+See the [example repo](https://github.com/plandes/clj-example-nlp-ml) that
+illustrates how to use this library and contains the code from where these
+examples originate.  It's highly recommended to clone it and follow along as
+you peruse this README.
 
 
 ### Setup
@@ -121,6 +138,7 @@ model (or NER for that matter), but by default it expects the
    ```clojure
    user> (System/setProperty "zensols.model" "path-to-model")
    ```
+
 
 ### Parsing an Utterance
 ```clojure
@@ -171,6 +189,7 @@ user> (clojure.pprint/pprint (parse "I am Paul Landes."))
       :heads ({:function-tag "PPT", :dependency-label "A1"})}}
 ...
 ```
+
 
 ### Utility Functions
 

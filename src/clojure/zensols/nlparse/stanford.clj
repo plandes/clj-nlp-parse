@@ -456,7 +456,8 @@
           [:mentions (map #(anon-mention-map anon %) (mentions- anon))]
           [:tok-re-mentions (map #(anon-mention-map anon %)
                                  (tok-re-mentions- anon))]
-          [:sentiment (if agg? (->> anon sents- (map sentiment-) (reduce +)))]
+          [:sentiment (if agg?
+                        (->> anon sents- (map sentiment-) (reduce +)))]
           [:coref (coref-tree-to-map anon)]
           [:sents (map #(anon-sent-map context %) (sents- anon))]]
          util/map-if-data)))
@@ -499,7 +500,10 @@
                   (func context anon)))))
           anon pipeline))
 
-(defn parse-object [utterance]
+(defn parse-object
+  "Parse **utterance** and return an [[edu.stanford.nlp.pipeline.Annotation]]
+  object."
+  [utterance]
   (let [anon (Annotation. utterance)
         context (atom {})
         pipeline (pipeline)]
@@ -522,7 +526,9 @@
        (= (sent-index- a) (sent-index- b))
        (= (token-range- a) (token-range- b))))
 
-(defn pr-anon [anon & {:keys [full-class-name?]
+(defn pr-anon
+  "Print out all of the anontation data for an object, but not it's children."
+  [^Annotation anon & {:keys [full-class-name?]
                        :or {full-class-name? false}}]
   (println (apply str (take 40 (repeat '-))))
   (dorun (map (fn [key]
@@ -534,7 +540,9 @@
                                  (.get anon key))))
               (.keySet anon))))
 
-(defn pr-anon-deep [anon]
+(defn pr-anon-deep
+  "Recursively iterate through an annotation object and print it's data."
+  [^Annotation anon]
   (println (apply str (repeat 70 \=)) "top level")
   (pr-anon anon :full-class-name? true)
   (println (apply str (repeat 70 \-)) "sents")
@@ -545,7 +553,9 @@
         (sents- anon)))
   (println (apply str (repeat 70 \-)) "all"))
 
-(defn parse-debug [utterance]
+(defn parse-debug
+  "Print the Stanford CoreNLP object representation of the **utterance**."
+  [utterance]
   (->> (parse-object utterance)
        pr-anon-deep))
 
