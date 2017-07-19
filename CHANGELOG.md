@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+## [0.1.2]
+### Changed
+- Add pessimistic locking around parsing resource creation for Spark.
+
+
 ## [0.1.1] - 2017-07-13
 ### Added
 - Support for
@@ -65,7 +70,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Upgraded to Stanford CoreNLP 3.7
 
 
-[Unreleased]: https://github.com/plandes/clj-nlp-parse/compare/v0.1.1...HEAD
+[Unreleased]: https://github.com/plandes/clj-nlp-parse/compare/v0.1.2...HEAD
+[0.1.2]: https://github.com/plandes/clj-nlp-parse/compare/v0.1.1...v0.1.2
 [0.1.1]: https://github.com/plandes/clj-nlp-parse/compare/v0.1.0...v0.1.1
 [0.1.0]: https://github.com/plandes/clj-nlp-parse/compare/v0.0.17...v0.1.0
 [0.0.17]: https://github.com/plandes/clj-nlp-parse/compare/v0.0.16...v0.0.17
