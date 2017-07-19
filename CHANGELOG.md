@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
-## [0.1.2]
+## [0.1.2] - 2017-07-19
 ### Changed
 - Add pessimistic locking around parsing resource creation for Spark.
 
