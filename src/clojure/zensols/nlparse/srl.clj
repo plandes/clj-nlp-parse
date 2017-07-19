@@ -16,13 +16,15 @@
            (com.clearnlp.component.pos AbstractPOSTagger EnglishPOSTagger)
            (com.clearnlp.dependency DEPNode DEPLib)
            (com.clearnlp.util UTInput))
-  (:require [zensols.actioncli.dynamic :refer (defa-) :as dyn]
-            [zensols.nlparse.config :as conf]))
+  (:require [zensols.nlparse.config :as conf]
+            [zensols.nlparse.util :refer (trunc)]))
 
 (def ^:dynamic first-label-token-threshold
   "Token minimum position that contains a label to help decide the best SRL
   labeled sentence to choose."
   3)
+
+(def ^:private monitor (Object.))
 
 (defn- create-context
   [parse-config]
@@ -44,7 +46,7 @@
      (UTInput/getInputStreamsFromClasspath (str path "/" mode))))))
 
 (defn- create-pipeline [lang model-type]
-  (log/debugf "creating pipeline lang: %s, model-type: %s" lang model-type)
+  (log/infof "creating SRL pipeline lang: %s, model-type: %s" lang model-type)
   (let [tagger (EnglishPOSTagger. (nlp-object-input-stream model-type NLPMode/MODE_POS))
         parser (NLPGetter/getComponent model-type lang NLPMode/MODE_DEP)
         identifier (NLPGetter/getComponent model-type lang NLPMode/MODE_PRED)
@@ -63,7 +65,15 @@
 (defn- pipeline []
   (let [{:keys [pipeline-inst config]} (conf/context :srl)
         {:keys [lang model-type]} config]
-    (swap! pipeline-inst #(or % (create-pipeline lang model-type)))))
+    (locking monitor
+      (swap! pipeline-inst
+             (fn [pl]
+               (if pl
+                 (do (log/infof "reusing cached pipeline: <%s>" (trunc pl))
+                     pl)
+                 (let [pl (create-pipeline lang model-type)]
+                   (log/infof "created new pipeline: <%s>" pl)
+                   pl)))))))
 
 (defn- parse-trees [pipeline tree]
   (let [parser (:parser pipeline)]

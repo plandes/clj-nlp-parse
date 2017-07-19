@@ -8,7 +8,7 @@
             [clojure.string :as s])
   (:require [zensols.actioncli.dynamic :as dyn]
             [zensols.actioncli.resource :as res])
-  (:require [zensols.nlparse.util :as util]
+  (:require [zensols.nlparse.util :as util :refer (trunc)]
             [zensols.nlparse.tok-re :as tre]
             [zensols.nlparse.config :as conf]))
 
@@ -29,9 +29,12 @@
     sentiment
     coreference))
 
+(def ^:private monitor (Object.))
+
 ;; pipeline
 (defn- create-context
   [parse-config]
+  (log/infof "creating context: %s" (trunc parse-config))
   {:pipeline-config (:pipeline parse-config)
    :pipeline-inst (atom nil)
    :tagger-model (atom nil)
@@ -45,7 +48,7 @@
   "Reset all default cached pipeline components objects.  This can be invoked
   in the lexical context of [[with-context]] to reset a non-default contet."
   [parse-context]
-  (log/infof "resting <%s>" (pr-str parse-context))
+  (log/infof "reseting <%s>" (pr-str parse-context))
   (when parse-context
     (let [atoms [:pipeline-inst :tagger-model :ner-annotator :tok-re-annotator
                  :dependency-parse-annotator :coref-annotator]]
@@ -242,9 +245,16 @@
 (defn- pipeline []
   (let [{:keys [pipeline-inst pipeline-config]} (context)]
     (log/debugf "creating pipeline with config <%s>" (pr-str pipeline-config))
-    (swap! pipeline-inst
-           #(or % (->> (map make-pipeline-component pipeline-config)
-                       (remove nil?))))))
+    (locking monitor
+      (swap! pipeline-inst
+             (fn [pl]
+               (if pl
+                 (do (log/infof "reusing pipeline <%s>" (trunc pl))
+                     pl)
+                 (let [pl (->> (map make-pipeline-component pipeline-config)
+                               (remove nil?))]
+                   (log/infof "creating new pipeline <%s>" (trunc pl))
+                   pl)))))))
 
 
 
