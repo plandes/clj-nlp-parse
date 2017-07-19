@@ -363,7 +363,7 @@ To build from source, do the folling:
 - Install [Leiningen](http://leiningen.org) (this is just a script)
 - Install [GNU make](https://www.gnu.org/software/make/)
 - Install [Git](https://git-scm.com)
-- Download the source: `git clone https://github.com/clj-mkproj && cd clj-mkproj`
+- Download the source: `git clone https://github.com/plandes/clj-nlp-parse && cd clj-nlp-parse`
 - Download the make include files:
 ```bash
 mkdir ../clj-zenbuild && wget -O - https://api.github.com/repos/plandes/clj-zenbuild/tarball | tar zxfv - -C ../clj-zenbuild --strip-components 1
