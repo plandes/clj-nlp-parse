@@ -165,7 +165,11 @@ Keys
            :parser :stanford})))
 
 (defn dependency-parse-tree
-  "Create an annotator to create a dependency parse tree."
+  "Create an annotator to create a dependency parse tree.
+
+  See the [dependencies
+  manual](https://nlp.stanford.edu/software/dependencies_manual.pdf) for
+  definitions."
   []
   {:component :dependency-parse-tree
    :parser :stanford})
