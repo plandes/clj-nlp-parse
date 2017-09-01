@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+## [0.1.3] - 2017-09-01
+### Added
+- Global parsing timeout.  See the [create-context] function.
+
+### Removed
+- Moved the trunc functionality to the [actioncli util] namespace.
+
 ## [0.1.2] - 2017-07-19
 ### Changed
 - Add pessimistic locking around parsing resource creation for Spark.
@@ -70,7 +77,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Upgraded to Stanford CoreNLP 3.7
 
 
-[Unreleased]: https://github.com/plandes/clj-nlp-parse/compare/v0.1.2...HEAD
+[Unreleased]: https://github.com/plandes/clj-nlp-parse/compare/v0.1.3...HEAD
+[0.1.3]: https://github.com/plandes/clj-nlp-parse/compare/v0.1.2...v0.1.3
 [0.1.2]: https://github.com/plandes/clj-nlp-parse/compare/v0.1.1...v0.1.2
 [0.1.1]: https://github.com/plandes/clj-nlp-parse/compare/v0.1.0...v0.1.1
 [0.1.0]: https://github.com/plandes/clj-nlp-parse/compare/v0.0.17...v0.1.0
@@ -78,3 +86,6 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 [0.0.16]: https://github.com/plandes/clj-nlp-parse/compare/v0.0.15...v0.0.16
 [0.0.15]: https://github.com/plandes/clj-nlp-parse/compare/v0.0.14...v0.0.15
 [0.0.14]: https://github.com/plandes/clj-nlp-parse/compare/v0.0.13...v0.0.14
+
+[create-context]: https://plandes.github.io/clj-nlp-parse/codox/zensols.nlparse.config.html#var-create-context
+[actioncli util]: https://plandes.github.io/clj-actioncli/codox/zensols.actioncli.util.html

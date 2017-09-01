@@ -25,6 +25,9 @@
                  ;; feature creation
                  [com.zensols.nlp/feature "0.0.6"] 
 
+                 ;; utils
+                 [com.zensols.tools/actioncli "0.0.18"]
+
                  ;;; NLP
                  ;; Stanford CoreNLP
                  [edu.stanford.nlp/stanford-corenlp "3.8.0"]
@@ -55,4 +58,5 @@
                              [org.apache.logging.log4j/log4j-1.2-api "2.7"]
                              [org.apache.logging.log4j/log4j-jcl "2.7"]
                              [com.zensols.gui/tabres "0.0.6"]]}
-             :test {:jvm-opts ["-Dlog4j.configurationFile=test-resources/test-log4j2.xml" "-Xms4g" "-Xmx12g" "-XX:+UseConcMarkSweepGC"]}})
+             :test {:jvm-opts ["-Dlog4j.configurationFile=test-resources/test-log4j2.xml"
+                               "-Xms4g" "-Xmx12g" "-XX:+UseConcMarkSweepGC"]}})

@@ -11,8 +11,8 @@ the [[zensols.nlparse.config]] namespace."
   (:require [clojure.string :as str]
             [clojure.tools.logging :as log]
             [clojure.set :as set])
+  (:require [zensols.actioncli.util :refer (trunc with-timeout)])
   (:require [zensols.nlparse.config :as conf]
-            [zensols.nlparse.util :refer (trunc)]
             [zensols.nlparse.stanford :as sp]
             [zensols.nlparse.srl :as srl]))
 
@@ -122,6 +122,13 @@ the [[zensols.nlparse.config]] namespace."
        (remove nil?)
        first))
 
+(defn- parse-no-timeout [utterance]
+  (->> (conf/parse-functions)
+       (reduce (fn [last-res parse-fn]
+                 (log/debugf "next parser: %s" parse-fn)
+                 (parse-fn last-res))
+               utterance)))
+
 (defn parse
   "Parse natural language **utterance** returning a symbol expression tree of
   it's meaning.
@@ -134,12 +141,13 @@ the [[zensols.nlparse.config]] namespace."
   token-regex](https://github.com/plandes/clj-nlp-parse/blob/v0.0.11/test-resources/token-regex.txt#L3)
   for example of `entity-tag`."
   [utterance]
-  (log/infof "parsing: <%s>" (trunc utterance))
-  (->> (conf/parse-functions)
-       (reduce (fn [last-res parse-fn]
-                 (log/debugf "next parser: %s" parse-fn)
-                 (parse-fn last-res))
-               utterance)))
+  (let [timeout-millis (conf/parse-timeout)]
+    (log/infof "parsing (t=%s): <%s>"
+               (or timeout-millis "inf") (trunc utterance))
+    (if timeout-millis
+      (with-timeout timeout-millis
+        (parse-no-timeout utterance))
+      (parse-no-timeout utterance))))
 
 (defn tokens
   "Get all tokens across all sentences."

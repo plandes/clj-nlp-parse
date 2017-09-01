@@ -16,10 +16,6 @@
                    (conf/parse-tree {:use-shift-reduce? true})])
        conf/create-context))
 
-(zensols.nlparse.config-parse/parse "zensols.nlparse.config/parse-tree({:use-shift-reduce? true :maxtime 1000})")
-
-(zensols.nlparse.config-parse/parse "tokenize(\"en\")")
-
 (defn- sr-model-found? []
   (.exists (res/resource-path :stanford-sr-model)))
 

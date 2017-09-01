@@ -313,10 +313,16 @@ Keys
   However, the easier way to utilize all components is to to call this function
   with no parameters.
 
-  See the [usage section](#usage) section."
+  See the [usage section](#usage) section.
+
+Keys
+---
+* **:timeout-millis** number of milliseconds to allow the parser to complete
+  before `java.util.concurrent.TimeoutException` is thrown or `nil` for no
+  timeout; no timeout is the default"
   ([]
    (create-context (create-parse-config)))
-  ([parse-config]
+  ([parse-config & {:keys [timeout-millis]}]
    (if (string? parse-config)
      (->> (confpar/parse parse-config (registered-namespaces))
           (create-parse-config :pipeline)
@@ -327,7 +333,9 @@ Keys
             (map (fn [[k {:keys [create-fn]}]]
                    {k (create-fn parse-config)}))
             (into {})
-            (merge {:parse-config parse-config}))))))
+            (merge {:parse-config parse-config}
+                   (if timeout-millis
+                     {:timeout-millis timeout-millis})))))))
 
 (defn components-as-string
   "Return all available components as a string"
@@ -407,6 +415,13 @@ Keys
        (remove nil?)
        distinct
        (map parse-fn)))
+
+(defn parse-timeout
+  "Return the number of milliseconds to timeout the parse or `nil` if none.
+
+See [[create-context]]."
+  []
+  (:timeout-millis (derive-context)))
 
 (defn component-documentation
   "Return maps doc documentation with keys `:name` and `:doc`."

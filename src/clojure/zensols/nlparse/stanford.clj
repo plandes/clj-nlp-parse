@@ -7,8 +7,9 @@
             [clojure.tools.logging :as log]
             [clojure.string :as s])
   (:require [zensols.actioncli.dynamic :as dyn]
-            [zensols.actioncli.resource :as res])
-  (:require [zensols.nlparse.util :as util :refer (trunc)]
+            [zensols.actioncli.resource :as res]
+            [zensols.actioncli.util :refer (trunc)])
+  (:require [zensols.nlparse.util :as util]
             [zensols.nlparse.tok-re :as tre]
             [zensols.nlparse.config :as conf]))
 

@@ -16,8 +16,8 @@
            (com.clearnlp.component.pos AbstractPOSTagger EnglishPOSTagger)
            (com.clearnlp.dependency DEPNode DEPLib)
            (com.clearnlp.util UTInput))
-  (:require [zensols.nlparse.config :as conf]
-            [zensols.nlparse.util :refer (trunc)]))
+  (:require [zensols.actioncli.util :refer (trunc)])
+  (:require [zensols.nlparse.config :as conf]))
 
 (def ^:dynamic first-label-token-threshold
   "Token minimum position that contains a label to help decide the best SRL
