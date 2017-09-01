@@ -48,13 +48,12 @@
   :profiles {:appassem {:aot :all}
              :snapshot {:git-version {:version-cmd "echo -snapshot"}}
              :dev
-             {:exclusions [org.slf4j/slf4j-log4j12
-                           ch.qos.logback/logback-classic]
-              :dependencies [[edu.stanford.nlp/stanford-corenlp "3.8.0" :classifier "javadoc"]
+             {:dependencies [[edu.stanford.nlp/stanford-corenlp "3.8.0" :classifier "javadoc"]
                              [edu.stanford.nlp/stanford-corenlp "3.8.0" :classifier "sources"]
                              [com.clearnlp/clearnlp "2.0.2" :classifier "sources"]
                              [org.apache.logging.log4j/log4j-core "2.7"]
-                             [org.apache.logging.log4j/log4j-slf4j-impl "2.7"]
+                             [org.apache.logging.log4j/log4j-slf4j-impl "2.7"
+                              :exclusions [org.slf4j/slf4j-api]]
                              [org.apache.logging.log4j/log4j-1.2-api "2.7"]
                              [org.apache.logging.log4j/log4j-jcl "2.7"]
                              [com.zensols.gui/tabres "0.0.6"]]}
