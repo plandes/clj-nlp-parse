@@ -187,7 +187,7 @@
         "aux" "meta" "intj" "parataxis" "csubj" "preconj" "csubjpass" "neg"
         "number" "possessive" "expl" "predet"]))
 
-(defn- label
+(defn label
   "Label (classify) and return the tokenized sequence **tokens** of a sentence.
 
   * **tokens** are a sequence of strings that make up a sentence"
@@ -199,7 +199,7 @@
       mapify-parsed-sentences
       first))
 
-(defn- parse [panon]
+(defn parse [panon]
   (->> panon
        :sents
        (map (fn [sent]
