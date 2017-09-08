@@ -6,6 +6,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 
 ## [Unreleased]
+### Changed
+- Open Semantic Role Labeler functions (i.e. the [label function]) for external
+  specific processing.
 
 ## [0.1.3] - 2017-09-01
 ### Added
@@ -89,3 +92,4 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 [create-context]: https://plandes.github.io/clj-nlp-parse/codox/zensols.nlparse.config.html#var-create-context
 [actioncli util]: https://plandes.github.io/clj-actioncli/codox/zensols.actioncli.util.html
+[label function]: https://plandes.github.io/clj-nlp-parse/codox/zensols.nlparse.srl.html#var-label
