@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ### Changed
 - Open Semantic Role Labeler functions (i.e. the [label function]) for external
   specific processing.
+- Move to actioncli 0.0.19.
 
 ## [0.1.3] - 2017-09-01
 ### Added

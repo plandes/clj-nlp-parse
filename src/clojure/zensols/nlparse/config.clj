@@ -44,7 +44,7 @@ pipeline."
             [clojure.string :as s]
             [clojure.java.io :as io]
             [clojure.repl :as repl])
-  (:require [zensols.actioncli.dynamic :refer [defa- undef] :as dyn])
+  (:require [zensols.actioncli.dynamic :as dyn])
   (:require [zensols.nlparse.resource :as pres])
   (:require [zensols.nlparse.config-parse :as confpar]))
 
