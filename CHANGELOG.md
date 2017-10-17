@@ -6,6 +6,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 
 ## [Unreleased]
+
+## [0.1.4] - 2017-10-17
 ### Changed
 - Open Semantic Role Labeler functions (i.e. the [label function]) for external
   specific processing.
@@ -81,7 +83,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Upgraded to Stanford CoreNLP 3.7
 
 
-[Unreleased]: https://github.com/plandes/clj-nlp-parse/compare/v0.1.3...HEAD
+[Unreleased]: https://github.com/plandes/clj-nlp-parse/compare/v0.1.4...HEAD
+[0.1.4]: https://github.com/plandes/clj-nlp-parse/compare/v0.1.3...v0.1.4
 [0.1.3]: https://github.com/plandes/clj-nlp-parse/compare/v0.1.2...v0.1.3
 [0.1.2]: https://github.com/plandes/clj-nlp-parse/compare/v0.1.1...v0.1.2
 [0.1.1]: https://github.com/plandes/clj-nlp-parse/compare/v0.1.0...v0.1.1
