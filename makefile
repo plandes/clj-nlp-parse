@@ -1,17 +1,18 @@
 ## makefile automates the build and deployment for lein projects
 
-# location of the http://github.com/plandes/clj-zenbuild cloned directory
-ZBHOME ?=	../clj-zenbuild
+# type of project, currently one of: clojure, python
+PROJ_TYPE=		clojure
 
-# clean the generated app assembly file
-MLINK ?=	$(HOME)/opt/nlp/model
-ADD_CLEAN +=	model
+# the test target creates this symlink
+ADD_CLEAN=		model
 
-all:		info
+include ../zenbuild/src/mk/env.mk
+include $(BUILD_MK_DIR)/model.mk
 
-include $(ZBHOME)/src/mk/compile.mk
+projinfo:	info modelinfo
+	@echo "mlink: $(MLINK)"
 
 .PHONY: test
 test:
-	ln -s $(MLINK) || true
+	ln -s $(ZMODEL) || true
 	lein test

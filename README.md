@@ -366,9 +366,8 @@ To build from source, do the folling:
 - Download the source: `git clone https://github.com/plandes/clj-nlp-parse && cd clj-nlp-parse`
 - Download the make include files:
 ```bash
-mkdir ../clj-zenbuild && wget -O - https://api.github.com/repos/plandes/clj-zenbuild/tarball | tar zxfv - -C ../clj-zenbuild --strip-components 1
+mkdir ../zenbuild && wget -O - https://api.github.com/repos/plandes/zenbuild/tarball | tar zxfv - -C ../zenbuild --strip-components 1
 ```
-- Build the distribution binaries: `make dist`
 
 Note that you can also build a single jar file with all the dependencies with: `make uber`
 

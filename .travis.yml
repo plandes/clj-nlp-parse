@@ -2,7 +2,7 @@ language: clojure
 lein: 2.7.1
 before_script:
   - mkdir -p target
-  - git clone http://github.com/plandes/clj-zenbuild
-script: ZBHOME=clj-zenbuild make checkdep
+  - git clone http://github.com/plandes/zenbuild
+script: ZBHOME=zenbuild make checkdep test
 jdk:
   - oraclejdk8
