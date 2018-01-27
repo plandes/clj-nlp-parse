@@ -3,6 +3,6 @@ lein: 2.7.1
 before_script:
   - mkdir -p target
   - git clone https://github.com/plandes/zenbuild
-script: ZBHOME=zenbuild make checkdep
+script: ZBHOME=zenbuild make info checkdep
 jdk:
   - oraclejdk8

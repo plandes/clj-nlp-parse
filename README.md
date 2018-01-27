@@ -46,9 +46,11 @@ This framework combines the results of the following frameworks:
 
 ## Features
 
+* [Callable](https://dzone.com/articles/java-clojure-interop-calling) from Java
+* [Callable](https://github.com/plandes/clj-nlp-serv) from REST
+* Callable from REST in a [Docker Image](https://hub.docker.com/r/plandes/nlpservice/)
 * Completely customize.
 * Easily Extendable.
-* [Callable](https://dzone.com/articles/java-clojure-interop-calling) from Java.
 * Combines all annotations as pure Clojure data structures.
 * Provides a feature creation libraries:
   - [Character](https://plandes.github.io/clj-nlp-feature/codox/zensols.nlparse.feature.char.html)

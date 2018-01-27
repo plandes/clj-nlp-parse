@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+### Changed
+- Move to new zenbuild.
+
+
 ## [0.1.4] - 2017-10-17
 ### Changed
 - Open Semantic Role Labeler functions (i.e. the [label function]) for external
