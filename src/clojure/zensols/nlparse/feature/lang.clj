@@ -79,20 +79,20 @@ from [[zensols.nlparse.parse/parse]]."
 
   * **:pos-first-tag** The first POS tag.
   * **:pos-last-tag** The last POS tag.
-  * **:pos-tag-count-adjective*: The number of adjectives found.
-  * **:pos-tag-ratio-adjective*: The ratio of adjectives to other POS tags.
-  * **:pos-tag-count-adverb*: The number of adverbs found.
-  * **:pos-tag-ratio-adverb*: The ratio of adverbs to other POS tags.
-  * **:pos-tag-count-noun*: The number of nouns found.
-  * **:pos-tag-ratio-noun*: The ratio of nouns to other POS tags.
-  * **:pos-tag-count-verb*: The number of verbs found.
-  * **:pos-tag-ratio-verb*: The ratio of verbs to other POS tags.
-  * **:pos-tag-count-wh*: The number of what/when/where type questions POS
+  * **:pos-tag-count-adjective**: The number of adjectives found.
+  * **:pos-tag-ratio-adjective**: The ratio of adjectives to other POS tags.
+  * **:pos-tag-count-adverb**: The number of adverbs found.
+  * **:pos-tag-ratio-adverb**: The ratio of adverbs to other POS tags.
+  * **:pos-tag-count-noun**: The number of nouns found.
+  * **:pos-tag-ratio-noun**: The ratio of nouns to other POS tags.
+  * **:pos-tag-count-verb**: The number of verbs found.
+  * **:pos-tag-ratio-verb**: The ratio of verbs to other POS tags.
+  * **:pos-tag-count-wh**: The number of what/when/where type questions POS
   tags.
-  * **:pos-tag-ratio-wh*: The ratio of what/when/where type question POS tags
+  * **:pos-tag-ratio-wh**: The ratio of what/when/where type question POS tags
   to other POS tags.
-  * **:pos-tag-count-adjective*: The number of adjectives found.
-  * **:pos-tag-ratio-adjective*: The ratio of adjectives to other POS tags."
+  * **:pos-tag-count-adjective**: The number of adjectives found.
+  * **:pos-tag-ratio-adjective**: The ratio of adjectives to other POS tags."
   [tokens]
   (let [pos-tag-types (pt/pos-tag-types)
         tc (count tokens)]
