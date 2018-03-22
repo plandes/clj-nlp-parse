@@ -124,7 +124,7 @@ model (or NER for that matter), but by default it expects the
 
 1. Create a directory where to put the model
    ```bash
-   $ mkdir -p path-to-model/pos
+   $ mkdir -p path-to-model/stanford/pos
    ```
 
 2. Download the [english-left3words-distsim.tagger model](http://nlp.stanford.edu/software/stanford-postagger-2015-12-09.zip)
@@ -133,7 +133,7 @@ model (or NER for that matter), but by default it expects the
 3. Install the model file:
    ```bash
    $ unzip stanford-postagger-2015-12-09.zip
-   $ mv stanford-postagger-2015-12-09/models/english-left3words-distsim.tagger path-to-model/pos
+   $ mv stanford-postagger-2015-12-09/models/english-left3words-distsim.tagger path-to-model/stanford/pos
    ```
 
 4. Start the REPL and configure:
