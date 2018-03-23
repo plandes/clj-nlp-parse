@@ -382,7 +382,7 @@ An extensive changelog is available [here](CHANGELOG.md).
 If you use this software in your research, please cite with the following
 BibTeX:
 
-```perl
+```jflex
 @misc{plandes-clj-nlp-parse,
   author = {Paul Landes},
   title = {Natural Language Parse and Feature Generation},
@@ -396,9 +396,9 @@ BibTeX:
 
 ## References
 
-See the [general NLP feature creation]library for additional references.
+See the [general NLP feature creation] library for additional references.
 
-```perl
+```jflex
 @phdthesis{choi2014optimization,
   title = {Optimization of natural language processing components for robustness and scalability},
   author = {Choi, Jinho D},
@@ -413,6 +413,7 @@ See the [general NLP feature creation]library for additional references.
   year = {2014},
   pages = {55--60},
   url = {http://www.aclweb.org/anthology/P/P14/P14-5010}
+}
 ```
 
 
