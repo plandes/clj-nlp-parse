@@ -16,8 +16,7 @@ This framework combines the results of the following frameworks:
 * [ClearNLP 2.0.2](https://github.com/emorynlp/nlp4j)
 * [Stop Word Annotator](https://github.com/plandes/stopword-annotator)
 
-
-<!-- markdown-toc start - Don't edit this section. Run M-x markdown-toc-generate-toc again -->
+<!-- markdown-toc start - Don't edit this section. Run M-x markdown-toc-refresh-toc -->
 ## Table of Contents
 
 - [Features](#features)
@@ -31,7 +30,7 @@ This framework combines the results of the following frameworks:
     - [Setup](#setup)
     - [Parsing an Utterance](#parsing-an-utterance)
     - [Utility Functions](#utility-functions)
-    - [Features](#features)
+    - [Features](#features-1)
     - [Dictionary Utility](#dictionary-utility)
     - [Pipeline Configuration](#pipeline-configuration)
         - [Pipeline Usage](#pipeline-usage)
@@ -39,6 +38,8 @@ This framework combines the results of the following frameworks:
     - [Command Line Usage](#command-line-usage)
 - [Building](#building)
 - [Changelog](#changelog)
+- [Citation](#citation)
+- [References](#references)
 - [License](#license)
 
 <!-- markdown-toc end -->
