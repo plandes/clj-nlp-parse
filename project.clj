@@ -23,7 +23,11 @@
   :dependencies [[org.clojure/clojure "1.8.0"]
 
                  ;; feature creation
-                 [com.zensols.nlp/feature "0.0.7"] 
+                 [com.zensols.nlp/feature "0.0.10"
+                  :exclusions [org.slf4j/slf4j-api]]
+
+                 ;; base dep
+                 [com.zensols.tools/actioncli "0.0.26"]
 
                  ;;; NLP
                  ;; Stanford CoreNLP
@@ -42,7 +46,8 @@
                  [com.clearnlp/clearnlp-general-en-dep "1.2"]
                  [com.clearnlp/clearnlp-general-en-pos "1.1"]
                  [com.clearnlp/clearnlp-general-en-srl "1.1"]]
-  :profiles {:appassem {:aot :all}
+  :profiles {:1.9 {:dependencies [[org.clojure/clojure "1.9.0-RC2"]]}
+             :appassem {:aot :all}
              :snapshot {:git-version {:version-cmd "echo -snapshot"}}
              :dev
              {:dependencies [[edu.stanford.nlp/stanford-corenlp "3.8.0" :classifier "javadoc"]
@@ -55,4 +60,4 @@
                              [org.apache.logging.log4j/log4j-jcl "2.7"]
                              [com.zensols.gui/tabres "0.0.6"]]}
              :test {:jvm-opts ["-Dlog4j.configurationFile=test-resources/test-log4j2.xml"
-                               "-Xms4g" "-Xmx12g" "-XX:+UseConcMarkSweepGC"]}})
+                               "-Xmx12g"]}})

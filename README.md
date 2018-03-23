@@ -365,11 +365,9 @@ To build from source, do the folling:
 - Install [Leiningen](http://leiningen.org) (this is just a script)
 - Install [GNU make](https://www.gnu.org/software/make/)
 - Install [Git](https://git-scm.com)
-- Download the source: `git clone https://github.com/plandes/clj-nlp-parse && cd clj-nlp-parse`
-- Download the make include files:
-```bash
-mkdir ../zenbuild && wget -O - https://api.github.com/repos/plandes/zenbuild/tarball | tar zxfv - -C ../zenbuild --strip-components 1
-```
+- Download the source: `git clone --recurse-submodules https://github.com/plandes/${project} && cd ${project}`
+- Build the software: `make jar`
+- Build the distribution binaries: `make dist`
 
 Note that you can also build a single jar file with all the dependencies with: `make uber`
 
@@ -379,9 +377,48 @@ Note that you can also build a single jar file with all the dependencies with: `
 An extensive changelog is available [here](CHANGELOG.md).
 
 
+## Citation
+
+If you use this software in your research, please cite with the following
+BibTeX:
+
+```perl
+@misc{plandes-clj-nlp-parse,
+  author = {Paul Landes},
+  title = {Natural Language Parse and Feature Generation},
+  year = {2018},
+  publisher = {GitHub},
+  journal = {GitHub repository},
+  howpublished = {\url{https://github.com/plandes/clj-nlp-parse}}
+}
+```
+
+
+## References
+
+See the [general NLP feature creation]library for additional references.
+
+```perl
+@phdthesis{choi2014optimization,
+  title = {Optimization of natural language processing components for robustness and scalability},
+  author = {Choi, Jinho D},
+  year = {2014},
+  school = {University of Colorado Boulder}
+}
+
+@InProceedings{manning-EtAl:2014:P14-5,
+  author = {Manning, Christopher D. and  Surdeanu, Mihai  and  Bauer, John  and  Finkel, Jenny  and  Bethard, Steven J. and  McClosky, David},
+  title = {The {Stanford} {CoreNLP} Natural Language Processing Toolkit},
+  booktitle = {Association for Computational Linguistics (ACL) System Demonstrations},
+  year = {2014},
+  pages = {55--60},
+  url = {http://www.aclweb.org/anthology/P/P14/P14-5010}
+```
+
+
 ## License
 
-Copyright © 2016, 2017 Paul Landes
+Copyright © 2016, 2017, 2018 Paul Landes
 
 Apache License version 2.0
 
@@ -396,3 +433,7 @@ distributed under the License is distributed on an "AS IS" BASIS,
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
+
+
+<!-- links -->
+[general NLP feature creation]: https://github.com/plandes/clj-nlp-feature
