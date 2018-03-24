@@ -27,7 +27,7 @@
                   :exclusions [org.slf4j/slf4j-api]]
 
                  ;; base dep
-                 [com.zensols.tools/actioncli "0.0.26"]
+                 [com.zensols.tools/actioncli "0.0.27"]
 
                  ;;; NLP
                  ;; Stanford CoreNLP
@@ -46,7 +46,7 @@
                  [com.clearnlp/clearnlp-general-en-dep "1.2"]
                  [com.clearnlp/clearnlp-general-en-pos "1.1"]
                  [com.clearnlp/clearnlp-general-en-srl "1.1"]]
-  :profiles {:1.9 {:dependencies [[org.clojure/clojure "1.9.0-RC2"]]}
+  :profiles {:1.9 {:dependencies [[org.clojure/clojure "1.9.0"]]}
              :appassem {:aot :all}
              :snapshot {:git-version {:version-cmd "echo -snapshot"}}
              :dev
