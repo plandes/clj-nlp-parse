@@ -2,6 +2,6 @@ language: clojure
 lein: 2.7.1
 before_script:
   - mkdir -p target
-script: make info checkdep
+script: make info test
 jdk:
   - oraclejdk8

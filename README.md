@@ -25,9 +25,11 @@ This framework combines the results of the following frameworks:
     - [API Documentation](#api-documentation)
     - [Annotation Definitions](#annotation-definitions)
 - [Example Parse](#example-parse)
+- [Setup](#setup)
+    - [Download and Install POS Tagger Model Manually](#download-and-install-pos-tagger-model-manually)
+    - [REPL](#repl)
 - [Usage](#usage)
     - [Usage Example](#usage-example)
-    - [Setup](#setup)
     - [Parsing an Utterance](#parsing-an-utterance)
     - [Utility Functions](#utility-functions)
     - [Features](#features-1)
@@ -99,28 +101,29 @@ definitions is [given here](doc/annotation-definitions.md).
 
 An example of a full annotation parse is [given here](doc/example-parse.md).
 
-
-## Usage
-
-This package supports:
-* [Parsing an Utterance](#parsing-an-utterance)
-* [Utility Functions](#utility-functions)
-* [Dictionary Utility](#dictionary-utility)
-* [Command Line Usage](#command-line-usage)
-
-### Usage Example
-
-See the [example repo](https://github.com/plandes/clj-example-nlp-ml) that
-illustrates how to use this library and contains the code from where these
-examples originate.  It's highly recommended to clone it and follow along as
-you peruse this README.
-
-
-### Setup
+## Setup
 
 The NER model is included in the Stanford CoreNLP dependencies, but you still
-have to download the POS model.  The library can be configured to use any POS
-model (or NER for that matter), but by default it expects the
+have to download the POS model.  To download (or create a symbolic link if
+you've set the `ZMODEL` environment variable):
+```bash
+$ make model
+```
+
+If this doesn't work, follow
+the [manual](#download-and-install-pos-tagger-model-manually) steps.  Otherwise
+you can optionally move the model to a shared location on the file system and
+skip to [configuring the REPL](#repl).
+
+
+### Download and Install POS Tagger Model Manually
+
+If the [normal setup](#setup) failed, you'll have to manually download the POS
+tagger model.
+
+The library can be configured to use any POS model (or NER for that matter),
+but by default it expects
+the
 [english-left3words-distsim.tagger model](http://nlp.stanford.edu/software/pos-tagger-faq.shtml).
 
 1. Create a directory where to put the model
@@ -137,10 +140,36 @@ model (or NER for that matter), but by default it expects the
    $ mv stanford-postagger-2015-12-09/models/english-left3words-distsim.tagger path-to-model/stanford/pos
    ```
 
-4. Start the REPL and configure:
+### REPL
+
+If you download the model in to any other location other that the current start
+directory (see [setup](#setup)) you will have to tell the REPL where the model
+is kept on the file system.
+
+Start the REPL and configure:
    ```clojure
    user> (System/setProperty "zensols.model" "path-to-model")
    ```
+
+Note that system properties can be passed via `lein` to avoid having to repeat
+this for each REPL instance.
+
+
+## Usage
+
+This package supports:
+* [Parsing an Utterance](#parsing-an-utterance)
+* [Utility Functions](#utility-functions)
+* [Dictionary Utility](#dictionary-utility)
+* [Command Line Usage](#command-line-usage)
+
+
+### Usage Example
+
+See the [example repo](https://github.com/plandes/clj-example-nlp-ml) that
+illustrates how to use this library and contains the code from where these
+examples originate.  It's highly recommended to clone it and follow along as
+you peruse this README.
 
 
 ### Parsing an Utterance

@@ -8,10 +8,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ## [Unreleased]
 
 
-## [0.1.5] - 2018-03-23
+## [0.1.5] - 
 ### Changed
 - Clojure 1.9 deps.
 - Move to new zenbuild.
+- Automate POS tagger model download.
 
 
 ## [0.1.4] - 2017-10-17
@@ -20,12 +21,14 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
   specific processing.
 - Move to actioncli 0.0.19.
 
+
 ## [0.1.3] - 2017-09-01
 ### Added
 - Global parsing timeout.  See the [create-context] function.
 
 ### Removed
 - Moved the trunc functionality to the [actioncli util] namespace.
+
 
 ## [0.1.2] - 2017-07-19
 ### Changed
