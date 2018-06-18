@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Clojure 1.9 deps.
 - Move to new zenbuild.
 - Automate POS tagger model download.
+- Add full parse test to travis!
 
 
 ## [0.1.4] - 2017-10-17
