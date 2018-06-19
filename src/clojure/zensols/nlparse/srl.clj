@@ -69,10 +69,10 @@
       (swap! pipeline-inst
              (fn [pl]
                (if pl
-                 (do (log/infof "reusing cached pipeline: <%s>" (trunc pl))
+                 (do (log/debugf "reusing cached pipeline: <%s>" (trunc pl))
                      pl)
                  (let [pl (create-pipeline lang model-type)]
-                   (log/infof "created new pipeline: <%s>" pl)
+                   (log/debugf "created new pipeline: <%s>" pl)
                    pl)))))))
 
 (defn- parse-trees [pipeline tree]

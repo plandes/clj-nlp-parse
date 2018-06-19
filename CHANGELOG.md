@@ -7,15 +7,15 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
-### Changed
-- Split out stop word functionality from `word-count` in to separate namespace.
-- More unit tests.
 
-
-## [0.1.6] - 2018-06-18
+## [0.1.6] - 2018-06-19
 ### Changed
 - Move to MIT License.
 - POS tag word count selection.
+- Split out stop word functionality from `word-count` in to separate namespace.
+- More unit tests.
+- Reduce log level on cached parsers.
+
 
 ## [0.1.5] - 2018-06-18
 ### Changed
@@ -104,7 +104,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Upgraded to Stanford CoreNLP 3.7
 
 
-[Unreleased]: https://github.com/plandes/clj-nlp-parse/compare/v0.1.5...HEAD
+[Unreleased]: https://github.com/plandes/clj-nlp-parse/compare/v0.1.6...HEAD
+[0.1.6]: https://github.com/plandes/clj-nlp-parse/compare/v0.1.5...v0.1.6
 [0.1.5]: https://github.com/plandes/clj-nlp-parse/compare/v0.1.4...v0.1.5
 [0.1.4]: https://github.com/plandes/clj-nlp-parse/compare/v0.1.3...v0.1.4
 [0.1.3]: https://github.com/plandes/clj-nlp-parse/compare/v0.1.2...v0.1.3
