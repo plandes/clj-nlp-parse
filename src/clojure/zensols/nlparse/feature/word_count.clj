@@ -1,37 +1,20 @@
 (ns ^{:doc "Feature utility functions.  See [[zensols.nlparse.feature.lang]]."
       :author "Paul Landes"}
     zensols.nlparse.feature.word-count
-  (:require [clojure.string :as s])
-  (:require [zensols.nlparse.parse :as pt]))
+  (:require [clojure.string :as s]
+            [zensols.nlparse.parse :as pt]
+            [zensols.nlparse.stopword :as st]))
 
 ;; word counts
 (def ^:dynamic *word-count-config*
   "Configuration for `word-count-*` and `calculate-word*` functions."
-  {;; number of word counts for each label
-   :words-by-label-count 3
-   ;; function maps a top level annotation to get its label
-   :anon-to-label-fn #(:class-label %)
-   :anon-to-parse-fn #(:instance %)
-   :label-format-fn #(format "word-count-%s" %)
-   :word-count-fn :text
-   :pos-tags #{"RB", "JJ", "JJR", "JJS", "MD",
-               "NN", "NNS", "NNP", "NNPS",
-               "VB", "VBD", "VBG", "VBN", "VBP", "VBZ",
-               "PRP", "PDT", "POS", "RP", "FW"}})
-
-(defn- word-count-candidate?
-  "Return whether a token should be considered a word candidate."
-  [token]
-  (let [word-count-tags (:pos-tags *word-count-config*)]
-    (and (not (:stopword token))
-         (contains? word-count-tags (:pos-tag token)))))
-
-(defn- word-count-form
-  "Conical string word count form of a token (i.e. Running -> run)."
-  [token]
-  (->> token
-       (#((:word-count-fn *word-count-config*) %))
-       s/lower-case))
+  (merge st/*stopword-config*
+         { ;; number of word counts for each label
+          :words-by-label-count 3
+          ;; function maps a top level annotation to get its label
+          :anon-to-label-fn #(:class-label %)
+          :anon-to-parse-fn #(:instance %)
+          :label-format-fn #(format "word-count-%s" %)}))
 
 (defn- calculate-word-count-dist
   "Get the top counts for each label using the top **words-by-label-count**
@@ -55,17 +38,18 @@
                                      counts)))))))))
 
 (defn- calculate-words-by-label [anons]
-  (let [{:keys [anon-to-label-fn anon-to-parse-fn]} *word-count-config*]
-    (->> anons
-         (map (fn [anon]
-                (if-let [label (anon-to-label-fn anon)]
-                  (->> (pt/tokens (anon-to-parse-fn anon))
-                       (filter word-count-candidate?)
-                       (map #(hash-map (word-count-form %) 1))
-                       (apply merge-with +)
-                       (hash-map label)))))
-         (remove nil?)
-         (apply merge-with (fn [& ms] (apply merge-with + ms))))))
+  (binding [st/*stopword-config* *word-count-config*]
+    (let [{:keys [anon-to-label-fn anon-to-parse-fn]} *word-count-config*]
+      (->> anons
+           (map (fn [anon]
+                  (if-let [label (anon-to-label-fn anon)]
+                    (->> (pt/tokens (anon-to-parse-fn anon))
+                         (filter st/go-word?)
+                         (map #(hash-map (st/go-word-form %) 1))
+                         (apply merge-with +)
+                         (hash-map label)))))
+           (remove nil?)
+           (apply merge-with (fn [& ms] (apply merge-with + ms)))))))
 
 (defn calculate-feature-stats
   "Calculate feature statistics during training.
@@ -81,15 +65,16 @@
   (keyword ((:label-format-fn *word-count-config*) label)))
 
 (defn- label-word-count-scores [tokens word-count-dist]
-  (->> tokens
-       (map (fn [token]
-              (let [word (word-count-form token)]
-                (map (fn [[label dist]]
-                       (let [prob (get dist word)]
-                         {label (or prob 0)}))
-                     word-count-dist))))
-       (apply concat)
-       (apply merge-with +)))
+  (binding [st/*stopword-config* *word-count-config*]
+    (->> tokens
+         (map (fn [token]
+                (let [word (st/go-word-form token)]
+                  (map (fn [[label dist]]
+                         (let [prob (get dist word)]
+                           {label (or prob 0)}))
+                       word-count-dist))))
+         (apply concat)
+         (apply merge-with +))))
 
 (defn label-count-score-features
   "Generate count score features from trained statistics.

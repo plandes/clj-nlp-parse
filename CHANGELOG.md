@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+### Changed
+- Split out stop word functionality from `word-count` in to separate namespace.
+- More unit tests.
+
 
 ## [0.1.6] - 2018-06-18
 ### Changed
