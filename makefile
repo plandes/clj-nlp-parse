@@ -14,5 +14,5 @@ include ./zenbuild/main.mk
 test:	model-test
 
 .PHONY:	test-nothread
-test-nothread:
+test-nothread:	model
 	$(LEIN) test :non-threadsafe
