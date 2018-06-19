@@ -33,6 +33,7 @@ This framework combines the results of the following frameworks:
     - [Parsing an Utterance](#parsing-an-utterance)
     - [Utility Functions](#utility-functions)
     - [Features](#features-1)
+    - [Stopword Filtering](#stopword-filtering)
     - [Dictionary Utility](#dictionary-utility)
     - [Pipeline Configuration](#pipeline-configuration)
         - [Pipeline Usage](#pipeline-usage)
@@ -161,6 +162,7 @@ This package supports:
 * [Parsing an Utterance](#parsing-an-utterance)
 * [Utility Functions](#utility-functions)
 * [Dictionary Utility](#dictionary-utility)
+* [Stopword Filtering](#stopword-filtering)
 * [Command Line Usage](#command-line-usage)
 
 
@@ -287,6 +289,25 @@ Get in/out-of-vocabulary ratio:
 user> (->> panon p/tokens f/dictionary-features)
 => {:in-dict-ratio 4/5}
 ```
+
+Word count features provide distributions over word counts.
+See the [unit test](test/zensols/nlparse/word_count_test.clj).
+
+
+### Stopword Filtering
+
+Filter 
+```clojure
+user> (require '[zensols.nlparse.parse :as p])
+user> (require '[zensols.nlparse.stopword :as st])
+user> (->> (p/parse "This is a test.  This will filter 5 semantically significant words.")
+           p/tokens
+           st/go-word-forms)
+=> ("test" "filter" "semantically" "significant" "words")
+```
+
+See the [unit test](test/zensols/nlparse/stopword_test.clj).
+
 
 ### Dictionary Utility
 
