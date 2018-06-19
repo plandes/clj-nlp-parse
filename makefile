@@ -2,7 +2,7 @@
 
 # type of project, currently one of: clojure, python
 PROJ_TYPE=		clojure
-PROJ_MODULES=		model
+PROJ_MODULES=		nlpmodel
 
 # make build dependencies
 _ :=	$(shell [ ! -d .git ] && git init ; [ ! -d zenbuild ] && \

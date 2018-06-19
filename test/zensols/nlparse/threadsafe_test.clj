@@ -5,7 +5,8 @@
 
 (deftest in-test
   (testing "testing threadsafe"
-    (let [agent-count 500]
+    (let [agent-count 10;500
+          ]
       (is (= agent-count
              (let [utterance "My name is Paul Landes"
                    correct-res (parse utterance)
