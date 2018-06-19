@@ -1,8 +1,8 @@
 (defproject com.zensols.nlp/parse "0.1.0-SNAPSHOT"
   :description "A library for parsing natural language feature creation."
   :url "https://github.com/plandes/clj-nlp-parse"
-  :license {:name "Apache License version 2.0"
-            :url "https://www.apache.org/licenses/LICENSE-2.0"
+  :license {:name "MIT"
+            :url "https://opensource.org/licenses/MIT"
             :distribution :repo}
   :plugins [[lein-codox "0.10.3"]
             [lein-javadoc "0.3.0"]

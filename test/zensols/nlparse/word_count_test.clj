@@ -36,10 +36,11 @@
 
 (deftest feature-word-count-distribution-config []
   (testing "Feature count distribution statistics with config"
-    (binding [*word-count-config* (assoc *word-count-config*
-                                         :words-by-label-count 10
-                                         :pos-tags (p/pos-tags 'noun)
-                                         :word-form-fn #(-> % :lemma s/lower-case))]
+    (binding [*word-count-config*
+              (assoc *word-count-config*
+                     :words-by-label-count 10
+                     :pos-tags (p/pos-tags 'noun)
+                     :word-form-fn #(-> % :lemma s/lower-case))]
       (is (= {"pier-head" 1/18
               "desk" 1/18
               "thousand" 1/9
