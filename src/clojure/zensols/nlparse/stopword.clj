@@ -20,7 +20,9 @@ defined to be:
 Keys
 ---
 * **:post-tags** POS tags for *go words* (see namespace docs)
-* **:word-form-fn "
+* **:word-form-fn** function run on the token in [[go-word-form]]; for example
+  if `#(-> % :lemma s/lower-case)` then lemmatization is used (i.e. Running ->
+  run)"
   {:pos-tags #{"RB", "JJ", "JJR", "JJS", "MD",
                "NN", "NNS", "NNP", "NNPS",
                "VB", "VBD", "VBG", "VBN", "VBP", "VBZ",
@@ -35,14 +37,12 @@ Keys
          (contains? tags (:pos-tag token)))))
 
 (defn go-word-form
-  "Conical string word count form of a token.  The token is down cased and if
-  [[*stopword-config*]] has `:word-form` as `:lemma` then lemmatization
-  is used (i.e. Running -> run)."
+  "Conical string word count form of a token.  ."
   [token]
   ((:word-form-fn *stopword-config*) token))
 
 (defn go-word-forms
-  "Filter tokens per [[go-word-candidate?]] and return their *form*
+  "Filter tokens per [[go-word?]] and return their *form*
   based on [[go-word-form]]."
   [tokens]
   (->> tokens
