@@ -8,7 +8,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ## [Unreleased]
 
 
-## [0.1.5] - 
+## [0.1.5] - 2018-06-18
 ### Changed
 - Clojure 1.9 deps.
 - Move to new zenbuild.
