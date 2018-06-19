@@ -3,10 +3,9 @@
   (:require [clojure.string :as s]
             [zensols.nlparse.parse :refer :all]))
 
-(deftest in-test
+(deftest ^:threadsafe in-test
   (testing "testing threadsafe"
-    (let [agent-count 10;500
-          ]
+    (let [agent-count 500]
       (is (= agent-count
              (let [utterance "My name is Paul Landes"
                    correct-res (parse utterance)

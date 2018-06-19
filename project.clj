@@ -20,6 +20,8 @@
   :java-source-paths ["src/java"]
   :javac-options ["-Xlint:unchecked"]
   :jar-exclusions [#".gitignore"]
+  :test-selectors {:non-threadsafe (complement :threadsafe)
+                   :threadsafe :threadsafe}
   :dependencies [[org.clojure/clojure "1.8.0"]
 
                  ;; feature creation

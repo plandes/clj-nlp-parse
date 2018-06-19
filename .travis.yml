@@ -1,7 +1,7 @@
 language: clojure
-lein: 2.7.1
+lein: 2.8.1
 before_script:
   - mkdir -p target
-script: make info test-model
+script: make info test-nothread
 jdk:
   - oraclejdk8

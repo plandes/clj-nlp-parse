@@ -9,3 +9,10 @@ _ :=	$(shell [ ! -d .git ] && git init ; [ ! -d zenbuild ] && \
 	  git submodule add https://github.com/plandes/zenbuild && make gitinit )
 
 include ./zenbuild/main.mk
+
+.PHONY:	test
+test:	model-test
+
+.PHONY:	test-nothread
+test-nothread:
+	$(LEIN) test :non-threadsafe
