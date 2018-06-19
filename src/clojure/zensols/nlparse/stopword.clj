@@ -2,14 +2,13 @@
 
 To avoid the double negative in function names, *go words* are defined to be
 the compliment of a vocabulary with a stop word list.  Functions
-like [[meaningful-word?]] tell whether or not a token is a stop word, which are
+like [[go-word?]] tell whether or not a token is a stop word, which are
 defined to be:
 
   * stopwords (predefined list)
   * punctuation
   * numbers
-  * non-alphabetic characters
-  * URLs"
+  * non-alphabetic characters"
       :author "Paul Landes"}
     zensols.nlparse.stopword
   (:require [clojure.string :as s]))
@@ -21,8 +20,8 @@ Keys
 ---
 * **:post-tags** POS tags for *go words* (see namespace docs)
 * **:word-form-fn** function run on the token in [[go-word-form]]; for example
-  if `#(-> % :lemma s/lower-case)` then lemmatization is used (i.e. Running ->
-  run)"
+  if `#(-> % :lemma s/lower-case)` is given then lemmatization is
+  used (i.e. Running -> run)"
   {:pos-tags #{"RB", "JJ", "JJR", "JJS", "MD",
                "NN", "NNS", "NNP", "NNPS",
                "VB", "VBD", "VBG", "VBN", "VBP", "VBZ",
@@ -37,7 +36,7 @@ Keys
          (contains? tags (:pos-tag token)))))
 
 (defn go-word-form
-  "Conical string word count form of a token.  ."
+  "Conical string word count form of a token."
   [token]
   ((:word-form-fn *stopword-config*) token))
 
