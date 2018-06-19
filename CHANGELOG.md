@@ -8,6 +8,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ## [Unreleased]
 
 
+## [0.1.6] - 2018-06-18
+### Changed
+- Move to MIT License.
+- POS tag word count selection.
+
 ## [0.1.5] - 2018-06-18
 ### Changed
 - Clojure 1.9 deps.

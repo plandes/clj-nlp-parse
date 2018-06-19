@@ -13,10 +13,11 @@
    :anon-to-label-fn #(:class-label %)
    :anon-to-parse-fn #(:instance %)
    :label-format-fn #(format "word-count-%s" %)
-   :pos-tags #{"JJ" "JJR" "JJS"
-               "MD"
-               "NN" "NNS", "NNPS"
-               "VB" "VBD" "VBG" "VBN" "VBP" "VBZ"}})
+   :word-count-fn :text
+   :pos-tags #{"RB", "JJ", "JJR", "JJS", "MD",
+               "NN", "NNS", "NNP", "NNPS",
+               "VB", "VBD", "VBG", "VBN", "VBP", "VBZ",
+               "PRP", "PDT", "POS", "RP", "FW"}})
 
 (defn- word-count-candidate?
   "Return whether a token should be considered a word candidate."
@@ -28,7 +29,9 @@
 (defn- word-count-form
   "Conical string word count form of a token (i.e. Running -> run)."
   [token]
-  (s/lower-case (:lemma token)))
+  (->> token
+       (#((:word-count-fn *word-count-config*) %))
+       s/lower-case))
 
 (defn- calculate-word-count-dist
   "Get the top counts for each label using the top **words-by-label-count**
