@@ -250,11 +250,11 @@
       (swap! pipeline-inst
              (fn [pl]
                (if pl
-                 (do (log/infof "reusing pipeline <%s>" (trunc pl))
+                 (do (log/debugf "reusing pipeline <%s>" (trunc pl))
                      pl)
                  (let [pl (->> (map make-pipeline-component pipeline-config)
                                (remove nil?))]
-                   (log/infof "creating new pipeline <%s>" (trunc pl))
+                   (log/debugf "creating new pipeline <%s>" (trunc pl))
                    pl)))))))
 
 
