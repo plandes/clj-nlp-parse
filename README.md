@@ -32,7 +32,7 @@ This framework combines the results of the following frameworks:
     - [Usage Example](#usage-example)
     - [Parsing an Utterance](#parsing-an-utterance)
     - [Utility Functions](#utility-functions)
-    - [Features](#features-1)
+    - [Feature Creation](#feature-creation)
     - [Stopword Filtering](#stopword-filtering)
     - [Dictionary Utility](#dictionary-utility)
     - [Pipeline Configuration](#pipeline-configuration)
@@ -75,6 +75,9 @@ This framework combines the results of the following frameworks:
   - [Co-reference Graph](https://en.wikipedia.org/wiki/Coreference)
   - [Sentiment Analysis](https://en.wikipedia.org/wiki/Sentiment_analysis)
   - [Semantic Role Labeler](https://en.wikipedia.org/wiki/Semantic_role_labeling)
+* Seamless itegration with other feature creation libraries:
+  * [General NLP feature creation]
+  * [Word vector feature creation]
 
 
 ## Obtaining
@@ -248,11 +251,16 @@ user> (->> panon :sents first p/root-dependency
 => "Paul Landes"
 ```
 
-### Features
+### Feature Creation
 
 This library was written to generate features for a machine learning
-algoritms.  There are some utility functions for doing this.  Here are a couple
-of examples.
+algoritms.  There are some utility functions for doing this.
+
+Other feature libraries the integrate with this library:
+* [General NLP feature creation]
+* [Word vector feature creation]
+
+Below are examples of feature creation with just this library.
 
 Get the first propbank parsed from the SRL:
 ```clojure
@@ -447,7 +455,7 @@ BibTeX:
 
 ## References
 
-See the [general NLP feature creation] library for additional references.
+See the [General NLP feature creation] library for additional references.
 
 ```jflex
 @phdthesis{choi2014optimization,
@@ -480,4 +488,5 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 
 <!-- links -->
-[general NLP feature creation]: https://github.com/plandes/clj-nlp-feature
+[General NLP feature creation]: https://github.com/plandes/clj-nlp-feature
+[Word vector feature creation]: https://github.com/plandes/clj-nlp-wordvec
