@@ -8,6 +8,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ## [Unreleased]
 
 
+## [0.1.7] - 2019-12-03
+### Changed
+- Removed zensols logging as it is no longer needed.
+- Documentation.
+
+
 ## [0.1.6] - 2018-06-19
 ### Changed
 - Move to MIT License.
@@ -104,7 +110,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Upgraded to Stanford CoreNLP 3.7
 
 
-[Unreleased]: https://github.com/plandes/clj-nlp-parse/compare/v0.1.6...HEAD
+[Unreleased]: https://github.com/plandes/clj-nlp-parse/compare/v0.1.7...HEAD
+[0.1.7]: https://github.com/plandes/clj-nlp-parse/compare/v0.1.6...v0.1.7
 [0.1.6]: https://github.com/plandes/clj-nlp-parse/compare/v0.1.5...v0.1.6
 [0.1.5]: https://github.com/plandes/clj-nlp-parse/compare/v0.1.4...v0.1.5
 [0.1.4]: https://github.com/plandes/clj-nlp-parse/compare/v0.1.3...v0.1.4
