@@ -4,4 +4,4 @@ before_script:
   - mkdir -p target
 script: make info test-nothread
 jdk:
-  - oraclejdk8
+  - oraclejdk9
