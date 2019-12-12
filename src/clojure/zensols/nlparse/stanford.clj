@@ -180,11 +180,15 @@
   (log/debugf "creating component: %s" (pr-str component))
   (let [props (->> {(str annotator-prop-name "." "binaryTrees") "true"}
                    into-properties)]
+    (print conf "HERE" (:only-whitespace? conf))
     (case component
       :tokenize
       {:name :tok
        :annotators [(edu.stanford.nlp.pipeline.TokenizerAnnotator.
-                     false (:lang conf))]}
+                     false ;(:lang conf)
+                     (-> {"tokenize.language" (str (:lang conf))
+                          "tokenize.whitespace" (str (:only-whitespace? conf))}
+                         into-properties))]}
 
       :stopword
       {:name :stopword

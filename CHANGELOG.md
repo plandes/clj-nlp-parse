@@ -8,6 +8,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ## [Unreleased]
 
 
+### Added
+- Ability to tokenize on white space only, which is useful for already
+  tokenized text for alignment.
+
+
 ## [0.1.7] - 2019-12-03
 ### Changed
 - Removed zensols logging as it is no longer needed.

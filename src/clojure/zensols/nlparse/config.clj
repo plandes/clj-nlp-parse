@@ -67,9 +67,11 @@ pipeline."
   language code and defaults to `en` (English)."
   ([]
    (tokenize "en"))
-  ([lang-code]
+  ([lang-code & {:keys [only-whitespace?]
+                 :or {only-whitespace? false}}]
    {:component :tokenize
     :lang lang-code
+    :only-whitespace? only-whitespace?
     :parser :stanford}))
 
 (defn sentence
