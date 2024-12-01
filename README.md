@@ -1,10 +1,5 @@
 # Natural Language Parse and Feature Generation
 
-[![Travis CI Build Status][travis-badge]][travis-link]
-
-  [travis-link]: https://travis-ci.org/plandes/clj-nlp-parse
-  [travis-badge]: https://travis-ci.org/plandes/clj-nlp-parse.svg?branch=master
-
 A Clojure language library to parse natural language text into features useful
 for machine learning model.
 
@@ -500,8 +495,3 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
-
-
-<!-- links -->
-[General NLP feature creation]: https://github.com/plandes/clj-nlp-feature
-[Word vector feature creation]: https://github.com/plandes/clj-nlp-wordvec
