@@ -5,8 +5,11 @@
   [travis-link]: https://travis-ci.org/plandes/clj-nlp-parse
   [travis-badge]: https://travis-ci.org/plandes/clj-nlp-parse.svg?branch=master
 
-This repository provides generalized library to deal with natural language.
-Specifically it:
+A Clojure language library to parse natural language text into features useful
+for machine learning model.
+
+Features include:
+
 * Wraps several Java natural language parsing libraries.
 * Gives access the data structures rendered by the parsers.
 * Provides utility functions to create features.
@@ -478,7 +481,7 @@ See the [General NLP feature creation] library for additional references.
 
 ## License
 
-Copyright (c) 2016, 2017, 2018 Paul Landes
+Copyright (c) 2016 - 2024 Paul Landes
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
 this software and associated documentation files (the "Software"), to deal in
